@@ -2,13 +2,13 @@
 
 ![Merge — 2048](og-image.png)
 
-A calm little slide-and-merge puzzle for your phone or browser.
+A calm little slide-and-merge puzzle for your phone, tablet or desktop browser.
 
 **[Play Merge →](https://moh23rd.github.io/Merge/)**
 
 ## How to play
 
-- Swipe anywhere on the board, or use the arrow keys, to slide every tile.
+- Swipe anywhere on the board, drag with a mouse on desktop, or use the arrow keys to slide every tile.
 - Two tiles with the same number merge into one and double, adding to your score.
 - Every move drops in a new tile. The round ends when the board fills with no merges left.
 - Aim for 2048. There is no undo, so think before you move.

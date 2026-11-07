@@ -598,6 +598,30 @@ h1 {
   background: var(--warn);
 }
 
+/* A small pointer-and-keyboard cue for the desktop layout. Hidden everywhere
+   else, where the board is touched directly. */
+.key-hint { display: none; }
+
+.keycaps {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.keycaps kbd {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--ghost-bg);
+  box-shadow: var(--ghost-shadow);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
 /* The build label: quiet, fixed, and clear of the phone's home indicator. */
 .app-version {
   position: fixed;
@@ -1335,3 +1359,239 @@ html[data-theme="dark"] #theme-toggle .moon {
     animation: none;
   }
 }
+
+/* ---------- desktop ---------- */
+
+/* Wide screens get a deliberate two-column composition: the board is capped so
+   it cannot swallow the page, while the title, scores and controls share a
+   readable side rail that spans the full height of the board. */
+@media (min-width: 900px) {
+  body {
+    align-items: center;
+    padding: clamp(24px, 4vh, 48px) clamp(30px, 5vw, 72px);
+  }
+
+  .app {
+    --pad: clamp(12px, 1.15vw, 16px);
+    --gap: clamp(9px, 0.95vw, 13px);
+    width: min(100%, 1120px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 400px);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "board header"
+      "board ."
+      "board footer";
+    align-items: stretch;
+    column-gap: clamp(32px, 4vw, 64px);
+    row-gap: 0;
+  }
+
+  .board {
+    grid-area: board;
+    width: min(100%, 74dvh, 640px);
+    margin: 0 auto;
+    border-radius: 22px;
+  }
+
+  .grid,
+  .tiles { inset: var(--pad); }
+
+  .cell,
+  .tile { border-radius: 12px; }
+
+  .header {
+    grid-area: header;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: clamp(18px, 2.2vw, 26px);
+  }
+
+  .title-block { min-width: 0; }
+
+  h1 {
+    font-size: clamp(38px, 4vw, 52px);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+  }
+
+  .sub {
+    margin-top: 10px;
+    max-width: 28ch;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .scores {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .score {
+    padding: 11px 13px 10px;
+    border-radius: 12px;
+    text-align: left;
+  }
+
+  .label { font-size: 9.5px; }
+  .value { margin-top: 2px; font-size: 22px; }
+  .value.is-long { font-size: 18px; }
+  .value.is-longer { font-size: 14px; }
+
+  .footer {
+    grid-area: footer;
+    align-self: end;
+    gap: 12px;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(4, 46px) minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .controls #new-game {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .btn { min-height: 46px; }
+
+  .btn.icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .btn.icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .hint {
+    align-self: stretch;
+    justify-content: flex-start;
+    padding: 5px 0;
+    text-align: left;
+    font-size: 12px;
+  }
+
+  .hint.is-warning {
+    align-self: flex-start;
+    padding-inline: 12px;
+  }
+
+  .result-again {
+    align-self: flex-start;
+    min-height: 42px;
+  }
+
+  .overlay {
+    padding: 28px;
+    border-radius: 22px;
+  }
+
+  .overlay-card {
+    width: min(100%, 360px);
+    padding: 24px 22px 20px;
+    border-radius: 20px;
+  }
+
+  .overlay-card h2 { font-size: 28px; }
+
+  .result-top { gap: 16px; }
+
+  .result-preview { width: 96px; }
+
+  #overlay-score {
+    margin-top: 4px;
+    font-size: 42px;
+  }
+
+  #overlay-meta { font-size: 12px; }
+  #overlay-text { font-size: 13.5px; }
+
+  .overlay-card p { font-size: 14px; }
+
+  .overlay-actions {
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .overlay-actions .btn {
+    min-height: 46px;
+    padding: 11px 20px;
+    font-size: 14px;
+  }
+
+  .overlay-save {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+
+  .sheet {
+    align-items: center;
+    padding: 24px;
+  }
+
+  .sheet-card {
+    width: min(100%, 520px);
+    max-height: calc(100dvh - 48px);
+    padding: 24px 24px 26px;
+    border-radius: 24px;
+  }
+
+  .sheet-label { margin-top: 22px; }
+  .sheet-note { font-size: 12px; line-height: 1.5; }
+  .steps li { font-size: 14px; }
+
+  .app-version { bottom: 10px; }
+}
+
+/* Only mouse and pen devices get the grab cursor and keyboard cue. Touch
+   tablets still use the same layout, with their familiar swipe gesture. */
+@media (min-width: 900px) and (pointer: fine) {
+  .board { cursor: grab; }
+  .board.is-dragging { cursor: grabbing; }
+
+  .key-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 1px 0 0;
+    color: var(--muted);
+    font-size: 11.5px;
+    line-height: 1;
+  }
+}
+
+/* Pointer feedback is intentionally absent on touch screens, where a hover
+   state would linger after a tap. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:active) { transform: translateY(-1px); }
+
+  .btn.ghost:hover {
+    background: color-mix(in srgb, var(--ghost-bg) 84%, var(--ink) 8%);
+  }
+
+  .btn:not(.ghost):hover {
+    box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--ink) 75%, transparent);
+  }
+
+  .seg button:not([aria-pressed="true"]):hover,
+  .palette:hover,
+  .reset-btn:hover {
+    background: color-mix(in srgb, var(--seg-bg) 82%, var(--ink) 7%);
+  }
+
+  .sheet-done:hover {
+    box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--ink) 80%, transparent);
+  }
+
+  .overlay-save:hover { text-decoration-thickness: 2px; }
+}
+

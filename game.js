@@ -1180,6 +1180,42 @@
     tracking = false;
   }, { passive: true });
 
+  // Desktop and pen users get the same four-way drag as touch. Filtering by
+  // pointer type keeps this path from firing twice alongside the touch handlers
+  // above on phones.
+  let pointerStart = null;
+
+  boardEl.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'touch' || e.button !== 0 || !overlayEl.hidden) return;
+    pointerStart = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    boardEl.classList.add('is-dragging');
+    try {
+      boardEl.setPointerCapture(e.pointerId);
+    } catch (err) {
+      /* pointer capture is a nicety; dragging still works without it */
+    }
+  });
+
+  window.addEventListener('pointerup', function (e) {
+    if (!pointerStart || e.pointerId !== pointerStart.id) return;
+    const dx = e.clientX - pointerStart.x;
+    const dy = e.clientY - pointerStart.y;
+    pointerStart = null;
+    boardEl.classList.remove('is-dragging');
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_MIN) return;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      move(dx > 0 ? 'right' : 'left');
+    } else {
+      move(dy > 0 ? 'down' : 'up');
+    }
+  });
+
+  window.addEventListener('pointercancel', function (e) {
+    if (!pointerStart || e.pointerId !== pointerStart.id) return;
+    pointerStart = null;
+    boardEl.classList.remove('is-dragging');
+  });
+
   const KEYS = {
     ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
     a: 'left', d: 'right', w: 'up', s: 'down'
