@@ -1,0 +1,1019 @@
+/* The wordmark face: geometric with a little more character, close enough to
+   the UI's rounded system font to blend. */
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("fonts/space-grotesk-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+
+  /* page chrome — one flat colour, identical to the manifest and theme-color,
+     so the phone's own status bar and navigation bar blend into the page */
+  --page: #f6f1e8;
+  --panel: #e4d9c7;
+  --cell: rgba(255, 255, 255, 0.55);
+  --ink: #3b3833;
+  --muted: #6f665a;
+  --card: rgba(255, 255, 255, 0.8);
+  --card-shadow: 0 1px 2px rgba(94, 76, 45, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+  --ghost-bg: rgba(255, 255, 255, 0.75);
+  --ghost-shadow: 0 1px 2px rgba(94, 76, 45, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  --btn-bg: #3b3833;
+  --btn-ink: #fdfbf7;
+  --btn-shadow: 0 8px 18px -10px rgba(59, 56, 51, 0.9);
+  --board-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset, 0 14px 30px -18px rgba(88, 66, 34, 0.55);
+  --overlay: #f6f1e8db;
+  --sheet-bg: #fbf7f0;
+  /* The near-full warning stays red regardless of the tile palette. */
+  --warn: #c94b35;
+  --line: rgba(94, 76, 45, 0.12);
+  --seg-bg: rgba(255, 255, 255, 0.6);
+
+  /* tile colours — "Warm", the default palette */
+  --t2: #f3ecdf;
+  --t4: #f0e3c8;
+  --t8: #efb07a;
+  --t16: #ee9563;
+  --t32: #ec7c55;
+  --t64: #e85f3b;
+  --t128: #e7c364;
+  --t256: #e3b94a;
+  --t512: #dcab30;
+  --t1024: #cf9822;
+  --t2048: #b9801a;
+  --ink-tile-low: #857a6b;
+  --ink-tile-high: #fdfbf7;
+
+  --pad: clamp(8px, 2.4vw, 13px);
+  --gap: clamp(7px, 2vw, 11px);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #1a1918;
+  --panel: #302b25;
+  --cell: rgba(255, 255, 255, 0.06);
+  --ink: #f1eae0;
+  --muted: #a2988a;
+  --card: rgba(255, 255, 255, 0.07);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
+  --ghost-bg: rgba(255, 255, 255, 0.09);
+  --ghost-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  --btn-bg: #f1eae0;
+  --btn-ink: #23211e;
+  --btn-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.9);
+  /* A crisp one-pixel hairline (zero blur) so the board reads as an object on
+     the flat near-black page without bringing back any glow. */
+  --board-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent), 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 16px 34px -20px rgba(0, 0, 0, 1);
+  --overlay: #181715db;
+  --sheet-bg: #24211d;
+  /* A lighter red keeps the dot legible on a dark page. */
+  --warn: #ff9b84;
+  --line: rgba(255, 255, 255, 0.1);
+  --seg-bg: rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--page);
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  /* The wordmark sits at the top left; the board and controls keep their
+     balanced place in the space below it. */
+  align-items: stretch;
+  justify-content: center;
+  /* Keep the content clear of the phone's system bars while the page colour
+     fills the rest of the available screen. */
+  padding: calc(env(safe-area-inset-top, 0px) + 22px) calc(env(safe-area-inset-right, 0px) + 16px) calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 18px) calc(env(safe-area-inset-left, 0px) + 16px);
+  background-color: var(--page);
+  color: var(--ink);
+  font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+  /* No fade on the page colour: the phone's bar is repainted at the same moment,
+     so a slow fade would read as the bar lagging behind the palette. */
+  transition: color 160ms ease;
+}
+
+/* A soft sheen behind the board, tinted by the chosen palette. It fades out well
+   before every edge, so the top and bottom of the page stay exactly --page and the
+   phone's own bars blend in. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  background: radial-gradient(64% 48% at 50% 40%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 74%);
+}
+
+body::after {
+  background: radial-gradient(68% 50% at 50% 44%, color-mix(in srgb, var(--panel) 44%, transparent), transparent 74%);
+}
+
+/* On a near-black page the broad tinted sheen reads as a cheap glow around the
+   whole board, so dark mode drops it and keeps one flat page colour. The light
+   theme keeps its soft highlight, where it reads as paper rather than a glow. */
+html[data-theme="dark"] body::before,
+html[data-theme="dark"] body::after {
+  display: none;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 460px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2.2dvh, 22px);
+}
+
+/* ---------- header ---------- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-family: "Space Grotesk", ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(28px, 8vw, 36px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.sub {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--muted);
+  max-width: 21ch;
+}
+
+.scores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+  /* Even and fixed, so the row keeps its shape as the numbers grow. */
+  width: 180px;
+  flex: none;
+}
+
+.score {
+  min-width: 0;
+  padding: 7px 8px 6px;
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: var(--card-shadow);
+  text-align: center;
+}
+
+.label {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.value {
+  display: block;
+  margin-top: 1px;
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Five or six digits fit the same card by dropping a size, never by widening it. */
+.value.is-long { font-size: 14px; }
+.value.is-longer { font-size: 11.5px; }
+
+/* A new personal best: the Best card pops once and throws off a soft ring. */
+@keyframes recordPop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes recordRing {
+  0%   { box-shadow: var(--card-shadow), 0 0 0 0 color-mix(in srgb, var(--t64) 55%, transparent); }
+  100% { box-shadow: var(--card-shadow), 0 0 0 14px color-mix(in srgb, var(--t64) 0%, transparent); }
+}
+
+.score.is-record { animation: recordRing 900ms ease-out; }
+.score.is-record .value { animation: recordPop 640ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .score.is-record,
+  .score.is-record .value,
+  .hint.is-warning { animation: none; }
+}
+
+/* ---------- board ---------- */
+
+.board {
+  position: relative;
+  width: min(100%, 70dvh);
+  margin-inline: auto;
+  aspect-ratio: 1 / 1;
+  padding: var(--pad);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: var(--board-shadow);
+  /* Let a two-finger pinch reach the browser for zoom, while single-finger
+     swipes still go to the game. */
+  touch-action: pinch-zoom;
+}
+
+.board:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ink) 72%, transparent);
+  outline-offset: 4px;
+}
+
+.grid,
+.tiles {
+  position: absolute;
+  inset: var(--pad);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: var(--gap);
+}
+
+.cell {
+  background: var(--cell);
+  border-radius: 10px;
+}
+
+.tiles { pointer-events: none; }
+
+.tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+  transition: transform 110ms cubic-bezier(0.25, 0.8, 0.35, 1);
+  will-change: transform;
+}
+
+.tile.instant { transition: none; }
+
+.face {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-tile-high);
+  background: var(--t2048);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.28) inset;
+}
+
+.tile[data-v="2"] .face    { background: var(--t2); color: var(--ink-tile-low); }
+.tile[data-v="4"] .face    { background: var(--t4); color: var(--ink-tile-low); }
+.tile[data-v="8"] .face    { background: var(--t8); }
+.tile[data-v="16"] .face   { background: var(--t16); }
+.tile[data-v="32"] .face   { background: var(--t32); }
+.tile[data-v="64"] .face   { background: var(--t64); }
+.tile[data-v="128"] .face  { background: var(--t128); }
+.tile[data-v="256"] .face  { background: var(--t256); }
+.tile[data-v="512"] .face  { background: var(--t512); }
+.tile[data-v="1024"] .face { background: var(--t1024); }
+.tile[data-v="2048"] .face {
+  background: var(--t2048);
+  box-shadow: 0 0 0 2px rgba(255, 240, 200, 0.5) inset, 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+}
+
+@keyframes appear {
+  from { transform: scale(0.25); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bump {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.face.appear { animation: appear 150ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.face.bump   { animation: bump 160ms ease-out; }
+
+/* ---------- overlay ---------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--overlay);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: fade 180ms ease-out;
+}
+
+.overlay[hidden] { display: none; }
+
+@keyframes fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.overlay-card {
+  width: min(100%, 280px);
+  padding: 18px 16px 16px;
+  border-radius: 16px;
+  text-align: center;
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  box-shadow: 0 20px 42px -26px rgba(0, 0, 0, 0.6), 0 0 0 1px color-mix(in srgb, var(--ink) 7%, transparent) inset;
+}
+
+.overlay-card h2 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+/* The picture is the same file Share sends, kept small enough that the whole
+   card still fits a short phone screen. */
+.result-top {
+  display: flex;
+  align-items: center;
+  gap: clamp(9px, 2.6vw, 12px);
+}
+
+.result-summary {
+  flex: 1;
+  min-width: 0;
+}
+
+.result-preview {
+  flex: none;
+  width: clamp(70px, 19vw, 80px);
+  margin: 0;
+}
+
+/* Tall portrait phones have room for a clearer thumbnail; the shortest
+   screens keep the compact size above. */
+@media (min-height: 720px) and (min-width: 360px) and (max-width: 500px) {
+  .result-preview {
+    width: clamp(80px, 23vw, 92px);
+  }
+}
+
+.result-preview[hidden] { display: none; }
+
+.result-thumb {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--page);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent), 0 7px 16px -10px rgba(0, 0, 0, 0.45);
+}
+
+.result-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.result-thumb img[hidden] { display: none; }
+
+/* A new theme's thumbnail fades in only after it is decoded, so the old one
+   never disappears while the picture is being prepared. */
+.result-thumb img.is-fresh { animation: previewIn 180ms ease-out; }
+
+@keyframes previewIn {
+  from { opacity: 0.35; }
+  to   { opacity: 1; }
+}
+
+.result-preview figcaption {
+  margin-top: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+.overlay-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* The finished round at a glance: big score, then size, moves and best. */
+#overlay-score {
+  margin-top: 3px;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+#overlay-meta {
+  margin-top: 2px;
+  font-size: 11.5px;
+}
+
+#overlay-text {
+  margin-top: 7px;
+  font-size: 12.5px;
+}
+
+.overlay-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.overlay-actions .btn {
+  padding: 10px 16px;
+  font-size: 13.5px;
+}
+
+.overlay-actions [hidden] { display: none; }
+
+/* An image of this card, kept under the two main choices. Small and quiet —
+   Share already sends the picture where the phone allows it. */
+.overlay-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 5px auto 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.overlay-save:hover { color: var(--ink); }
+.overlay-save[hidden] { display: none; }
+.overlay-save:disabled { opacity: 0.65; cursor: default; }
+
+/* ---------- footer ---------- */
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controls #new-game { flex: 1; }
+
+/* A quiet way back to the last result once its card has been put away. */
+.result-again {
+  align-self: center;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+}  .result-again[hidden] { display: none; }
+
+.sheet-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.sheet-block[hidden] { display: none; }
+
+.sheet-block .sheet-label {
+  margin-top: 0;
+}
+
+.install-btn {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.hint {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--muted);
+  text-align: center;
+  transition: color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+}
+
+/* The near-full heads-up: a red warning pill, deliberately independent of
+   the tile palette. It keeps its height in both states, so nothing moves. */
+.hint.is-warning {
+  color: var(--ink);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--warn) 15%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--warn) 30%, transparent) inset;
+  animation: hintIn 240ms ease-out;
+}
+
+.hint.is-warning::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--warn);
+}
+
+@keyframes hintIn {
+  from { transform: scale(0.94); opacity: 0.65; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  min-height: 44px;
+  border: 0;
+  border-radius: 11px;
+  padding: 12px 20px;
+  color: var(--btn-ink);
+  background: var(--btn-bg);
+  box-shadow: var(--btn-shadow);
+  transition: transform 120ms ease, opacity 150ms ease;
+  cursor: pointer;
+}
+
+.btn,
+.seg button,
+.palette,
+.sheet-done { touch-action: manipulation; }
+
+.btn:active { transform: translateY(1px) scale(0.985); }
+
+/* Native-feeling press response on the small controls too. */
+.seg button,
+.palette,
+.reset-btn,
+.sheet-done { transition: transform 120ms ease; }
+
+.seg button:active,
+.palette:active,
+.reset-btn:active,
+.sheet-done:active { transform: scale(0.97); }
+
+/* A visible keyboard focus ring; taps don't show it. */
+button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ink) 72%, transparent);
+  outline-offset: 2px;
+}
+
+.btn.ghost {
+  color: var(--ink);
+  background: var(--ghost-bg);
+  box-shadow: var(--ghost-shadow);
+}
+
+.btn.icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+}
+
+.btn.icon svg {
+  width: 21px;
+  height: 21px;
+  display: block;
+}
+
+#theme-toggle .sun { display: none; }
+html[data-theme="dark"] #theme-toggle .moon { display: none; }
+html[data-theme="dark"] #theme-toggle .sun { display: block; }
+
+.btn.icon .slash { display: none; }
+.btn.icon.is-off { color: var(--muted); }
+.btn.icon.is-off .waves { display: none; }
+.btn.icon.is-off .slash { display: block; }
+
+/* ---------- appearance sheet ---------- */
+
+html.sheet-open,
+html.sheet-open body { overflow: hidden; }
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet[hidden] { display: none; }
+
+.sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 16, 13, 0.44);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: fade 160ms ease-out;
+}
+
+.sheet-card {
+  position: relative;
+  width: min(100%, 460px);
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 18px calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 20px);
+  border-radius: 20px 20px 0 0;
+  background: var(--sheet-bg);
+  color: var(--ink);
+  box-shadow: 0 -14px 44px -20px rgba(0, 0, 0, 0.6);
+  animation: rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes rise {
+  from { transform: translateY(16px); opacity: 0.6; }
+  to   { transform: none; opacity: 1; }
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sheet-head h2 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.sheet-done {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9px;
+  padding: 0 16px;
+  color: var(--btn-ink);
+  background: var(--btn-bg);
+  cursor: pointer;
+}
+
+.sheet-label {
+  margin: 20px 0 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--seg-bg);
+  box-shadow: var(--ghost-shadow);
+}
+
+.seg button {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--panel);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+html[data-theme="dark"] .seg button[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.palettes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 4px 9px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--seg-bg);
+  box-shadow: var(--ghost-shadow);
+  color: var(--ink);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.palette[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px var(--ink) inset;
+}
+
+.swatches { display: flex; }
+
+.swatches span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-left: -4px;
+  box-shadow: 0 0 0 1.5px var(--sheet-bg);
+}
+
+.swatches span:first-child { margin-left: 0; }
+
+.reset-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.reset-btn {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 11px 4px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--seg-bg);
+  box-shadow: var(--ghost-shadow);
+  color: var(--ink);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.reset-btn[data-armed="true"] {
+  background: #c0452f;
+  color: #fdf6f2;
+}
+
+html[data-theme="dark"] .reset-btn[data-armed="true"] {
+  background: #d4573f;
+  color: #fff5f1;
+}
+
+.sheet-note {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 9px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--seg-bg);
+  box-shadow: var(--ghost-shadow);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition: transform 120ms ease;
+}
+
+.contact-link:active { transform: scale(0.98); }
+
+.contact-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ink) 72%, transparent);
+  outline-offset: 2px;
+}
+
+/* ---------- how to play ---------- */
+
+/* Numbered like little tiles, so the three ideas are easy to take in at a glance. */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 30px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--seg-bg);
+  box-shadow: var(--ghost-shadow);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+@media (max-height: 620px) {
+  .sub { display: none; }
+  .app { gap: 10px; }
+}
+
+/* Small phones: slimmer cards, and if long numbers still don't fit beside the
+   title the three cards drop onto their own line (right aligned) instead of
+   pushing the page sideways. */
+@media (max-width: 380px) {
+  /* A little more room beside the result card so its 44px controls fit. */
+  .overlay { padding: 12px; }
+  .score { padding: 6px 7px 5px; }
+  .value { font-size: 15px; }
+  .value.is-long { font-size: 13.5px; }
+  .value.is-longer { font-size: 11px; }
+  .header { flex-wrap: wrap; row-gap: 8px; }
+  .scores { width: 156px; gap: 6px; margin-left: auto; }
+  .sub { font-size: 11.5px; }
+  #new-game { padding: 12px 10px; }
+}
+
+/* Keep every control at a comfortable native-sized 44px target on the
+   narrowest phones by tightening the gaps instead of shrinking the buttons. */
+@media (max-width: 340px) {
+  .controls { gap: 5px; }
+  #new-game { padding: 12px 8px; }
+}
+
+/* Only the title block moves: the board and controls stay balanced in the room
+   between the header and the bottom of the screen. */
+@media (orientation: portrait) {
+  .board { margin-top: auto; }
+  .footer { margin-bottom: auto; }
+}
+
+/* ---------- landscape ---------- */
+
+/* Board on the left, title and controls stacked beside it, so a short screen
+   never has to scroll or squeeze the board. */
+@media (orientation: landscape) {
+  body {
+    align-items: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 8px) calc(env(safe-area-inset-right, 0px) + 14px) calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 8px) calc(env(safe-area-inset-left, 0px) + 14px);
+  }
+
+  .app {
+    width: min(100%, 880px);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "board header"
+      "board footer";
+    align-content: center;
+    align-items: center;
+    gap: 10px 20px;
+  }
+
+  .board {
+    grid-area: board;
+    width: min(48vw, 86dvh);
+    margin-inline: 0;
+  }
+
+  .header { grid-area: header; align-self: end; }
+  .footer { grid-area: footer; align-self: start; }
+
+  /* The settings sheet becomes a centred dialog instead of a tall bottom sheet. */
+  .sheet { align-items: center; }
+  .sheet-card {
+    border-radius: 20px;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 620px) {
+  .sub { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile { transition-duration: 0.01ms; }
+  .face.appear,
+  .face.bump { animation-duration: 0.01ms; }
+  .overlay,
+  .sheet-backdrop,
+  .sheet-card { animation: none; }
+  .result-thumb img.is-fresh { animation: none; }
+  .btn,
+  .seg button,
+  .palette,
+  .reset-btn,
+  .sheet-done { transition-duration: 0.01ms; }
+}
