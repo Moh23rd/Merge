@@ -1616,6 +1616,20 @@ html[data-theme="dark"] #theme-toggle .moon {
   .app { --play-width: min(100%, 65dvh, 640px); }
 }
 
+/* A 1920-class display gets a substantial step up. The footer stays a little
+   narrower than the board so the New game bar does not become a huge stripe. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  .app { --play-width: min(100%, 68dvh, 840px); }
+  .footer { width: min(100%, 720px); max-width: var(--play-width); }
+}
+
+/* 1440p and 4K-class displays get the final size step, still comfortably
+   inside the header width. */
+@media (min-width: 2400px) and (min-height: 1300px) {
+  .app { --play-width: min(100%, 68dvh, 960px); }
+}
+
+
 /* Only mouse and pen devices get the grab cursor and keyboard cue. Touch
    tablets still use the same layout, with their familiar swipe gesture. */
 @media (min-width: 900px) and (pointer: fine) {
