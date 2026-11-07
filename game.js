@@ -681,6 +681,8 @@
   function finishHideOverlay() {
     overlayEl.hidden = true;
     overlayEl.classList.remove('is-open', 'is-closing');
+    // The card is gone, so the quiet way back to it becomes available.
+    syncResultButton();
   }
 
   function hideOverlay() {

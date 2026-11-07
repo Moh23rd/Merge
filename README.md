@@ -19,11 +19,11 @@ A calm little slide-and-merge puzzle for your phone or browser.
 - **iPhone / Safari:** tap **Share**, then **Add to Home Screen**.
 - **Other browsers:** use the browser menu’s **Install** or **Add to Home Screen** option.
 
-The game works offline after it has been opened once.
+The game works offline after it has been opened once. If Chrome says the app is already installed but it won’t open, remove any old copy from your Home Screen or browser app settings and try again; Chromium can confuse web apps that share the same `github.io` address.
 
 ## Privacy
 
-No accounts, ads, analytics or third-party tracking scripts. Your board, best scores and appearance choices stay on your device. The light/dark choice is also remembered in a first-party cookie so an installed app can choose the matching home-screen chrome.
+No accounts, ads, analytics or third-party tracking scripts. Your board, best scores and appearance choices stay on your device. The light/dark choice is also remembered in a first-party cookie so an installed app can choose matching launch chrome. The phone controls the bottom system bar, so that bar keeps the colour it was given when the app was installed.
 
 ## Contact
 
@@ -35,7 +35,7 @@ The game code is available under the [MIT License](LICENSE). The Space Grotesk t
 
 ## Running locally
 
-Open `index.html` in a modern browser for normal play. To test install and offline support, serve the folder over HTTPS or localhost:
+Open `index.html` in a modern browser for normal play. To test install and offline support, serve the folder that contains `index.html` over HTTPS or localhost:
 
 ```sh
 python3 -m http.server 8000

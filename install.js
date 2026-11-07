@@ -10,6 +10,8 @@
   const ua = navigator.userAgent || '';
   const isIOS = /iPad|iPhone|iPod/.test(ua) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // Chrome, Firefox and other iOS browsers still need Safari for a home-screen app.
+  const isIOSNonSafari = /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
   let prompt = null;
 
   function installed() {
@@ -38,7 +40,9 @@
     if (isIOS) {
       block.hidden = false;
       btn.hidden = true;
-      copy.textContent = 'Open this page in Safari, tap Share, then choose Add to Home Screen.';
+      copy.textContent = isIOSNonSafari
+        ? 'Open this page in Safari, tap Share, then choose Add to Home Screen.'
+        : 'Tap Share, then choose Add to Home Screen.';
       return;
     }
 

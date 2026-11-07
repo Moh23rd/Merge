@@ -1027,6 +1027,37 @@ html[data-theme="dark"] .reset-btn[data-armed="true"] {
   .sub { display: none; }
 }
 
+/* Narrow landscape phones can squeeze the New game label until it breaks into
+   two lines. Keep the row compact before falling back to the stacked layout
+   below. */
+@media (orientation: landscape) and (max-width: 760px) {
+  .controls { gap: 5px; }
+  .controls #new-game {
+    padding-inline: 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+/* A very short landscape phone leaves too little width for four icon buttons
+   and the New game label on one row. Stack the text button underneath rather
+   than letting it run off the right edge. */
+@media (orientation: landscape) and (max-height: 360px) {
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(4, 44px);
+    gap: 6px;
+    justify-content: start;
+  }
+
+  .controls #new-game {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tile { transition-duration: 0.01ms; }
   .face.appear,

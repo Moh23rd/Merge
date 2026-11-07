@@ -142,7 +142,7 @@
 
   // The installed app's bottom strip comes from the manifest, not theme-color.
   // Keep the theme cookie for a future install, and point the link at the
-  // matching light/dark file so the strip can follow the mode when it reopens.
+  // matching light/dark file so a fresh install captures the right colour.
   function syncManifest() {
     const theme = root.dataset.theme === 'dark' ? 'dark' : 'light';
     try {
@@ -159,7 +159,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=53';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=54';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
