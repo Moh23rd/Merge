@@ -23,7 +23,7 @@ The game works offline after it has been opened once.
 
 ## Privacy
 
-No accounts, ads, analytics or third-party tracking scripts. Your board, best scores and appearance choices stay on your device. Theme colours are also remembered in two first-party cookies so an installed app can match them.
+No accounts, ads, analytics or third-party tracking scripts. Your board, best scores and appearance choices stay on your device. The light/dark choice is also remembered in a first-party cookie so an installed app can choose the matching home-screen chrome.
 
 ## Contact
 

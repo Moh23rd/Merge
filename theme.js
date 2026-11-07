@@ -140,15 +140,14 @@
     if (scheme) scheme.setAttribute('content', root.dataset.theme === 'dark' ? 'dark' : 'light');
   }
 
-  // The phone paints an installed app's bottom strip from the manifest, which it
-  // only re-reads when the app updates, so keep the cookies in step with the
-  // theme and palette: a fresh install (or the next update) then matches.
+  // The installed app's bottom strip comes from the manifest, not theme-color.
+  // Keep the theme cookie for a future install, and point the link at the
+  // matching light/dark file so the strip can follow the mode when it reopens.
   function syncManifest() {
     const theme = root.dataset.theme === 'dark' ? 'dark' : 'light';
     try {
       const age = '; path=/; max-age=31536000; SameSite=Lax';
       document.cookie = 'merge2048_theme=' + theme + age;
-      document.cookie = 'merge2048_palette=' + state.palette + age;
     } catch (err) {
       /* cookies blocked — the manifest falls back to the phone's theme */
     }
@@ -160,8 +159,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    // A stable address; the cookies above carry the current theme and palette.
-    const href = 'manifest.webmanifest?v=51';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=52';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
