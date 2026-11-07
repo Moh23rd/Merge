@@ -1,59 +1,44 @@
 # merge — 2048
 
-A calm little slide-and-merge puzzle. This is the complete static app (v48), with no build step, server code, database or account system.
+![merge — 2048](og-image.png)
 
-Live copy: https://site-58d4c06196df4e3aa353fcca2f921cf1.freebuff.page/  
-Contact: mohrd9685@gmail.com
+A calm little slide-and-merge puzzle for your phone or browser.
 
-## Play locally
+**[Play merge →](https://moh23rd.github.io/Merge/)**
 
-1. Unzip the archive.
-2. Open `index.html` in a modern browser.
+## How to play
 
-The game works from a folder for ordinary play. Install and offline support need the files to be served over HTTPS or from localhost. For a local server:
+- Swipe anywhere on the board, or use the arrow keys, to slide every tile.
+- Two tiles with the same number merge into one and double, adding to your score.
+- Every move drops in a new tile. The round ends when the board fills with no merges left.
+- Aim for 2048. There is no undo, so think before you move.
+
+## Install
+
+- **Android / Chrome:** open **How to play**, then tap **Install app** if it appears.
+- **iPhone / Safari:** tap **Share**, then **Add to Home Screen**.
+- **Other browsers:** use the browser menu’s **Install** or **Add to Home Screen** option.
+
+The game works offline after it has been opened once.
+
+## Privacy
+
+No accounts, ads, analytics or third-party tracking scripts. Your board, best scores and appearance choices stay on your device. Theme colours are also remembered in two first-party cookies so an installed app can match them.
+
+## Contact
+
+Questions, bug reports or feedback? Email [mohrd9685@gmail.com](mailto:mohrd9685@gmail.com).
+
+## License
+
+The game code is available under the [MIT License](LICENSE). The Space Grotesk typeface is included under the [SIL Open Font License 1.1](OFL.txt).
+
+## Running locally
+
+Open `index.html` in a modern browser for normal play. To test install and offline support, serve the folder over HTTPS or localhost:
 
 ```sh
 python3 -m http.server 8000
 ```
 
 Then open `http://localhost:8000`.
-
-## Publishing on GitHub
-
-**GitHub Pages does not turn a `.zip` file into a website.** You have two options:
-
-### Publish the game as a website
-
-1. Unzip this archive.
-2. Create a repository and upload the **contents** of the unzipped folder, not the folder itself. Keep `index.html` at the top level, with `icons/`, `fonts/`, `splash/`, `og-image.png` and the other files beside it.
-3. In the repository, open **Settings → Pages**.
-4. Under **Build and deployment**, choose **Deploy from a branch**, select `main` and `/ (root)`, then save.
-5. GitHub will publish the game at `https://<your-user>.github.io/<repository>/`.
-
-GitHub Pages supplies HTTPS, so the install and offline features will work there.
-
-### Keep the ZIP as a download
-
-If you want GitHub to store the ZIP for people to download, create a release, choose **Draft a new release**, and attach `merge-2048-v48.zip`. GitHub will keep it as a release asset; it will not run it as a website.
-
-## Before GitHub Pages becomes the permanent address
-
-The page currently points its canonical and social-sharing URLs at the live Freebuff copy. If GitHub Pages becomes the main address, update those URLs near the top of `index.html` to the GitHub Pages address. That makes link previews and search engines use the new address. Once the GitHub Pages URL is known, this is a small edit.
-
-## What is inside
-
-- `index.html` — page, how-to-play, install guidance, privacy and contact
-- `styles.css` — layout, themes, colours and accessibility states
-- `game.js` — game logic, keyboard controls, result card and sharing
-- `theme.js` — theme, palette, settings and focus handling
-- `haptics.js` — vibration feedback
-- `install.js` — Android install prompt and iPhone instructions
-- `sw.js` — offline cache (v48)
-- `manifest.webmanifest` and `manifest-dark.webmanifest` — install metadata and icons
-- `icons/` — home-screen and app icons
-- `splash/` — iOS launch images
-- `fonts/` — Space Grotesk typeface and its licence
-- `og-image.png` — social-sharing card
-- `.nojekyll` — tells GitHub Pages to serve the files as they are
-
-The app keeps the board, best scores and appearance choices in the browser. There are no accounts, ads, analytics or third-party trackers.

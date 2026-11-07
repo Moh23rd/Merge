@@ -2,7 +2,7 @@
    the UI's rounded system font to blend. */
 @font-face {
   font-family: "Space Grotesk";
-  src: url("fonts/space-grotesk-700.woff2") format("woff2");
+  src: url("space-grotesk-700.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;

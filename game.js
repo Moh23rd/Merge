@@ -1,0 +1,1259 @@
+(() => {
+  'use strict';
+
+  const DEFAULT_SIZE = 4;
+  const SIZE_KEY = 'merge2048.size';
+  const SAVE_KEY = 'merge2048.save';
+  const RESUME_KEY = 'merge2048.resume';
+  const SWIPE_MIN = 22;
+  const MOVE_MS = 110;
+  const STORE_BEST = 'merge2048.best';
+
+  let size = DEFAULT_SIZE;
+
+  const boardEl = document.getElementById('board');
+  const gridEl = document.getElementById('grid');
+  const tilesEl = document.getElementById('tiles');
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const movesEl = document.getElementById('moves');
+  const overlayEl = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlay-title');
+  const overlayText = document.getElementById('overlay-text');
+  const overlayScore = document.getElementById('overlay-score');
+  const overlayMeta = document.getElementById('overlay-meta');
+  const overlayShare = document.getElementById('overlay-share');
+  const overlaySave = document.getElementById('overlay-save');
+  const overlayBtn = document.getElementById('overlay-btn');
+  const resultPreview = document.getElementById('result-preview');
+  const resultPreviewImg = document.getElementById('result-preview-img');
+  const newBtn = document.getElementById('new-game');
+  const viewResultBtn = document.getElementById('view-result');
+  const hapticBtn = document.getElementById('vibration-toggle');
+  const sheetEl = document.getElementById('sheet');
+  const helpEl = document.getElementById('help');
+  const hintEl = document.querySelector('.hint');
+  const boardSummaryEl = document.getElementById('board-summary');
+  const gameStatusEl = document.getElementById('game-status');
+  const headerEl = document.querySelector('.header');
+  const footerEl = document.querySelector('.footer');
+  const HINT_TIGHT = 'Nearly full — look for a match.';
+  const TIP_KEY = 'merge2048.tip';
+  const TIP_EVERY = 14;
+  const SHARE_FONT = '"Space Grotesk", ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+  // Short enough to stay on one line on the narrowest phone, and each one is
+  // something you can act on in the next few moves.
+  const TIPS = [
+    'Tip: park your biggest tile in a corner.',
+    'Tip: build along one edge, not in the middle.',
+    'Tip: free a square before hunting for a merge.',
+    'Tip: merge small tiles early, while it is easy.',
+    'Tip: leave a lane open for the next big tile.',
+    'Tip: keep tiles stepping down toward your corner.',
+    'Tip: think twice — there is no undo.',
+    'Tip: your board and best score are saved here.',
+    'Tip: tap New game for a fresh board any time.',
+    'Tip: 3×3 is a quick round; 5×5 is a long one.'
+  ];
+
+  // Start where the last visit left off, so the tips keep taking turns.
+  let tipIndex = 0;
+  let movesSinceTip = 0;
+  let booted = false;
+  try {
+    const storedTip = Number(localStorage.getItem(TIP_KEY));
+    if (Number.isInteger(storedTip) && storedTip >= 0) tipIndex = storedTip % TIPS.length;
+  } catch (err) {
+    /* storage blocked — start at the top */
+  }
+
+  const noHaptics = {
+    supported: function () { return false; },
+    merge: function () {}, win: function () {}, over: function () {},
+    isEnabled: function () { return false; }, toggle: function () { return false; }
+  };
+  const haptics = window.MergeHaptics || noHaptics;
+
+  const VEC = { left: [0, -1], right: [0, 1], up: [-1, 0], down: [1, 0] };
+
+  let tiles = [];
+  let grid = [];
+  let score = 0;
+  let best = 0;
+  let moves = 0;
+  // The record this game started with, so beating it is celebrated exactly once.
+  let bestAtStart = 0;
+  let beatBest = false;
+  let recordTimer = 0;
+  let statusTimer = 0;
+  let won = false;
+  // Whether the card on screen is the 2048 win, so Share can say so.
+  let overlayWin = false;
+  // The result behind the card: kept after it is put away so it can be opened
+  // again, even once a new game is under way.
+  let resultSnapshot = null;
+  // The picture of the card, and the draw that is still on its way.
+  let resultFile = null;
+  let resultFilePromise = null;
+  let resultImageToken = 0;
+  let resultPreviewUrl = '';
+  let shareFlashTimer = 0;
+  let saveFlashTimer = 0;
+  let busy = false;
+  let nextId = 1;
+  let cell = 0;
+  let gap = 0;
+  let overlayAction = null;
+  // Bumped on every reset so a move that is still animating can't touch the new board.
+  let generation = 0;
+  // Set while "All settings" is being cleared: the reload that follows must not
+  // let the pagehide save write the old board back into storage.
+  let saveSuspended = false;
+
+  /* ---------- board size ---------- */
+
+  function readStoredSize() {
+    try {
+      const saved = Number(localStorage.getItem(SIZE_KEY));
+      if (saved === 3 || saved === 4 || saved === 5) return saved;
+    } catch (err) {
+      /* storage blocked — use the default */
+    }
+    return DEFAULT_SIZE;
+  }
+
+  function buildCells() {
+    gridEl.textContent = '';
+    gridEl.style.gridTemplateColumns = 'repeat(' + size + ', 1fr)';
+    gridEl.style.gridTemplateRows = 'repeat(' + size + ', 1fr)';
+    for (let i = 0; i < size * size; i++) {
+      const d = document.createElement('div');
+      d.className = 'cell';
+      gridEl.appendChild(d);
+    }
+  }
+
+  function emptyGrid() {
+    const rows = [];
+    for (let r = 0; r < size; r++) {
+      const row = [];
+      for (let c = 0; c < size; c++) row.push(null);
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  // Each board size keeps its own best score, since bigger boards score higher.
+  function bestKey() {
+    return STORE_BEST + (size === DEFAULT_SIZE ? '' : '.' + size);
+  }
+
+  // The three cards keep a fixed, equal width; a long number steps down a size
+  // instead of pushing the row wider.
+  function setStat(el, value) {
+    const text = String(value);
+    el.textContent = text;
+    el.classList.toggle('is-long', text.length === 5);
+    el.classList.toggle('is-longer', text.length > 5);
+  }
+
+  function loadBest() {
+    try {
+      best = Number(localStorage.getItem(bestKey())) || 0;
+    } catch (err) {
+      best = 0;
+    }
+    setStat(bestEl, best);
+  }
+
+  size = readStoredSize();
+
+  /* ---------- layout ---------- */
+
+  function fontFor(value) {
+    const len = String(value).length;
+    const factor = len <= 2 ? 0.44 : len === 3 ? 0.36 : len === 4 ? 0.29 : 0.23;
+    return Math.max(11, Math.round(cell * factor)) + 'px';
+  }
+
+  function place(tile, animate) {
+    const x = tile.col * (cell + gap);
+    const y = tile.row * (cell + gap);
+    if (animate === false) {
+      tile.el.classList.add('instant');
+      tile.el.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+      void tile.el.offsetWidth;
+      tile.el.classList.remove('instant');
+    } else {
+      tile.el.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+    }
+  }
+
+  function measure() {
+    const first = gridEl.children[0];
+    if (!first) return;
+    const r1 = first.getBoundingClientRect();
+    if (!r1.width) return;
+    const second = gridEl.children[1];
+    const r2 = second ? second.getBoundingClientRect() : null;
+    cell = r1.width;
+    gap = r2 ? r2.left - r1.right : 0;
+
+    for (const t of tiles) {
+      t.el.style.width = cell + 'px';
+      t.el.style.height = cell + 'px';
+      t.el.style.fontSize = fontFor(t.value);
+      place(t, false);
+    }
+  }
+
+  /* ---------- tiles ---------- */
+
+  function createTile(value, row, col, isNew) {
+    const el = document.createElement('div');
+    el.className = 'tile';
+    el.dataset.v = String(value);
+    el.style.width = cell + 'px';
+    el.style.height = cell + 'px';
+    el.style.fontSize = fontFor(value);
+
+    const face = document.createElement('div');
+    face.className = 'face' + (isNew ? ' appear' : '');
+    face.textContent = String(value);
+
+    el.appendChild(face);
+
+    const tile = { id: nextId++, value: value, row: row, col: col, el: el, face: face };
+    place(tile, false);
+    tilesEl.appendChild(el);
+    return tile;
+  }
+
+  function addRandomTile() {
+    const empty = [];
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (!grid[r][c]) empty.push([r, c]);
+      }
+    }
+    if (!empty.length) return null;
+
+    const spot = empty[Math.floor(Math.random() * empty.length)];
+    const value = Math.random() < 0.9 ? 2 : 4;
+    const tile = createTile(value, spot[0], spot[1], true);
+    grid[spot[0]][spot[1]] = tile;
+    tiles.push(tile);
+    return tile;
+  }
+
+  /* ---------- saved game ---------- */
+
+  function saveGame() {
+    const cells = [];
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const t = grid[r][c];
+        if (t) cells.push([t.value, r, c]);
+      }
+    }
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        size: size,
+        score: score,
+        moves: moves,
+        won: won,
+        cells: cells
+      }));
+    } catch (err) {
+      /* storage blocked — no resume, but the game still plays */
+    }
+  }
+
+  function readSaved() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || (data.size !== 3 && data.size !== 4 && data.size !== 5) || !Array.isArray(data.cells)) return null;
+
+      const cells = [];
+      const taken = new Set();
+      for (const item of data.cells) {
+        if (!Array.isArray(item) || item.length < 3) continue;
+        const value = Number(item[0]);
+        const row = Number(item[1]);
+        const col = Number(item[2]);
+        if (!isFinite(value) || value < 2) continue;
+        if (row < 0 || row >= data.size || col < 0 || col >= data.size) continue;
+        // A damaged save must never place two tiles on the same square.
+        const spot = row + ',' + col;
+        if (taken.has(spot)) continue;
+        taken.add(spot);
+        cells.push([value, row, col]);
+      }
+      if (!cells.length) return null;
+      return {
+        size: data.size,
+        score: Number(data.score) || 0,
+        moves: Math.max(0, Math.floor(Number(data.moves) || 0)),
+        won: !!data.won,
+        cells: cells
+      };
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function resumeEnabled() {
+    try {
+      return localStorage.getItem(RESUME_KEY) !== 'fresh';
+    } catch (err) {
+      return true;
+    }
+  }
+
+  function applyState(state) {
+    tilesEl.textContent = '';
+    tiles = [];
+    grid = emptyGrid();
+    for (const item of state.cells) {
+      const tile = createTile(item[0], item[1], item[2], false);
+      grid[item[1]][item[2]] = tile;
+      tiles.push(tile);
+    }
+    score = state.score;
+    won = state.won;
+    setStat(scoreEl, score);
+    if (score > best) {
+      // A save can outrun a cleared best (the reset button exists), so lift it quietly.
+      best = score;
+      setStat(bestEl, best);
+      try {
+        localStorage.setItem(bestKey(), String(best));
+      } catch (err) {
+        /* ignore */
+      }
+    }
+    moves = state.moves || 0;
+    setStat(movesEl, moves);
+    beatBest = false;
+    bestAtStart = best;
+    busy = false;
+    hideOverlay();
+    refreshHint();
+    syncBoardAccessibility('Resumed game. Score ' + score + '.');
+  }
+
+  /* ---------- game rules ---------- */
+
+  function buildOrder(dr, dc) {
+    const rows = [];
+    const cols = [];
+    for (let i = 0; i < size; i++) {
+      rows.push(i);
+      cols.push(i);
+    }
+    if (dr > 0) rows.reverse();
+    if (dc > 0) cols.reverse();
+    return { rows: rows, cols: cols };
+  }
+
+  function move(dir) {
+    if (busy || !overlayEl.hidden) return;
+
+    const dr = VEC[dir][0];
+    const dc = VEC[dir][1];
+    const order = buildOrder(dr, dc);
+
+    for (const t of tiles) t.merged = false;
+
+    let moved = false;
+    let gained = 0;
+    const merges = [];
+
+    for (const r of order.rows) {
+      for (const c of order.cols) {
+        const tile = grid[r][c];
+        if (!tile) continue;
+
+        let fr = r;
+        let fc = c;
+        for (;;) {
+          const nr = fr + dr;
+          const nc = fc + dc;
+          if (nr < 0 || nr >= size || nc < 0 || nc >= size) break;
+          if (grid[nr][nc]) break;
+          fr = nr;
+          fc = nc;
+        }
+
+        const nr = fr + dr;
+        const nc = fc + dc;
+        const other = nr >= 0 && nr < size && nc >= 0 && nc < size ? grid[nr][nc] : null;
+
+        if (other && other !== tile && other.value === tile.value && !other.merged) {
+          grid[r][c] = null;
+          other.merged = true;
+          tile.row = nr;
+          tile.col = nc;
+          tile.gone = true;
+          merges.push({ keep: other, gone: tile });
+          gained += tile.value * 2;
+          moved = true;
+        } else if (fr !== r || fc !== c) {
+          grid[r][c] = null;
+          grid[fr][fc] = tile;
+          tile.row = fr;
+          tile.col = fc;
+          moved = true;
+        }
+      }
+    }
+
+    if (!moved) {
+      announceStatus('No tiles can move that way.');
+      return;
+    }
+
+    moves += 1;
+    setStat(movesEl, moves);
+
+    if (merges.length) {
+      let biggest = 0;
+      for (const m of merges) biggest = Math.max(biggest, m.keep.value * 2);
+      haptics.merge(biggest);
+    }
+
+    busy = true;
+    syncResultButton();
+    const moveGen = generation;
+    for (const t of tiles) place(t, true);
+
+    if (gained) {
+      score += gained;
+      updateScore();
+    }
+
+    window.setTimeout(function () {
+      // The board was restarted while this move was animating — drop the result.
+      if (moveGen !== generation) return;
+
+      let reached2048 = false;
+
+      for (const m of merges) {
+        m.gone.el.remove();
+        m.keep.value *= 2;
+        m.keep.el.dataset.v = String(m.keep.value);
+        m.keep.face.textContent = String(m.keep.value);
+        m.keep.el.style.fontSize = fontFor(m.keep.value);
+        m.keep.face.classList.remove('bump');
+        void m.keep.face.offsetWidth;
+        m.keep.face.classList.add('bump');
+        if (m.keep.value === 2048) reached2048 = true;
+      }
+
+      tiles = tiles.filter(function (t) { return !t.gone; });
+
+      addRandomTile();
+      busy = false;
+      syncResultButton();
+
+      if (reached2048 && !won) {
+        won = true;
+        saveGame();
+        haptics.win();
+        syncBoardAccessibility('2048 reached. Score ' + score + '.');
+        // The final tile can fill the board, in which case carrying on isn't
+        // possible — offer a fresh round instead of a dead board.
+        const finished = isGameOver();
+        const snapshot = captureResult(true);
+        if (finished) snapshot.text = 'You made it. No moves left — try again?';
+        showResultCard(snapshot, false, finished);
+        return;
+      }
+
+      saveGame();
+      syncBoardAccessibility('Score ' + score + ', ' + moves + (moves === 1 ? ' move.' : ' moves.'));
+      movesSinceTip += 1;
+      if (movesSinceTip >= TIP_EVERY && !isGameOver() && !isNearlyFull()) {
+        showTip(true);
+      } else {
+        refreshHint();
+      }
+
+      if (isGameOver()) {
+        haptics.over();
+        showResultCard(captureResult(false), false);
+      }
+    }, MOVE_MS);
+  }
+
+  function isGameOver() {
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const t = grid[r][c];
+        if (!t) return false;
+        if (c + 1 < size && grid[r][c + 1] && grid[r][c + 1].value === t.value) return false;
+        if (r + 1 < size && grid[r + 1][c] && grid[r + 1][c].value === t.value) return false;
+      }
+    }
+    return true;
+  }
+
+  // Quiet heads-up when the board is almost out of room: a couple of squares
+  // left and hardly any matches to play with. It only borrows the tip line.
+  function isNearlyFull() {
+    let empty = 0;
+    let moves = 0;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const t = grid[r][c];
+        if (!t) {
+          empty += 1;
+          continue;
+        }
+        if (c + 1 < size && grid[r][c + 1] && grid[r][c + 1].value === t.value) moves += 1;
+        if (r + 1 < size && grid[r + 1][c] && grid[r + 1][c].value === t.value) moves += 1;
+      }
+    }
+    return empty <= 2 && moves <= 2;
+  }
+
+  function refreshHint() {
+    if (!hintEl) return;
+    const tight = !isGameOver() && isNearlyFull();
+    if (tight) {
+      // Announce the warning; leave the rotating tips out of the live region.
+      hintEl.setAttribute('aria-live', 'polite');
+      hintEl.textContent = HINT_TIGHT;
+    } else {
+      hintEl.textContent = TIPS[tipIndex];
+      hintEl.setAttribute('aria-live', 'off');
+    }
+    hintEl.classList.toggle('is-warning', tight);
+  }
+
+  function boardSummary() {
+    const rows = [];
+    for (let r = 0; r < size; r++) {
+      const row = [];
+      for (let c = 0; c < size; c++) {
+        const tile = grid[r][c];
+        row.push(tile ? String(tile.value) : 'empty');
+      }
+      rows.push('Row ' + (r + 1) + ': ' + row.join(', '));
+    }
+    return size + ' by ' + size + ' board. ' + rows.join('. ') + '.';
+  }
+
+  function announceStatus(message) {
+    if (!gameStatusEl) return;
+    window.clearTimeout(statusTimer);
+    gameStatusEl.textContent = '';
+    statusTimer = window.setTimeout(function () {
+      gameStatusEl.textContent = message;
+    }, 30);
+  }
+
+  function syncBoardAccessibility(message) {
+    if (boardSummaryEl) boardSummaryEl.textContent = boardSummary();
+    if (message) announceStatus(message);
+  }
+
+  // Move on to the next tip: on every new board, and now and then during a
+  // long one, so the line under the board keeps saying something new.
+  function showTip(next) {
+    if (!hintEl) return;
+    movesSinceTip = 0;
+    if (next) {
+      tipIndex = (tipIndex + 1) % TIPS.length;
+      try {
+        localStorage.setItem(TIP_KEY, String(tipIndex));
+      } catch (err) {
+        /* private mode: the order just restarts next visit */
+      }
+    }
+    refreshHint();
+  }
+
+  function updateScore() {
+    setStat(scoreEl, score);
+    if (score > best) {
+      best = score;
+      setStat(bestEl, best);
+      try {
+        localStorage.setItem(bestKey(), String(best));
+      } catch (err) {
+        /* private mode: best score just won't persist */
+      }
+      // One small flourish the first time this game overtakes the old record.
+      if (!beatBest && score > bestAtStart) {
+        beatBest = true;
+        celebrateBest();
+      }
+    }
+  }
+
+  function celebrateBest() {
+    const card = bestEl.closest('.score');
+    if (!card) return;
+    card.classList.remove('is-record');
+    void card.offsetWidth;
+    card.classList.add('is-record');
+    window.clearTimeout(recordTimer);
+    recordTimer = window.setTimeout(function () {
+      card.classList.remove('is-record');
+    }, 1100);
+  }
+
+  /* ---------- overlay ---------- */
+
+  function showOverlay(title, text, btnLabel, action, result) {
+    overlayTitle.textContent = title;
+    overlayText.textContent = text;
+    overlayBtn.textContent = btnLabel;
+    overlayAction = action;
+
+    // Both a finished round and the 2048 win get the score card; only the win
+    // offers to carry on when it first appears.
+    overlayWin = !!(result && result.win);
+    overlayScore.hidden = !result;
+    overlayMeta.hidden = !result;
+    overlayShare.hidden = !result;
+    overlaySave.hidden = !result;
+    // A new card starts clean; a leftover flash timer must not re-enable or
+    // relabel these buttons while the new share/save is in progress.
+    window.clearTimeout(shareFlashTimer);
+    window.clearTimeout(saveFlashTimer);
+    overlayShare.disabled = false;
+    overlayShare.textContent = 'Share';
+    overlaySave.disabled = false;
+    overlaySave.textContent = 'Save image';
+    if (result) {
+      overlayScore.textContent = String(result.score);
+      overlayMeta.textContent = result.size + ' × ' + result.size + ' · ' + result.moves + (result.moves === 1 ? ' move' : ' moves');
+      // A new result starts with a clean placeholder rather than the previous
+      // round's picture. A theme change keeps the current thumbnail until the
+      // replacement is ready below.
+      if (resultPreview) resultPreview.hidden = false;
+      if (resultPreviewImg) resultPreviewImg.hidden = true;
+      prepareResultImage(result);
+    } else {
+      resultFile = null;
+      resultFilePromise = null;
+      resultImageToken += 1;
+      hideResultPreview();
+    }
+
+    // The card is modal: keep the controls underneath out of the tab order
+    // while it is open.
+    if (headerEl && 'inert' in headerEl) headerEl.inert = true;
+    if (footerEl && 'inert' in footerEl) footerEl.inert = true;
+    overlayEl.hidden = false;
+    syncResultButton();
+    // So a keyboard or screen-reader user lands on the way out of the card.
+    try {
+      overlayBtn.focus({ preventScroll: true });
+    } catch (err) {
+      overlayBtn.focus();
+    }
+  }
+
+  function hideOverlay() {
+    const wasOpen = !overlayEl.hidden;
+    overlayEl.hidden = true;
+    overlayAction = null;
+    overlayWin = false;
+    if (headerEl && 'inert' in headerEl) headerEl.inert = false;
+    if (footerEl && 'inert' in footerEl) footerEl.inert = false;
+    syncResultButton();
+    if (wasOpen) {
+      try {
+        boardEl.focus({ preventScroll: true });
+      } catch (err) {
+        boardEl.focus();
+      }
+    }
+  }
+
+  function overlayFocusables() {
+    return Array.prototype.slice.call(overlayEl.querySelectorAll('button')).filter(function (el) {
+      return !el.hidden && !el.disabled;
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (overlayEl.hidden) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      hideOverlay();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    const focusables = overlayFocusables();
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey && (active === first || !overlayEl.contains(active))) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && (active === last || !overlayEl.contains(active))) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  // Keep the exact numbers from the moment the round ended, so opening the card
+  // again later still tells the same story.
+  function captureResult(win) {
+    resultSnapshot = {
+      win: !!win,
+      title: win ? '2048!' : (beatBest ? 'New best!' : 'Game over'),
+      text: win ? 'You made it. Keep going for a bigger score?' : 'Best ' + best,
+      score: score,
+      moves: moves,
+      size: size,
+      best: best,
+      generation: generation
+    };
+    return resultSnapshot;
+  }
+
+  function showResultCard(snapshot, reopen, finished) {
+    let label = 'Back to game';
+    if (!reopen) {
+      label = snapshot.win && !finished ? 'Keep going' : 'Try again';
+    }
+    const action = (reopen || (snapshot.win && !finished)) ? hideOverlay : newGame;
+    showOverlay(snapshot.title, snapshot.text, label, action, snapshot);
+  }
+
+  function syncResultButton() {
+    if (!viewResultBtn) return;
+    const show = !!resultSnapshot && overlayEl.hidden && !busy;
+    viewResultBtn.hidden = !show;
+    if (show) {
+      viewResultBtn.textContent = resultSnapshot.generation === generation ? 'View result' : 'Last result';
+    }
+  }
+
+  overlayBtn.addEventListener('click', function () {
+    const action = overlayAction;
+    hideOverlay();
+    if (action) action();
+  });
+
+  /* ---------- sharing a finished round ---------- */
+
+  function shareFont(weight, px) {
+    return weight + ' ' + px + 'px ' + SHARE_FONT;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function shareColors() {
+    const styles = getComputedStyle(document.documentElement);
+    const pick = function (name, fallback) {
+      const value = styles.getPropertyValue(name).trim();
+      return value || fallback;
+    };
+    return {
+      page: pick('--page', '#f6f1e8'),
+      panel: pick('--panel', '#e4d9c7'),
+      ink: pick('--ink', '#3b3833'),
+      muted: pick('--muted', '#6f665a'),
+      tile: pick('--t2048', '#b9801a'),
+      tileInk: pick('--ink-tile-high', '#fdfbf7')
+    };
+  }
+
+  // A square picture of the result, drawn with the colours in use on the page.
+  async function buildResultFile(data) {
+    try {
+      // The wordmark is already in use; wait for it so the picture uses it too.
+      if (document.fonts && document.fonts.load) {
+        await document.fonts.load(shareFont(700, 56));
+      }
+    } catch (err) {
+      /* draw with the fallback face */
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('canvas unavailable');
+
+    const colors = shareColors();
+    const W = canvas.width;
+    ctx.fillStyle = colors.page;
+    ctx.fillRect(0, 0, W, W);
+    ctx.textBaseline = 'middle';
+
+    // Wordmark and one 2048 tile, so the picture is recognisably merge.
+    ctx.textAlign = 'left';
+    ctx.fillStyle = colors.ink;
+    ctx.font = shareFont(700, 58);
+    ctx.fillText('MERGE', 96, 142);
+
+    const tileSize = 116;
+    const tileX = W - 96 - tileSize;
+    roundRect(ctx, tileX, 84, tileSize, tileSize, 24);
+    ctx.fillStyle = colors.tile;
+    ctx.fill();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = colors.tileInk;
+    ctx.font = shareFont(700, 25);
+    ctx.fillText('2048', tileX + tileSize / 2, 84 + tileSize / 2 + 1);
+
+    // The card itself: title, score, board size and moves, best.
+    const cardX = 92;
+    const cardY = 286;
+    const cardW = W - 184;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.22)';
+    ctx.shadowBlur = 44;
+    ctx.shadowOffsetY = 22;
+    roundRect(ctx, cardX, cardY, cardW, 524, 56);
+    ctx.fillStyle = colors.panel;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = colors.ink;
+    ctx.font = shareFont(700, 46);
+    ctx.fillText(data.title, W / 2, 366);
+
+    ctx.font = shareFont(700, 168);
+    ctx.fillText(String(data.score), W / 2, 500);
+
+    ctx.fillStyle = colors.muted;
+    ctx.font = shareFont(500, 31);
+    ctx.fillText(data.size + ' × ' + data.size + ' · ' + data.moves + (data.moves === 1 ? ' move' : ' moves'), W / 2, 624);
+
+    ctx.font = shareFont(500, 27);
+    ctx.fillText('Best ' + data.best, W / 2, 678);
+
+    const blob = await new Promise(function (resolve, reject) {
+      canvas.toBlob(function (image) {
+        if (image) resolve(image);
+        else reject(new Error('image unavailable'));
+      }, 'image/png');
+    });
+
+    if (typeof File === 'function') {
+      return new File([blob], 'merge-2048-result.png', { type: 'image/png' });
+    }
+    blob.name = 'merge-2048-result.png';
+    return blob;
+  }
+
+  function hideResultPreview() {
+    if (resultPreviewImg) {
+      resultPreviewImg.removeAttribute('src');
+      resultPreviewImg.hidden = true;
+      resultPreviewImg.classList.remove('is-fresh');
+    }
+    if (resultPreview) resultPreview.hidden = true;
+    if (resultPreviewUrl) {
+      URL.revokeObjectURL(resultPreviewUrl);
+      resultPreviewUrl = '';
+    }
+  }
+
+  // Decode the replacement before swapping it in, so a theme change never
+  // leaves a blank square where the thumbnail was.
+  function showResultPreview(file, token) {
+    if (!resultPreview || !resultPreviewImg || !file) return;
+    const nextUrl = URL.createObjectURL(file);
+    const incoming = new Image();
+    incoming.onload = function () {
+      if (token !== resultImageToken) {
+        URL.revokeObjectURL(nextUrl);
+        return;
+      }
+      if (resultPreviewUrl) URL.revokeObjectURL(resultPreviewUrl);
+      resultPreviewUrl = nextUrl;
+      resultPreviewImg.src = nextUrl;
+      resultPreviewImg.hidden = false;
+      resultPreview.hidden = false;
+      resultPreviewImg.classList.remove('is-fresh');
+      void resultPreviewImg.offsetWidth;
+      resultPreviewImg.classList.add('is-fresh');
+    };
+    incoming.onerror = function () {
+      URL.revokeObjectURL(nextUrl);
+    };
+    incoming.src = nextUrl;
+  }
+
+  // Draw it once when the card opens, so a tap can share it straight away.
+  function prepareResultImage(data) {
+    const token = ++resultImageToken;
+    resultFile = null;
+    resultFilePromise = buildResultFile(data).then(function (file) {
+      // A later card may have opened while this one was drawing.
+      if (token === resultImageToken) {
+        resultFile = file;
+        showResultPreview(file, token);
+      }
+      return file;
+    }).catch(function () {
+      if (token === resultImageToken) hideResultPreview();
+      return null;
+    });
+  }
+
+  function shareMessage() {
+    const data = resultSnapshot || { win: overlayWin, score: score, moves: moves, size: size };
+    const board = data.size + ' × ' + data.size;
+    const played = data.moves + (data.moves === 1 ? ' move' : ' moves');
+    if (data.win) {
+      return 'I reached 2048 on merge — ' + board + ' in ' + played + ' with ' + data.score + ' points. Can you?';
+    }
+    return 'I scored ' + data.score + ' on merge — ' + board + ' in ' + played + '. Can you beat it?';
+  }
+
+  // The address only belongs in a link when the game really lives on one.
+  function shareUrl() {
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') return '';
+    return location.origin + location.pathname;
+  }
+
+  function flashShare(label) {
+    overlayShare.textContent = label;
+    overlayShare.disabled = true;
+    window.clearTimeout(shareFlashTimer);
+    shareFlashTimer = window.setTimeout(function () {
+      overlayShare.textContent = 'Share';
+      overlayShare.disabled = false;
+    }, 1600);
+  }
+
+  // Somewhere without a share sheet (most desktops) copies the same line instead.
+  function copyResult(message) {
+    const url = shareUrl();
+    const text = url ? message + ' ' + url : message;
+    if (!navigator.clipboard || !navigator.clipboard.writeText) {
+      flashShare('Couldn’t copy');
+      return;
+    }
+    navigator.clipboard.writeText(text).then(function () {
+      flashShare('Copied');
+    }).catch(function () {
+      flashShare('Couldn’t copy');
+    });
+  }
+
+  function canShareFile(file) {
+    if (!file || !navigator.share || !navigator.canShare) return false;
+    try {
+      return navigator.canShare({ files: [file] });
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function shareText(message, url) {
+    if (navigator.share) {
+      navigator.share({ title: 'merge — 2048', text: message, url: url || undefined }).catch(function (err) {
+        // Closing the share sheet is a choice, not a failure.
+        if (err && err.name === 'AbortError') return;
+        copyResult(message);
+      });
+      return;
+    }
+    copyResult(message);
+  }
+
+  function shareFile(file, message, url) {
+    navigator.share({
+      files: [file],
+      title: 'merge — 2048',
+      text: url ? message + ' ' + url : message
+    }).catch(function (err) {
+      if (err && err.name === 'AbortError') return;
+      shareText(message, url);
+    });
+  }
+
+  function shareResult() {
+    const message = shareMessage();
+    const url = shareUrl();
+
+    // Most taps happen after the picture is ready, so keep the share call in
+    // the tap itself: some phones insist on it.
+    if (resultFile && canShareFile(resultFile)) {
+      shareFile(resultFile, message, url);
+      return;
+    }
+    if (resultFilePromise && !resultFile) {
+      resultFilePromise.then(function (file) {
+        if (file && canShareFile(file)) shareFile(file, message, url);
+        else shareText(message, url);
+      });
+      return;
+    }
+    shareText(message, url);
+  }
+
+  function flashSave(label) {
+    overlaySave.textContent = label;
+    overlaySave.disabled = true;
+    window.clearTimeout(saveFlashTimer);
+    saveFlashTimer = window.setTimeout(function () {
+      overlaySave.textContent = 'Save image';
+      overlaySave.disabled = false;
+    }, 1600);
+  }
+
+  async function saveResultImage() {
+    const file = resultFile || (resultFilePromise ? await resultFilePromise : null);
+    if (!file) {
+      flashSave('Couldn’t save');
+      return;
+    }
+    const href = URL.createObjectURL(file);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = 'merge-2048-result.png';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(href); }, 1000);
+    flashSave('Saved');
+  }
+
+  overlayShare.addEventListener('click', shareResult);
+  overlaySave.addEventListener('click', saveResultImage);
+
+  // The picture belongs to the card, so redraw it with the new page colours
+  // while the result is on screen; Share and Save then match the preview.
+  window.addEventListener('merge:appearance', function () {
+    if (overlayEl.hidden || !resultSnapshot) return;
+    prepareResultImage(resultSnapshot);
+  });
+
+  if (viewResultBtn) {
+      viewResultBtn.addEventListener('click', function () {
+        if (!resultSnapshot || busy) return;
+        showResultCard(resultSnapshot, true);
+      });
+    }
+
+  /* ---------- reset ---------- */
+
+  function resetBoard() {
+    generation += 1;
+    hideOverlay();
+    tilesEl.textContent = '';
+    tiles = [];
+    grid = emptyGrid();
+    score = 0;
+    moves = 0;
+    setStat(movesEl, 0);
+    won = false;
+    busy = false;
+    beatBest = false;
+    bestAtStart = best;
+    setStat(scoreEl, 0);
+    measure();
+    addRandomTile();
+    addRandomTile();
+    saveGame();
+    syncResultButton();
+    // A brand-new visitor still gets the classic first tip; every board after
+    // that moves the line on.
+    if (booted) {
+      showTip(true);
+    } else {
+      booted = true;
+      showTip(false);
+    }
+    syncBoardAccessibility('New ' + size + ' by ' + size + ' board.');
+  }
+
+  function newGame() {
+    resetBoard();
+  }
+
+  /* ---------- board size switch ---------- */
+
+  function syncSizeButtons() {
+    document.querySelectorAll('[data-size-opt]').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', Number(btn.dataset.sizeOpt) === size ? 'true' : 'false');
+    });
+  }
+
+  function setSize(next) {
+    if (next !== 3 && next !== 4 && next !== 5) return;
+    if (next === size) {
+      syncSizeButtons();
+      return;
+    }
+    size = next;
+    try {
+      localStorage.setItem(SIZE_KEY, String(size));
+    } catch (err) {
+      /* storage blocked — the choice just won't stick */
+    }
+    buildCells();
+    loadBest();
+    newGame();
+    syncSizeButtons();
+  }
+
+  /* ---------- input ---------- */
+
+  let startX = 0;
+  let startY = 0;
+  let tracking = false;
+
+  boardEl.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) {
+      tracking = false;
+      return;
+    }
+    tracking = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+
+  boardEl.addEventListener('touchmove', function (e) {
+    if (tracking && e.cancelable) e.preventDefault();
+  }, { passive: false });
+
+  boardEl.addEventListener('touchend', function (e) {
+    if (!tracking) return;
+    tracking = false;
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_MIN) return;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      move(dx > 0 ? 'right' : 'left');
+    } else {
+      move(dy > 0 ? 'down' : 'up');
+    }
+  }, { passive: true });
+
+  boardEl.addEventListener('touchcancel', function () {
+    tracking = false;
+  }, { passive: true });
+
+  const KEYS = {
+    ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
+    a: 'left', d: 'right', w: 'up', s: 'down'
+  };
+
+  window.addEventListener('keydown', function (e) {
+    // A sheet sits on top of the board; the game must not move underneath it.
+    if (sheetEl && !sheetEl.hidden) return;
+    if (helpEl && !helpEl.hidden) return;
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    const dir = KEYS[key];
+    if (!dir) return;
+    e.preventDefault();
+    move(dir);
+  });
+
+  newBtn.addEventListener('click', newGame);
+
+  // Keep the board if the app is closed between moves; never mid-animation, when
+  // the grid is still catching up with the tiles on screen.
+  function saveIfIdle() {
+    if (saveSuspended) return;
+    if (!busy) saveGame();
+  }
+  window.addEventListener('pagehide', saveIfIdle);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') saveIfIdle();
+  });
+
+  if (haptics.supported()) {
+    const syncHapticBtn = function () {
+      const on = haptics.isEnabled();
+      hapticBtn.classList.toggle('is-off', !on);
+      hapticBtn.setAttribute('aria-pressed', String(on));
+      hapticBtn.setAttribute('aria-label', on ? 'Vibration on' : 'Vibration off');
+    };
+    syncHapticBtn();
+    hapticBtn.addEventListener('click', function () {
+      haptics.toggle();
+      syncHapticBtn();
+    });
+  } else {
+    hapticBtn.hidden = true;
+  }
+
+  document.querySelectorAll('[data-size-opt]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      setSize(Number(btn.dataset.sizeOpt));
+    });
+  });
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(function () { measure(); }).observe(boardEl);
+  } else {
+    window.addEventListener('resize', measure);
+  }
+  window.addEventListener('orientationchange', function () {
+    window.setTimeout(measure, 250);
+  });
+
+  /* ---------- start ---------- */
+
+  // Leftover from the retired daily puzzle; harmless, so just clear it once.
+  try {
+    localStorage.removeItem('merge2048.daily');
+  } catch (err) {
+    /* ignore */
+  }
+
+  // Used by the reset buttons in the appearance sheet.
+  window.MergeGame = {
+    refreshBest: function () {
+      loadBest();
+      bestAtStart = best;
+    },
+    suspendSaving: function () {
+      saveSuspended = true;
+    },
+    newGame: newGame
+  };
+
+  const saved = resumeEnabled() ? readSaved() : null;
+  if (saved) size = saved.size;
+
+  buildCells();
+  syncSizeButtons();
+  loadBest();
+  measure();
+
+  if (saved) {
+    applyState(saved);
+    try {
+      localStorage.setItem(SIZE_KEY, String(size));
+    } catch (err) {
+      /* ignore */
+    }
+    if (isGameOver()) {
+      showResultCard(captureResult(false), false);
+    } else if (won) {
+      // A resumed 2048 game keeps its card within reach rather than opening it.
+      captureResult(true);
+      syncResultButton();
+    }
+  } else {
+    newGame();
+  }
+})();
