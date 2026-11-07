@@ -161,7 +161,7 @@
       document.head.appendChild(link);
     }
     // A stable address; the cookies above carry the current theme and palette.
-    const href = 'manifest.webmanifest?v=5';
+    const href = 'manifest.webmanifest?v=50';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 

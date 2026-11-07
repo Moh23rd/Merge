@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>merge — 2048</title>
+  <title>Merge — 2048</title>
   <meta name="description" content="A calm little slide-and-merge puzzle. Swipe to combine matching tiles." />
   <link rel="canonical" href="https://moh23rd.github.io/Merge/" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="merge" />
-  <meta property="og:title" content="merge — 2048" />
+  <meta property="og:site_name" content="Merge" />
+  <meta property="og:title" content="Merge — 2048" />
   <meta property="og:description" content="A calm little slide-and-merge puzzle. Swipe to combine matching tiles." />
   <meta property="og:url" content="https://moh23rd.github.io/Merge/" />
   <meta property="og:image" content="https://moh23rd.github.io/Merge/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="merge — a calm slide-and-merge puzzle" />
+  <meta property="og:image:alt" content="Merge — a calm slide-and-merge puzzle" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="merge — 2048" />
+  <meta name="twitter:title" content="Merge — 2048" />
   <meta name="twitter:description" content="A calm little slide-and-merge puzzle. Swipe to combine matching tiles." />
   <meta name="twitter:image" content="https://moh23rd.github.io/Merge/og-image.png" />
   <meta name="theme-color" content="#f6f1e8" />
@@ -24,8 +24,9 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="merge" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23e4d9c7'/><text x='32' y='45' font-family='system-ui,sans-serif' font-size='34' font-weight='700' text-anchor='middle' fill='%233b3833'>2</text></svg>" />
+  <meta name="apple-mobile-web-app-title" content="Merge" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=50" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png?v=50" />
   <script>
     (function () {
       // The phone paints an installed app's bottom strip from the manifest, whose
@@ -65,7 +66,7 @@
       var link = document.createElement('link');
       link.rel = 'manifest';
       link.id = 'manifest-link';
-      link.href = 'manifest.webmanifest?v=5';
+      link.href = 'manifest.webmanifest?v=50';
       document.head.appendChild(link);
 
       // Capture Chrome's install event early enough that the Help panel can
@@ -124,9 +125,9 @@
       #boot-splash { transition-duration: 0.01ms; }
     }
   </style>
-  <link rel="apple-touch-icon" href="icon-180.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png?v=50" />
   <link rel="preload" href="space-grotesk-700.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=49" />
+  <link rel="stylesheet" href="styles.css?v=50" />
 </head>
 <body>
   <div class="boot-splash" id="boot-splash" aria-hidden="true">
@@ -140,7 +141,7 @@
   <main class="app">
     <header class="header">
       <div class="title-block">
-        <h1>merge</h1>
+        <h1>Merge</h1>
         <p class="sub">Swipe to slide the tiles. Match numbers to double them.</p>
       </div>
       <div class="scores">
@@ -277,7 +278,7 @@
       </ol>
       <section class="sheet-block" id="install-block" hidden>
         <p class="sheet-label">Install</p>
-        <p class="sheet-note" id="install-copy">Install merge for an app-like window and offline play.</p>
+        <p class="sheet-note" id="install-copy">Install Merge for an app-like window and offline play.</p>
         <button class="btn install-btn" id="install-app" type="button" hidden>Install app</button>
       </section>
       <section class="sheet-block">
@@ -289,10 +290,10 @@
     </div>
   </div>
 
-  <script src="haptics.js?v=49"></script>
-  <script src="theme.js?v=49"></script>
-  <script src="game.js?v=49"></script>
-  <script src="install.js?v=49"></script>
+  <script src="haptics.js?v=50"></script>
+  <script src="theme.js?v=50"></script>
+  <script src="game.js?v=50"></script>
+  <script src="install.js?v=50"></script>
   <script>
     (function () {
       var splash = document.getElementById('boot-splash');

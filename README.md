@@ -1,10 +1,10 @@
-# merge — 2048
+# Merge — 2048
 
-![merge — 2048](og-image.png)
+![Merge — 2048](og-image.png)
 
 A calm little slide-and-merge puzzle for your phone or browser.
 
-**[Play merge →](https://moh23rd.github.io/Merge/)**
+**[Play Merge →](https://moh23rd.github.io/Merge/)**
 
 ## How to play
 

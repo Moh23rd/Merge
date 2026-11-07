@@ -799,7 +799,7 @@
     ctx.fillRect(0, 0, W, W);
     ctx.textBaseline = 'middle';
 
-    // Wordmark and one 2048 tile, so the picture is recognisably merge.
+    // Wordmark and one 2048 tile, so the picture is recognisably Merge.
     ctx.textAlign = 'left';
     ctx.fillStyle = colors.ink;
     ctx.font = shareFont(700, 58);
@@ -918,9 +918,9 @@
     const board = data.size + ' × ' + data.size;
     const played = data.moves + (data.moves === 1 ? ' move' : ' moves');
     if (data.win) {
-      return 'I reached 2048 on merge — ' + board + ' in ' + played + ' with ' + data.score + ' points. Can you?';
+      return 'I reached 2048 on Merge — ' + board + ' in ' + played + ' with ' + data.score + ' points. Can you?';
     }
-    return 'I scored ' + data.score + ' on merge — ' + board + ' in ' + played + '. Can you beat it?';
+    return 'I scored ' + data.score + ' on Merge — ' + board + ' in ' + played + '. Can you beat it?';
   }
 
   // The address only belongs in a link when the game really lives on one.
@@ -965,7 +965,7 @@
 
   function shareText(message, url) {
     if (navigator.share) {
-      navigator.share({ title: 'merge — 2048', text: message, url: url || undefined }).catch(function (err) {
+      navigator.share({ title: 'Merge — 2048', text: message, url: url || undefined }).catch(function (err) {
         // Closing the share sheet is a choice, not a failure.
         if (err && err.name === 'AbortError') return;
         copyResult(message);
@@ -978,7 +978,7 @@
   function shareFile(file, message, url) {
     navigator.share({
       files: [file],
-      title: 'merge — 2048',
+      title: 'Merge — 2048',
       text: url ? message + ' ' + url : message
     }).catch(function (err) {
       if (err && err.name === 'AbortError') return;

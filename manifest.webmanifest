@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "merge — 2048",
-  "short_name": "merge",
+  "name": "Merge — 2048",
+  "short_name": "Merge",
   "description": "A calm little slide-and-merge puzzle.",
   "lang": "en",
   "dir": "ltr",

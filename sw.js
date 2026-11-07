@@ -1,8 +1,8 @@
-/* Offline cache for the merge game. Bump VERSION whenever the assets change. */
-const VERSION = 'merge-2048-v49';
+/* Offline cache for the Merge game. Bump VERSION whenever the assets change. */
+const VERSION = 'merge-2048-v50';
 // Bump alongside the ?v= numbers in index.html; the new URLs make the browser
 // fetch fresh files even when an older cache is still installed.
-const ASSET = '49';
+const ASSET = '50';
 
 const SHELL = [
   './',

@@ -31,7 +31,7 @@
     if (prompt) {
       block.hidden = false;
       btn.hidden = false;
-      copy.textContent = 'Add merge to your home screen for an app-like, offline-friendly game.';
+      copy.textContent = 'Add Merge to your home screen for an app-like, offline-friendly game.';
       return;
     }
 
