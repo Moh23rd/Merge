@@ -28,6 +28,7 @@
   const resultPreview = document.getElementById('result-preview');
   const resultPreviewImg = document.getElementById('result-preview-img');
   const newBtn = document.getElementById('new-game');
+  const focusBtn = document.getElementById('focus-toggle');
   const viewResultBtn = document.getElementById('view-result');
   const hapticBtn = document.getElementById('vibration-toggle');
   const sheetEl = document.getElementById('sheet');
@@ -1234,6 +1235,101 @@
     e.preventDefault();
     move(dir);
   });
+
+  /* ---------- distraction-free desktop mode ---------- */
+
+  if (focusBtn) {
+    const root = document.documentElement;
+    const desktopQuery = window.matchMedia ? window.matchMedia('(min-width: 900px)') : null;
+
+    function fullscreenElement() {
+      return document.fullscreenElement || document.webkitFullscreenElement || null;
+    }
+
+    function syncFocusButton() {
+      const active = root.classList.contains('is-focus');
+      focusBtn.setAttribute('aria-pressed', String(active));
+      focusBtn.setAttribute('aria-label', active ? 'Exit distraction-free mode' : 'Enter distraction-free mode');
+      focusBtn.title = active ? 'Exit distraction-free mode (Esc)' : 'Distraction-free mode (F)';
+    }
+
+    function enterFocus() {
+      if (root.classList.contains('is-focus')) return;
+      root.classList.add('is-focus');
+      syncFocusButton();
+      // requestFullscreen is optional. The class above is a complete fallback
+      // for browsers (or embedded previews) that refuse the native request.
+      const request = root.requestFullscreen || root.webkitRequestFullscreen;
+      if (!request) return;
+      try {
+        const pending = request.call(root);
+        if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+      } catch (err) {
+        /* the in-window focus layout still applies */
+      }
+    }
+
+    function exitFocus() {
+      root.classList.remove('is-focus');
+      syncFocusButton();
+      if (!fullscreenElement()) return;
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (!exit) return;
+      try {
+        const pending = exit.call(document);
+        if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+      } catch (err) {
+        /* the browser will also leave fullscreen from its own control */
+      }
+    }
+
+    function toggleFocus() {
+      if (root.classList.contains('is-focus')) exitFocus();
+      else enterFocus();
+    }
+
+    function syncFromFullscreen() {
+      // The browser's Esc key or its own fullscreen control can end native
+      // fullscreen without going through exitFocus.
+      if (!fullscreenElement() && root.classList.contains('is-focus')) {
+        root.classList.remove('is-focus');
+        syncFocusButton();
+      }
+    }
+
+    focusBtn.addEventListener('click', toggleFocus);
+    document.addEventListener('fullscreenchange', syncFromFullscreen);
+    document.addEventListener('webkitfullscreenchange', syncFromFullscreen);
+
+    window.addEventListener('keydown', function (e) {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === 'Escape') {
+        // Native fullscreen handles Esc itself; this is for the windowed
+        // fallback and for browsers without the Fullscreen API.
+        if (root.classList.contains('is-focus') && !fullscreenElement()) {
+          e.preventDefault();
+          exitFocus();
+        }
+        return;
+      }
+      if (e.key !== 'f' && e.key !== 'F') return;
+      if (desktopQuery && !desktopQuery.matches) return;
+      if (sheetEl && !sheetEl.hidden) return;
+      if (helpEl && !helpEl.hidden) return;
+      e.preventDefault();
+      toggleFocus();
+    });
+
+    if (desktopQuery) {
+      const handleDesktopChange = function (event) {
+        if (!event.matches && root.classList.contains('is-focus')) exitFocus();
+      };
+      if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', handleDesktopChange);
+      else if (desktopQuery.addListener) desktopQuery.addListener(handleDesktopChange);
+    }
+
+    syncFocusButton();
+  }
 
   newBtn.addEventListener('click', newGame);
 

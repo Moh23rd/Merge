@@ -712,6 +712,12 @@ button:focus-visible {
   display: block;
 }
 
+/* Focus mode is a desktop nicety; phones keep their compact control row. */
+.btn.icon.focus-btn { display: none; }
+.btn.icon.focus-btn .focus-exit { display: none; }
+html.is-focus .btn.focus-btn .focus-enter { display: none; }
+html.is-focus .btn.focus-btn .focus-exit { display: block; }
+
 #theme-toggle .sun { display: none; }
 html[data-theme="dark"] #theme-toggle .moon { display: none; }
 html[data-theme="dark"] #theme-toggle .sun { display: block; }
@@ -1451,7 +1457,7 @@ html[data-theme="dark"] #theme-toggle .moon {
   .controls {
     grid-area: controls;
     display: grid;
-    grid-template-columns: repeat(4, 46px) minmax(0, 1fr);
+    grid-template-columns: repeat(5, 46px) minmax(0, 1fr);
     gap: 7px;
   }
 
@@ -1474,6 +1480,8 @@ html[data-theme="dark"] #theme-toggle .moon {
     width: 22px;
     height: 22px;
   }
+
+  .btn.icon.focus-btn { display: grid; }
 
   /* The last-result shortcut sits in the same row as the controls, so it can
      come and go without pushing the hint or controls up and down. */
@@ -1606,6 +1614,29 @@ html[data-theme="dark"] #theme-toggle .moon {
     padding: 5px 14px;
   }
 
+  .controls {
+    grid-template-columns: repeat(5, 42px) minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .controls .btn.icon {
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+    border-radius: 11px;
+  }
+
+  .controls .btn.icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .controls #new-game {
+    min-height: 42px;
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+
   .hint { padding: 1px 0; }
   .key-hint { font-size: 10.5px; }
 }
@@ -1628,6 +1659,35 @@ html[data-theme="dark"] #theme-toggle .moon {
 @media (min-width: 2400px) and (min-height: 1300px) {
   .app { --play-width: min(100%, 68dvh, 960px); }
 }
+
+/* Distraction-free mode keeps only the board and the controls. Native
+   fullscreen is used when the browser permits it; these rules also turn the
+   current window into a quiet fallback when it does not. */
+html.is-focus body {
+  padding: clamp(12px, 2.4vh, 24px) clamp(20px, 3vw, 48px);
+}
+
+html.is-focus .app {
+  --play-width: min(100%, 82dvh, 1120px);
+  width: min(100%, 1200px);
+  gap: 14px;
+}
+
+html.is-focus .header,
+html.is-focus .result-again,
+html.is-focus .hint,
+html.is-focus .key-hint,
+html.is-focus .app-version { display: none; }
+
+html.is-focus .footer {
+  width: var(--play-width);
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+html.is-focus .controls { width: 100%; }
 
 
 /* Only mouse and pen devices get the grab cursor and keyboard cue. Touch
