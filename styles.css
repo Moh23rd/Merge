@@ -1610,6 +1610,12 @@ html[data-theme="dark"] #theme-toggle .moon {
   .key-hint { font-size: 10.5px; }
 }
 
+/* Large monitors get a little more board without loosening the header or
+   letting the controls drop below the fold. */
+@media (min-width: 1440px) and (min-height: 860px) {
+  .app { --play-width: min(100%, 65dvh, 640px); }
+}
+
 /* Only mouse and pen devices get the grab cursor and keyboard cue. Touch
    tablets still use the same layout, with their familiar swipe gesture. */
 @media (min-width: 900px) and (pointer: fine) {
