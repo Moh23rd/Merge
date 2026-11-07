@@ -159,7 +159,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=55';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=56';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 

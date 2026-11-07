@@ -761,7 +761,10 @@
 
   function syncResultButton() {
     if (!viewResultBtn) return;
-    const show = !!resultSnapshot && overlayEl.hidden && !busy;
+    // Keep the shortcut stable while a move is animating. Its click handler
+    // already ignores the brief busy window, so toggling visibility here only
+    // made the button flicker on every turn.
+    const show = !!resultSnapshot && overlayEl.hidden;
     viewResultBtn.hidden = !show;
     if (show) {
       viewResultBtn.textContent = resultSnapshot.generation === generation ? 'View result' : 'Last result';
