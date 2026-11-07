@@ -1,0 +1,32 @@
+name: Publish Merge v59
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download v59 archive
+        run: |
+          curl -fsSL --retry 5 --retry-all-errors \
+            -o "$RUNNER_TEMP/merge-v59.zip" \
+            "https://site-58d4c06196df4e3aa353fcca2f921cf1.freebuff.page/download/merge-2048-v59.zip"
+
+      - name: Verify archive
+        run: |
+          echo "c522dff49bf2dc6ec9a34be4c7ca2180f4e74eb8b0c7741eecc512424f3e34e9  $RUNNER_TEMP/merge-v59.zip" | sha256sum -c -
+
+      - name: Publish files
+        run: |
+          unzip -oq "$RUNNER_TEMP/merge-v59.zip" -d .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Add distraction-free fullscreen mode"
+          git push
