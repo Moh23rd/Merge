@@ -1,0 +1,39 @@
+name: Sync Merge v54
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download the exact v54 package
+        env:
+          PACKAGE_URL: https://site-58d4c06196df4e3aa353fcca2f921cf1.freebuff.page/download/merge-2048-v54.zip
+          PACKAGE_SHA256: 393b59c6ecc23a3cb412cd8caee74078eb1c6df803f28215e876f4731ba8b459
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 4 -A 'Mozilla/5.0' "$PACKAGE_URL" -o "$RUNNER_TEMP/merge-v54.zip"
+          echo "$PACKAGE_SHA256  $RUNNER_TEMP/merge-v54.zip" | sha256sum -c -
+          unzip -o "$RUNNER_TEMP/merge-v54.zip" -d .
+
+      - name: Commit the refreshed app
+        run: |
+          set -euo pipefail
+          git config user.name "Moh23rd"
+          git config user.email "mohrd9685@gmail.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git commit -m "Refresh Merge to v54"
+          git push origin HEAD:main
