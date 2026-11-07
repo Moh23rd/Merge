@@ -2,7 +2,7 @@
    the UI's rounded system font to blend. */
 @font-face {
   font-family: "Space Grotesk";
-  src: url("space-grotesk-700.woff2") format("woff2");
+  src: url("fonts/space-grotesk-700.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -1016,4 +1016,267 @@ html[data-theme="dark"] .reset-btn[data-armed="true"] {
   .palette,
   .reset-btn,
   .sheet-done { transition-duration: 0.01ms; }
+}
+
+/* ---------- motion system ---------- */
+
+/* One set of curves and durations keeps every surface moving at the same
+   cadence: quick feedback on taps, a soft settle on layout changes. */
+:root {
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fast: 140ms;
+  --motion-base: 240ms;
+  --motion-slow: 380ms;
+}
+
+html {
+  transition: background-color var(--motion-slow) var(--ease-out);
+}
+
+body {
+  transition: background-color var(--motion-slow) var(--ease-out), color 180ms ease;
+}
+
+.board {
+  transition: background-color var(--motion-slow) var(--ease-out), box-shadow var(--motion-slow) var(--ease-out);
+}
+
+.score {
+  transition: background-color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
+}
+
+.cell {
+  transition: background-color var(--motion-base) var(--ease-out);
+}
+
+.tile {
+  transition: transform 150ms var(--ease-out);
+  backface-visibility: hidden;
+}
+
+.face {
+  transition: background-color var(--motion-base) var(--ease-out), color 200ms ease, box-shadow var(--motion-base) var(--ease-out);
+}
+
+/* The board itself lifts in after the launch screen, rather than appearing
+   underneath it with a hard cut. */
+@media (prefers-reduced-motion: no-preference) {
+  html.app-ready .header {
+    animation: appRise 480ms var(--ease-out) 40ms both;
+  }
+  html.app-ready .board {
+    animation: boardReveal 560ms var(--ease-out) 80ms both;
+  }
+  html.app-ready .footer {
+    animation: appRise 480ms var(--ease-out) 150ms both;
+  }
+}
+
+@keyframes appRise {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes boardReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Tiles land with a little more give, so a fast swipe feels physical rather
+   than like four independent snap changes. */
+@keyframes appear {
+  0%   { transform: scale(0.55); opacity: 0; }
+  72%  { transform: scale(1.035); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bump {
+  0%   { transform: scale(1); }
+  42%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.face.appear { animation: appear 190ms var(--ease-spring) both; }
+.face.bump   { animation: bump 200ms var(--ease-spring); }
+
+/* A gained score gets a quiet pulse; the Best card keeps its own record
+   flourish so the two celebrations never compete. */
+@keyframes scoreTick {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.09); }
+  100% { transform: scale(1); }
+}
+
+.score:not(.is-record).is-scoring .value {
+  animation: scoreTick 260ms var(--ease-spring);
+}
+
+.hint {
+  transition: color 200ms ease, background-color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out), transform 180ms var(--ease-out);
+}
+
+.hint.is-warning {
+  animation: hintIn 260ms var(--ease-spring);
+}
+
+.btn {
+  transition: transform var(--motion-fast) var(--ease-out), opacity 160ms ease, background-color var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
+}
+
+.seg button,
+.palette,
+.reset-btn,
+.sheet-done,
+.contact-link {
+  transition: transform var(--motion-fast) var(--ease-out), background-color var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
+}
+
+/* The sun and moon trade places instead of blinking between two icons. */
+#theme-toggle svg {
+  grid-area: 1 / 1;
+  transition: opacity 200ms ease, transform 320ms var(--ease-spring);
+}
+
+#theme-toggle .sun,
+#theme-toggle .moon {
+  display: block;
+}
+
+#theme-toggle .sun {
+  opacity: 0;
+  transform: rotate(-35deg) scale(0.72);
+}
+
+#theme-toggle .moon {
+  opacity: 1;
+  transform: none;
+}
+
+html[data-theme="dark"] #theme-toggle .sun {
+  display: block;
+  opacity: 1;
+  transform: none;
+}
+
+html[data-theme="dark"] #theme-toggle .moon {
+  display: block;
+  opacity: 0;
+  transform: rotate(35deg) scale(0.72);
+}
+
+/* Result card: fade the dimmer, then let the card settle in from a small
+   lift. The same path runs in reverse while it closes. */
+.overlay {
+  animation: none;
+  opacity: 0;
+  transition: opacity 220ms var(--ease-out);
+}
+
+.overlay.is-open {
+  opacity: 1;
+}
+
+.overlay.is-closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.overlay-card {
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition: opacity 220ms var(--ease-out), transform 300ms var(--ease-spring), background-color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
+}
+
+.overlay.is-open .overlay-card {
+  opacity: 1;
+  transform: none;
+}
+
+.overlay.is-closing .overlay-card {
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+  transition-duration: 180ms;
+}
+
+/* Sheets use the same language: a soft scrim and a card that rises, then
+   leaves the same way instead of disappearing between frames. */
+.sheet {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 260ms var(--ease-out), visibility 260ms;
+}
+
+.sheet.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sheet.is-closing {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sheet-backdrop {
+  animation: none;
+  opacity: 0;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.sheet.is-open .sheet-backdrop {
+  opacity: 1;
+}
+
+.sheet.is-closing .sheet-backdrop {
+  opacity: 0;
+}
+
+.sheet-card {
+  animation: none;
+  opacity: 0;
+  transform: translateY(26px) scale(0.985);
+  transition: opacity 240ms var(--ease-out), transform 360ms var(--ease-spring), background-color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
+}
+
+.sheet.is-open .sheet-card {
+  opacity: 1;
+  transform: none;
+}
+
+.sheet.is-closing .sheet-card {
+  opacity: 0;
+  transform: translateY(18px) scale(0.99);
+  transition-duration: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.app-ready .header,
+  html.app-ready .board,
+  html.app-ready .footer,
+  .score:not(.is-record).is-scoring .value {
+    animation: none;
+  }
+  .tile,
+  .face,
+  .overlay,
+  .overlay-card,
+  .sheet,
+  .sheet-backdrop,
+  .sheet-card,
+  .btn,
+  .seg button,
+  .palette,
+  .reset-btn,
+  .sheet-done,
+  .contact-link,
+  .hint,
+  #theme-toggle svg {
+    transition-duration: 0.01ms;
+  }
+  .face.appear,
+  .face.bump,
+  .hint.is-warning {
+    animation: none;
+  }
 }

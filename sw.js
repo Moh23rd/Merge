@@ -1,8 +1,8 @@
 /* Offline cache for the Merge game. Bump VERSION whenever the assets change. */
-const VERSION = 'merge-2048-v50';
+const VERSION = 'merge-2048-v51';
 // Bump alongside the ?v= numbers in index.html; the new URLs make the browser
 // fetch fresh files even when an older cache is still installed.
-const ASSET = '50';
+const ASSET = '51';
 
 const SHELL = [
   './',
@@ -12,11 +12,13 @@ const SHELL = [
   './game.js?v=' + ASSET,
   './haptics.js?v=' + ASSET,
   './install.js?v=' + ASSET,
-  './icon-180.png',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-maskable-512.png',
-  './space-grotesk-700.woff2'
+  './icons/icon-180.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-1024.png',
+  './icons/icon-maskable-512.png',
+  './icons/icon-maskable-1024.png',
+  './fonts/space-grotesk-700.woff2'
 ];
 
 self.addEventListener('install', (event) => {

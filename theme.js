@@ -161,7 +161,7 @@
       document.head.appendChild(link);
     }
     // A stable address; the cookies above carry the current theme and palette.
-    const href = 'manifest.webmanifest?v=50';
+    const href = 'manifest.webmanifest?v=51';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
@@ -363,11 +363,22 @@
 
   const appEl = document.querySelector('.app');
   const sheetOpeners = new WeakMap();
+  const sheetCloseTimers = new WeakMap();
 
   function openSheet(sheet, opener) {
     if (!sheet) return;
+    const pendingClose = sheetCloseTimers.get(sheet);
+    if (pendingClose) {
+      window.clearTimeout(pendingClose);
+      sheetCloseTimers.delete(sheet);
+    }
     sheetOpeners.set(sheet, opener || null);
     sheet.hidden = false;
+    // Commit the display change before the entering styles, so the card rises
+    // rather than appearing on the same frame it is revealed.
+    void sheet.offsetWidth;
+    sheet.classList.remove('is-closing');
+    sheet.classList.add('is-open');
     // The page behind the sheet can't be tabbed into or tapped while it's open.
     if (appEl && 'inert' in appEl) appEl.inert = true;
     document.documentElement.classList.add('sheet-open');
@@ -376,14 +387,23 @@
   }
 
   function closeSheet(sheet) {
-    if (!sheet || sheet.hidden) return;
-    sheet.hidden = true;
-    document.documentElement.classList.remove('sheet-open');
-    if (appEl && 'inert' in appEl) appEl.inert = false;
-    // Send focus back to whatever opened the sheet.
-    const opener = sheetOpeners.get(sheet);
-    if (opener) opener.focus();
-    sheetOpeners.delete(sheet);
+    if (!sheet || sheet.hidden || sheet.classList.contains('is-closing')) return;
+    // Let the scrim and card leave before removing the dialog from the page.
+    sheet.classList.remove('is-open');
+    sheet.classList.add('is-closing');
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const timer = window.setTimeout(function () {
+      sheet.hidden = true;
+      sheet.classList.remove('is-open', 'is-closing');
+      document.documentElement.classList.remove('sheet-open');
+      if (appEl && 'inert' in appEl) appEl.inert = false;
+      // Send focus back to whatever opened the sheet.
+      const opener = sheetOpeners.get(sheet);
+      if (opener) opener.focus();
+      sheetOpeners.delete(sheet);
+      sheetCloseTimers.delete(sheet);
+    }, reduced ? 0 : 320);
+    sheetCloseTimers.set(sheet, timer);
   }
 
   const appearanceSheet = document.getElementById('sheet');

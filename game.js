@@ -6,7 +6,7 @@
   const SAVE_KEY = 'merge2048.save';
   const RESUME_KEY = 'merge2048.resume';
   const SWIPE_MIN = 22;
-  const MOVE_MS = 110;
+  const MOVE_MS = 150;
   const STORE_BEST = 'merge2048.best';
 
   let size = DEFAULT_SIZE;
@@ -109,6 +109,8 @@
   // Set while "All settings" is being cleared: the reload that follows must not
   // let the pagehide save write the old board back into storage.
   let saveSuspended = false;
+  let overlayHideTimer = 0;
+  let scorePulseTimer = 0;
 
   /* ---------- board size ---------- */
 
@@ -181,11 +183,11 @@
     const y = tile.row * (cell + gap);
     if (animate === false) {
       tile.el.classList.add('instant');
-      tile.el.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+      tile.el.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
       void tile.el.offsetWidth;
       tile.el.classList.remove('instant');
     } else {
-      tile.el.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+      tile.el.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
     }
   }
 
@@ -432,6 +434,7 @@
     if (gained) {
       score += gained;
       updateScore();
+      pulseScore();
     }
 
     window.setTimeout(function () {
@@ -576,6 +579,18 @@
     refreshHint();
   }
 
+  function pulseScore() {
+    const card = scoreEl.closest('.score');
+    if (!card) return;
+    card.classList.remove('is-scoring');
+    void card.offsetWidth;
+    card.classList.add('is-scoring');
+    window.clearTimeout(scorePulseTimer);
+    scorePulseTimer = window.setTimeout(function () {
+      card.classList.remove('is-scoring');
+    }, 300);
+  }
+
   function updateScore() {
     setStat(scoreEl, score);
     if (score > best) {
@@ -649,7 +664,11 @@
     // while it is open.
     if (headerEl && 'inert' in headerEl) headerEl.inert = true;
     if (footerEl && 'inert' in footerEl) footerEl.inert = true;
+    window.clearTimeout(overlayHideTimer);
+    overlayEl.classList.remove('is-open', 'is-closing');
     overlayEl.hidden = false;
+    void overlayEl.offsetWidth;
+    overlayEl.classList.add('is-open');
     syncResultButton();
     // So a keyboard or screen-reader user lands on the way out of the card.
     try {
@@ -659,21 +678,30 @@
     }
   }
 
-  function hideOverlay() {
-    const wasOpen = !overlayEl.hidden;
+  function finishHideOverlay() {
     overlayEl.hidden = true;
+    overlayEl.classList.remove('is-open', 'is-closing');
+  }
+
+  function hideOverlay() {
+    if (overlayEl.hidden) return;
     overlayAction = null;
     overlayWin = false;
     if (headerEl && 'inert' in headerEl) headerEl.inert = false;
     if (footerEl && 'inert' in footerEl) footerEl.inert = false;
     syncResultButton();
-    if (wasOpen) {
+    window.clearTimeout(overlayHideTimer);
+    overlayEl.classList.remove('is-open');
+    overlayEl.classList.add('is-closing');
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    overlayHideTimer = window.setTimeout(function () {
+      finishHideOverlay();
       try {
         boardEl.focus({ preventScroll: true });
       } catch (err) {
         boardEl.focus();
       }
-    }
+    }, reduced ? 0 : 260);
   }
 
   function overlayFocusables() {
