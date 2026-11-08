@@ -1,6 +1,6 @@
 # Merge — 2048
 
-![Merge — 2048](og-image.png)
+![Merge — 2048](og-image.png?v=1.0.5)
 
 A calm little slide-and-merge puzzle for your phone, tablet or desktop browser.
 
