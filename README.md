@@ -31,7 +31,7 @@ Questions, bug reports or feedback? Email [mohrd9685@gmail.com](mailto:mohrd9685
 
 ## License
 
-The game code is available under the [MIT License](LICENSE). The Space Grotesk typeface is included under the [SIL Open Font License 1.1](OFL.txt).
+The game code is available under the [MIT License](LICENSE). The Google Sans Flex typeface is included under the [SIL Open Font License 1.1](OFL.txt).
 
 ## Running locally
 

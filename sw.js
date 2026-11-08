@@ -1,8 +1,8 @@
 /* Offline cache for the Merge game. Bump VERSION whenever the assets change. */
-const VERSION = 'merge-2048-v62';
+const VERSION = 'merge-2048-v63';
 // Bump alongside the ?v= numbers in index.html; the new URLs make the browser
 // fetch fresh files even when an older cache is still installed.
-const ASSET = '62';
+const ASSET = '63';
 
 const SHELL = [
   './',
@@ -18,7 +18,7 @@ const SHELL = [
   './icons/icon-1024.png',
   './icons/icon-maskable-512.png',
   './icons/icon-maskable-1024.png',
-  './fonts/space-grotesk-700.woff2'
+  './fonts/google-sans-flex.woff2'
 ];
 
 self.addEventListener('install', (event) => {

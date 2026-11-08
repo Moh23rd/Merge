@@ -1,14 +1,17 @@
-/* The wordmark face: geometric with a little more character, close enough to
-   the UI's rounded system font to blend. */
+/* Google Sans Flex is Google's open-source Material 3 Expressive face. The
+   shipped file keeps the rounded terminals, weight and optical size; the
+   unused language subsets and axes are trimmed away. */
 @font-face {
-  font-family: "Space Grotesk";
-  src: url("fonts/space-grotesk-700.woff2") format("woff2");
-  font-weight: 700;
+  font-family: "Google Sans Flex";
+  src: url("fonts/google-sans-flex.woff2") format("woff2");
+  font-weight: 100 1000;
   font-style: normal;
   font-display: swap;
 }
 
 :root {
+  --font-ui: "Google Sans Flex", ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-display: "Google Sans Flex", ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color-scheme: light;
 
   /* page chrome — one flat colour, identical to the manifest and theme-color,
@@ -120,7 +123,9 @@ body {
   padding: calc(env(safe-area-inset-top, 0px) + 22px) calc(env(safe-area-inset-right, 0px) + 16px) calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 18px) calc(env(safe-area-inset-left, 0px) + 16px);
   background-color: var(--page);
   color: var(--ink);
-  font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
@@ -180,10 +185,10 @@ html[data-theme="dark"] body::after {
 
 h1 {
   margin: 0;
-  font-family: "Space Grotesk", ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  font-size: clamp(28px, 8vw, 36px);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 8.2vw, 38px);
+  font-weight: 800;
+  letter-spacing: 0.018em;
   line-height: 0.95;
   text-transform: uppercase;
 }
@@ -539,6 +544,16 @@ h1 {
 }
 
 .controls #new-game { flex: 1; }
+
+/* Tip, last result and the desktop keyboard cue travel together, so the
+   landscape side column can centre them in its open middle. */
+.status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
 
 /* A quiet way back to the last result once its card has been put away. */
 .result-again {
@@ -997,8 +1012,8 @@ html[data-theme="dark"] .reset-btn[data-armed="true"] {
   .value { font-size: 15px; }
   .value.is-long { font-size: 13.5px; }
   .value.is-longer { font-size: 11px; }
-  .header { flex-wrap: wrap; row-gap: 8px; }
-  .scores { width: 156px; gap: 6px; margin-left: auto; }
+  .header { flex-wrap: nowrap; gap: 8px; }
+  .scores { width: 150px; gap: 5px; margin-left: auto; }
   .sub { font-size: 11.5px; }
   #new-game { padding: 12px 10px; }
 }
@@ -1073,10 +1088,8 @@ html[data-theme="dark"] .reset-btn[data-armed="true"] {
   }
 }
 
-/* A very short landscape phone leaves too little width for four icon buttons
-   and the New game label on one row. Stack the text button underneath rather
-   than letting it run off the right edge. */
-@media (orientation: landscape) and (max-height: 360px) {
+/* Only the shortest landscape phones need the text button on its own row. */
+@media (orientation: landscape) and (max-height: 320px) {
   .controls {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 44px));
@@ -1473,20 +1486,15 @@ html[data-theme="dark"] #theme-toggle .moon {
   .footer {
     width: var(--play-width);
     align-self: center;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "controls result"
-      "hint hint"
-      "keys keys";
-    align-items: stretch;
-    gap: 9px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
   }
 
   .controls {
-    grid-area: controls;
     display: flex;
     gap: 7px;
+    width: 100%;
   }
 
   .controls #new-game {
@@ -1512,11 +1520,7 @@ html[data-theme="dark"] #theme-toggle .moon {
 
   .btn.icon.focus-btn { display: grid; }
 
-  /* The last-result shortcut sits in the same row as the controls, so it can
-     come and go without pushing the hint or controls up and down. */
   .result-again {
-    grid-area: result;
-    align-self: stretch;
     justify-content: center;
     min-width: 108px;
     min-height: 46px;
@@ -1527,7 +1531,6 @@ html[data-theme="dark"] #theme-toggle .moon {
   }
 
   .hint {
-    grid-area: hint;
     align-self: center;
     justify-content: center;
     padding: 2px 0;
@@ -1535,12 +1538,7 @@ html[data-theme="dark"] #theme-toggle .moon {
     font-size: 12px;
   }
 
-  .hint.is-warning {
-    align-self: center;
-    padding-inline: 12px;
-  }
-
-  .key-hint { grid-area: keys; }
+  .hint.is-warning { padding-inline: 12px; }
 
   .overlay {
     padding: 28px;
@@ -1629,12 +1627,6 @@ html[data-theme="dark"] #theme-toggle .moon {
 
   .footer {
     width: min(100%, max(320px, var(--play-width)));
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "controls"
-      "result"
-      "hint"
-      "keys";
     gap: 7px;
   }
 
@@ -1687,76 +1679,129 @@ html[data-theme="dark"] #theme-toggle .moon {
   .app { --play-width: min(100%, 68dvh, 960px); }
 }
 
-/* Distraction-free mode keeps only the board and the controls. Native
-   fullscreen is used when the browser permits it; these rules also turn the
-   current window into a quiet fallback when it does not. */
-html.is-focus body {
-  padding:
-    calc(env(safe-area-inset-top, 0px) + clamp(12px, 2.4vh, 24px))
-    calc(env(safe-area-inset-right, 0px) + clamp(20px, 3vw, 48px))
-    calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + clamp(12px, 2.4vh, 24px))
-    calc(env(safe-area-inset-left, 0px) + clamp(20px, 3vw, 48px));
+/* Landscapes use the board as the anchor: title and scores at the top of the
+   side column, the live tip (or last result) in the open middle, and the
+   controls at the bottom. The same rules apply in fullscreen. */
+@media (orientation: landscape) {
+  body {
+    align-items: center;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 10px)
+      calc(env(safe-area-inset-right, 0px) + 14px)
+      calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 10px)
+      calc(env(safe-area-inset-left, 0px) + 14px);
+  }
+
+  .app {
+    width: min(100%, 1440px);
+    height: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      "board header"
+      "board footer";
+    align-content: stretch;
+    align-items: stretch;
+    gap: 12px clamp(16px, 2vw, 28px);
+  }
+
+  .board {
+    grid-area: board;
+    width: min(
+      48vw,
+      calc(100dvh - 32px - env(safe-area-inset-top, 0px) - max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px))),
+      760px
+    );
+    margin: 0;
+    align-self: center;
+    justify-self: start;
+  }
+
+  .header {
+    grid-area: header;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    align-self: start;
+    gap: 8px 16px;
+    width: 100%;
+  }
+
+  .title-block { min-width: 0; flex: 1 1 190px; }
+  .scores { margin-left: auto; }
+
+  .footer {
+    grid-area: footer;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "status"
+      "controls";
+    align-content: stretch;
+    align-self: stretch;
+    width: 100%;
+    min-height: 0;
+    gap: 10px;
+  }
+
+  .status {
+    grid-area: status;
+    align-self: center;
+    justify-self: stretch;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .controls {
+    grid-area: controls;
+    width: 100%;
+  }
+
+  .hint {
+    max-width: min(100%, 46ch);
+    padding: clamp(8px, 1.2vh, 12px) clamp(12px, 1.4vw, 18px);
+    border-radius: 14px;
+    background: var(--card);
+    box-shadow: var(--card-shadow);
+    font-size: clamp(12.5px, 1.15vw, 15px);
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .sub { display: block; }
+  .app-version { display: none; }
+
+  .sheet { align-items: center; }
+  .sheet-card {
+    border-radius: 20px;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+  }
 }
 
-html.is-focus .app {
-  --play-width: min(100%, 82dvh, calc(100dvh - 232px), 1120px);
-  width: min(100%, 1200px);
-  height: 100%;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  grid-template-areas:
-    "header"
-    "board"
-    "footer";
-  align-content: stretch;
-  justify-content: stretch;
-  gap: clamp(10px, 1.8dvh, 18px);
+/* Stack the score row beneath the wordmark in the narrower side columns. */
+@media (orientation: landscape) and (max-width: 1100px) {
+  .header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
 }
 
-html.is-focus .result-again,
-html.is-focus .hint,
-html.is-focus .key-hint,
-html.is-focus .app-version { display: none; }
-
-/* Keep the board's context: the wordmark, description and all three scores
-   stay visible. The header owns the top of the screen, the board takes the
-   middle and the controls anchor the bottom. */
-html.is-focus .sub { display: block; }
-
-html.is-focus .header {
-  grid-area: header;
-  width: 100%;
-  align-self: start;
+/* On the shortest landscape screens the middle strip cannot hold both the
+   result shortcut and the live warning. The warning wins; the result card is
+   still shown when the round ends. */
+@media (orientation: landscape) and (max-height: 345px) {
+  .status .result-again { display: none; }
 }
 
-html.is-focus .board {
-  grid-area: board;
-  width: var(--play-width);
-  max-width: 100%;
-  margin: 0;
-  align-self: center;
-  justify-self: center;
-}
+/* ---------- touch controls ---------- */
 
-html.is-focus .footer {
-  grid-area: footer;
-  width: var(--play-width);
-  max-width: 100%;
-  margin: 0 auto;
-  align-self: end;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-html.is-focus .controls { width: 100%; }
-
-/* ---------- phone and tablet fullscreen ---------- */
-
-/* Focus joins the footer on touch devices. The row stays flexible so devices
-   without vibration support do not leave an empty control slot; New game only
-   moves to its own line when the width is genuinely tight. */
+/* Fullscreen joins the footer on touch devices. The row stays flexible so
+   devices without vibration support do not leave an empty control slot; New
+   game only moves to its own line when the width is genuinely tight. */
 @media (max-width: 899px) {
   .btn.icon.focus-btn { display: grid; }
 
@@ -1768,35 +1813,23 @@ html.is-focus .controls { width: 100%; }
     font-size: 13px;
     white-space: nowrap;
   }
+}
 
-  html.is-focus body {
-    padding:
-      calc(env(safe-area-inset-top, 0px) + 12px)
-      calc(env(safe-area-inset-right, 0px) + 14px)
-      calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 12px)
-      calc(env(safe-area-inset-left, 0px) + 14px);
-  }
+/* Keep the five icon controls and New game on one row at the common narrow
+   phone widths. Only the smallest screens fall back to a second row. */
+@media (min-width: 351px) and (max-width: 380px) {
+  .controls { flex-wrap: nowrap; gap: 4px; }
 
-  html.is-focus .app {
-    width: min(100%, 1000px);
-    height: 100%;
-    gap: 12px;
-  }
-
-  html.is-focus .board {
-    width: var(--play-width);
-    margin: 0;
-  }
-
-  html.is-focus .footer {
-    width: min(100%, 560px);
-    max-width: 100%;
-    margin: 0 auto;
+  .controls #new-game {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    padding-inline: 6px;
+    font-size: 12.5px;
   }
 }
 
-/* Two rows keep the New game button comfortable on narrow phones. */
-@media (max-width: 380px) {
+@media (max-width: 350px) {
   .controls { flex-wrap: wrap; }
 
   .controls #new-game {
@@ -1815,65 +1848,6 @@ html.is-focus .controls { width: 100%; }
     flex: 1 0 100%;
     width: 100%;
   }
-}
-
-/* Landscape keeps the wordmark and scores above the controls, beside a
-   board that still gets most of the width. */
-@media (max-width: 899px) and (orientation: landscape),
-       (max-height: 620px) and (orientation: landscape) {
-  html.is-focus .app {
-    width: min(100%, 1000px);
-    height: 100%;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr) auto;
-    grid-template-areas:
-      "board header"
-      "board ."
-      "board footer";
-    align-content: stretch;
-    justify-content: stretch;
-    gap: 10px 18px;
-  }
-
-  html.is-focus .board {
-    grid-area: board;
-    width: min(52vw, 92dvh);
-    margin: 0;
-    align-self: center;
-    justify-self: start;
-  }
-
-  html.is-focus .header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    align-self: start;
-    gap: 8px 12px;
-  }
-
-  html.is-focus .scores { margin-left: auto; }
-
-  html.is-focus .footer {
-    grid-area: footer;
-    width: min(100%, 420px);
-    align-self: end;
-    justify-self: start;
-    margin: 0;
-  }
-}
-
-/* The focus control adds a fifth icon. On the shortest landscape screens the
-   column beside the board cannot hold five 44px buttons, so the row shrinks
-   evenly to fit without dropping any controls. */
-@media (orientation: landscape) and (max-height: 360px) {
-  html.is-focus .controls {
-    grid-template-columns: repeat(5, minmax(0, 44px));
-  }
-
-  html.is-focus .controls .btn.icon { width: 100%; }
 }
 
 

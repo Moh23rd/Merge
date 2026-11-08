@@ -41,7 +41,7 @@
   const HINT_TIGHT = 'Nearly full — look for a match.';
   const TIP_KEY = 'merge2048.tip';
   const TIP_EVERY = 14;
-  const SHARE_FONT = '"Space Grotesk", ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+  const SHARE_FONT = '"Google Sans Flex", ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
   // Short enough to stay on one line on the narrowest phone, and each one is
   // something you can act on in the next few moves.
   const TIPS = [
@@ -1246,9 +1246,7 @@
 
   if (focusBtn) {
     const root = document.documentElement;
-    const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
     let focusPending = false;
-    let focusTransition = null;
 
     function fullscreenElement() {
       return document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || null;
@@ -1257,75 +1255,16 @@
     function syncFocusButton() {
       const active = root.classList.contains('is-focus');
       focusBtn.setAttribute('aria-pressed', String(active));
-      focusBtn.setAttribute('aria-label', active ? 'Exit distraction-free mode' : 'Enter distraction-free mode');
-      focusBtn.title = active ? 'Exit distraction-free mode (Esc)' : 'Distraction-free mode (F)';
+      focusBtn.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
+      focusBtn.title = active ? 'Exit fullscreen (Esc)' : 'Fullscreen (F)';
     }
 
-    // Swapping the layout inside a view transition lets the browser morph the
-    // header, board and controls between their positions instead of snapping.
-    function applyFocusLayout(active) {
+    // Fullscreen keeps the same composition. Only the browser chrome changes,
+    // so there is no second layout to morph between and nothing to snap.
+    function transitionFocusLayout(active) {
       root.classList.toggle('is-focus', active);
       syncFocusButton();
-      // The board changes size with the layout. Position its tiles in the same
-      // frame, otherwise the snapshot can contain tiles from the old geometry.
       measure();
-    }
-
-    function softFocusLayout(active) {
-      const appEl = document.querySelector('.app');
-      const reduce = reduceMotion && reduceMotion.matches;
-      if (!appEl || !appEl.animate || reduce) {
-        applyFocusLayout(active);
-        return;
-      }
-      // Browsers without View Transitions still get a quick, quiet fade rather
-      // than a hard snap between the two layouts.
-      focusPending = true;
-      const out = appEl.animate(
-        [{ opacity: 1 }, { opacity: 0 }],
-        { duration: 90, easing: 'ease-out', fill: 'forwards' }
-      );
-      out.finished.then(function () {
-        applyFocusLayout(active);
-        const incoming = appEl.animate(
-          [{ opacity: 0 }, { opacity: 1 }],
-          { duration: 160, easing: 'ease-out', fill: 'forwards' }
-        );
-        const done = function () {
-          out.cancel();
-          incoming.cancel();
-          focusPending = false;
-        };
-        incoming.finished.then(done, done);
-      }).catch(function () {
-        applyFocusLayout(active);
-        focusPending = false;
-      });
-    }
-
-    function transitionFocusLayout(active) {
-      const canAnimate = document.startViewTransition && !(reduceMotion && reduceMotion.matches);
-      if (!canAnimate) {
-        softFocusLayout(active);
-        return;
-      }
-      if (focusTransition) {
-        try { focusTransition.skipTransition(); } catch (err) {}
-        focusTransition = null;
-      }
-      try {
-        const transition = document.startViewTransition(function () {
-          applyFocusLayout(active);
-        });
-        focusTransition = transition;
-        const clear = function () {
-          if (focusTransition === transition) focusTransition = null;
-        };
-        if (transition.finished && transition.finished.then) transition.finished.then(clear, clear);
-        else window.setTimeout(clear, 400);
-      } catch (err) {
-        softFocusLayout(active);
-      }
     }
 
     function enterFocus() {
