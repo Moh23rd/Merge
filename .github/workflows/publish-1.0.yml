@@ -1,0 +1,73 @@
+name: Publish Sixfold 1.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-1.0.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update version and Pages URL
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          # App shell and cached assets move to 1.0.
+          p = Path('index.html')
+          s = p.read_text().replace('2.0', '1.0')
+          s = s.replace('https://moh23rd.github.io/Merge/', 'https://moh23rd.github.io/Sixfold/')
+          p.write_text(s)
+
+          for name in ('styles.css', 'theme.js', 'game.js'):
+              p = Path(name)
+              p.write_text(p.read_text().replace('?v=2.0', '?v=1.0'))
+
+          p = Path('sw.js')
+          s = p.read_text()
+          s = s.replace('sixfold-v30', 'sixfold-1.0')
+          s = s.replace("const ASSET = '2.0'", "const ASSET = '1.0'")
+          s = s.replace("const GAMES = '2.0'", "const GAMES = '1.0'")
+          p.write_text(s)
+
+          p = Path('CHANGELOG.md')
+          s = p.read_text()
+          s = s.replace('Version 2.0 · Public release', 'Version 1.0 · Public release')
+          s = s.replace('App version 2.0', 'App version 1.0')
+          s = s.replace('sixfold-v30', 'sixfold-1.0')
+          s = s.replace('https://moh23rd.github.io/Merge/', 'https://moh23rd.github.io/Sixfold/')
+          s = s.replace('[moh23rd.github.io/Merge]', '[moh23rd.github.io/Sixfold]')
+          p.write_text(s)
+
+          p = Path('README.md')
+          s = p.read_text()
+          s = s.replace('# Sixfold 2.0', '# Sixfold 1.0')
+          s = s.replace('https://moh23rd.github.io/Merge/', 'https://moh23rd.github.io/Sixfold/')
+          banner = '![Sixfold — six calm puzzle games](https://moh23rd.github.io/Sixfold/og-image.png?v=1.0)'
+          if banner not in s:
+              s = s.replace('# Sixfold 1.0\n\n', '# Sixfold 1.0\n\n' + banner + '\n\n', 1)
+          p.write_text(s)
+
+          for name in ('index.html', 'styles.css', 'theme.js', 'game.js', 'sw.js', 'README.md', 'CHANGELOG.md'):
+              text = Path(name).read_text()
+              for needle in ('2.0', 'sixfold-v30', 'moh23rd.github.io/Merge'):
+                  if needle in text:
+                      raise SystemExit(f'{name} still contains {needle!r}')
+          print('All version and URL references updated')
+          PY
+
+          rm -f .github/workflows/publish-1.0.yml
+          git config user.name "Moh23rd"
+          git config user.email "304935448+Moh23rd@users.noreply.github.com"
+          git add -A
+          git commit -m "Publish Sixfold 1.0 at the Sixfold URL"
+          git push origin HEAD:main
