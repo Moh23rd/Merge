@@ -1,0 +1,27 @@
+name: Release Merge v1.0 tile fix
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Publish built site
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://site-58d4c06196df4e3aa353fcca2f921cf1.freebuff.page/download/merge-2048-v1.0.zip" -o "$RUNNER_TEMP/site.zip"
+          unzip -oq "$RUNNER_TEMP/site.zip" -d .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Release Merge v1.0 tile fix"
+          git rm -f .github/workflows/release-v10-fix.yml
+          git commit -m "Remove temporary release workflow"
+          git push origin HEAD:main
