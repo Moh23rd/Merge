@@ -1,6 +1,6 @@
 # Sixfold — Changelog
 
-**Version 2.0 · Public release · 8 November 2026**
+**Version 1.0 · Public release · 8 November 2026**
 
 Sixfold’s first public release: six complete games, audited against their originals, polished for phones, and ready to install.
 
@@ -23,9 +23,9 @@ Sixfold’s first public release: six complete games, audited against their orig
 
 ## Under the hood
 
-- App version 2.0
-- Offline cache `sixfold-v30`
-- Published at [moh23rd.github.io/Merge](https://moh23rd.github.io/Merge/)
+- App version 1.0
+- Offline cache `sixfold-1.0`
+- Published at [moh23rd.github.io/Sixfold](https://moh23rd.github.io/Sixfold/)
 
 ---
 

@@ -1,8 +1,10 @@
-# Sixfold 2.0
+# Sixfold 1.0
+
+![Sixfold — six calm puzzle games](https://moh23rd.github.io/Sixfold/og-image.png?v=1.0)
 
 Six calm puzzle games in one page. No accounts, no ads, no tracking — and it keeps working offline.
 
-**[Play Sixfold →](https://moh23rd.github.io/Merge/)**
+**[Play Sixfold →](https://moh23rd.github.io/Sixfold/)**
 
 **Merge** · **Water Sort** · **One Line** · **Fruit Merge** · **Tic Tac Toe** · **Minesweeper**
 
