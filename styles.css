@@ -18,6 +18,9 @@
   --cell: rgba(255, 255, 255, 0.55);
   --ink: #3b3833;
   --muted: #6f665a;
+  /* Used on the denser result card, where the regular muted tone is just
+     below a comfortable reading contrast. */
+  --muted-strong: #5b5348;
   --card: rgba(255, 255, 255, 0.8);
   --card-shadow: 0 1px 2px rgba(94, 76, 45, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
   --ghost-bg: rgba(255, 255, 255, 0.75);
@@ -59,6 +62,7 @@ html[data-theme="dark"] {
   --cell: rgba(255, 255, 255, 0.06);
   --ink: #f1eae0;
   --muted: #a2988a;
+  --muted-strong: #b9afa1;
   --card: rgba(255, 255, 255, 0.07);
   --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
   --ghost-bg: rgba(255, 255, 255, 0.09);
@@ -304,6 +308,7 @@ h1 {
 }
 
 .tile.instant { transition: none; }
+.tiles.is-measuring .tile { transition: none; }
 
 .face {
   width: 100%;
@@ -455,7 +460,7 @@ h1 {
   margin: 0;
   font-size: 13px;
   line-height: 1.4;
-  color: var(--muted);
+  color: var(--muted-strong);
 }
 
 /* The finished round at a glance: big score, then size, moves and best. */
@@ -505,7 +510,7 @@ h1 {
   border: 0;
   border-radius: 999px;
   background: none;
-  color: var(--muted);
+  color: var(--muted-strong);
   font: inherit;
   font-size: 11.5px;
   font-weight: 700;
@@ -635,7 +640,6 @@ h1 {
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--muted);
-  opacity: 0.7;
   pointer-events: none;
   user-select: none;
 }
@@ -1219,6 +1223,29 @@ body {
   transition: transform var(--motion-fast) var(--ease-out), background-color var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
 }
 
+/* Focus mode keeps the header, board and controls as the same objects while
+   the page is rearranged. The browser morphs their snapshots; the page below
+   never flashes between two different layouts. */
+.header { view-transition-name: merge-header; }
+.board { view-transition-name: merge-board; }
+.footer { view-transition-name: merge-footer; }
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+  ::view-transition-group(merge-header),
+  ::view-transition-group(merge-footer) {
+    animation-duration: 240ms;
+    animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  ::view-transition-group(merge-board) {
+    animation-duration: 300ms;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
 /* The sun and moon trade places instead of blinking between two icons. */
 #theme-toggle svg {
   grid-area: 1 / 1;
@@ -1458,13 +1485,13 @@ html[data-theme="dark"] #theme-toggle .moon {
 
   .controls {
     grid-area: controls;
-    display: grid;
-    grid-template-columns: repeat(5, 46px) minmax(0, 1fr);
+    display: flex;
     gap: 7px;
   }
 
   .controls #new-game {
-    width: 100%;
+    flex: 1 1 auto;
+    width: auto;
     min-width: 0;
     padding-inline: 12px;
     font-size: 14px;
@@ -1617,10 +1644,7 @@ html[data-theme="dark"] #theme-toggle .moon {
     padding: 5px 14px;
   }
 
-  .controls {
-    grid-template-columns: repeat(5, 42px) minmax(0, 1fr);
-    gap: 5px;
-  }
+  .controls { gap: 5px; }
 
   .controls .btn.icon {
     width: 42px;
@@ -1675,9 +1699,19 @@ html.is-focus body {
 }
 
 html.is-focus .app {
-  --play-width: min(100%, 82dvh, calc(100dvh - 240px), 1120px);
+  --play-width: min(100%, 82dvh, calc(100dvh - 232px), 1120px);
   width: min(100%, 1200px);
-  gap: 14px;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "header"
+    "board"
+    "footer";
+  align-content: stretch;
+  justify-content: stretch;
+  gap: clamp(10px, 1.8dvh, 18px);
 }
 
 html.is-focus .result-again,
@@ -1686,12 +1720,31 @@ html.is-focus .key-hint,
 html.is-focus .app-version { display: none; }
 
 /* Keep the board's context: the wordmark, description and all three scores
-   stay visible. */
+   stay visible. The header owns the top of the screen, the board takes the
+   middle and the controls anchor the bottom. */
 html.is-focus .sub { display: block; }
 
-html.is-focus .footer {
+html.is-focus .header {
+  grid-area: header;
+  width: 100%;
+  align-self: start;
+}
+
+html.is-focus .board {
+  grid-area: board;
   width: var(--play-width);
-  max-width: none;
+  max-width: 100%;
+  margin: 0;
+  align-self: center;
+  justify-self: center;
+}
+
+html.is-focus .footer {
+  grid-area: footer;
+  width: var(--play-width);
+  max-width: 100%;
+  margin: 0 auto;
+  align-self: end;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -1726,18 +1779,18 @@ html.is-focus .controls { width: 100%; }
 
   html.is-focus .app {
     width: min(100%, 1000px);
-    justify-content: center;
+    height: 100%;
     gap: 12px;
   }
 
   html.is-focus .board {
     width: var(--play-width);
-    margin: 0 auto;
+    margin: 0;
   }
 
   html.is-focus .footer {
     width: min(100%, 560px);
-    max-width: none;
+    max-width: 100%;
     margin: 0 auto;
   }
 }
@@ -1766,30 +1819,39 @@ html.is-focus .controls { width: 100%; }
 
 /* Landscape keeps the wordmark and scores above the controls, beside a
    board that still gets most of the width. */
-@media (max-width: 899px) and (orientation: landscape) {
+@media (max-width: 899px) and (orientation: landscape),
+       (max-height: 620px) and (orientation: landscape) {
   html.is-focus .app {
     width: min(100%, 1000px);
+    height: 100%;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: auto auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
     grid-template-areas:
       "board header"
+      "board ."
       "board footer";
-    align-content: center;
-    justify-content: center;
-    gap: 18px;
+    align-content: stretch;
+    justify-content: stretch;
+    gap: 10px 18px;
   }
 
   html.is-focus .board {
     grid-area: board;
     width: min(52vw, 92dvh);
     margin: 0;
+    align-self: center;
+    justify-self: start;
   }
 
   html.is-focus .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
     flex-wrap: wrap;
     align-content: flex-start;
-    row-gap: 8px;
+    align-self: start;
+    gap: 8px 12px;
   }
 
   html.is-focus .scores { margin-left: auto; }
@@ -1797,7 +1859,8 @@ html.is-focus .controls { width: 100%; }
   html.is-focus .footer {
     grid-area: footer;
     width: min(100%, 420px);
-    align-self: center;
+    align-self: end;
+    justify-self: start;
     margin: 0;
   }
 }

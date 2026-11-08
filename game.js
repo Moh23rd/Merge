@@ -202,12 +202,18 @@
     cell = r1.width;
     gap = r2 ? r2.left - r1.right : 0;
 
+    // Resizing the board moves every tile at once. Suppress their travel
+    // transitions for that frame so a fullscreen or orientation change does
+    // not look like a hundred tiles are sliding at the same time.
+    tilesEl.classList.add('is-measuring');
     for (const t of tiles) {
       t.el.style.width = cell + 'px';
       t.el.style.height = cell + 'px';
       t.el.style.fontSize = fontFor(t.value);
-      place(t, false);
+      t.el.style.transform = 'translate3d(' + (t.col * (cell + gap)) + 'px, ' + (t.row * (cell + gap)) + 'px, 0)';
     }
+    void tilesEl.offsetWidth;
+    tilesEl.classList.remove('is-measuring');
   }
 
   /* ---------- tiles ---------- */
@@ -1240,9 +1246,12 @@
 
   if (focusBtn) {
     const root = document.documentElement;
+    const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    let focusPending = false;
+    let focusTransition = null;
 
     function fullscreenElement() {
-      return document.fullscreenElement || document.webkitFullscreenElement || null;
+      return document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || null;
     }
 
     function syncFocusButton() {
@@ -1252,27 +1261,118 @@
       focusBtn.title = active ? 'Exit distraction-free mode (Esc)' : 'Distraction-free mode (F)';
     }
 
-    function enterFocus() {
-      if (root.classList.contains('is-focus')) return;
-      root.classList.add('is-focus');
+    // Swapping the layout inside a view transition lets the browser morph the
+    // header, board and controls between their positions instead of snapping.
+    function applyFocusLayout(active) {
+      root.classList.toggle('is-focus', active);
       syncFocusButton();
-      // requestFullscreen is optional. The class above is a complete fallback
-      // for browsers (or embedded previews) that refuse the native request.
-      const request = root.requestFullscreen || root.webkitRequestFullscreen;
-      if (!request) return;
+      // The board changes size with the layout. Position its tiles in the same
+      // frame, otherwise the snapshot can contain tiles from the old geometry.
+      measure();
+    }
+
+    function softFocusLayout(active) {
+      const appEl = document.querySelector('.app');
+      const reduce = reduceMotion && reduceMotion.matches;
+      if (!appEl || !appEl.animate || reduce) {
+        applyFocusLayout(active);
+        return;
+      }
+      // Browsers without View Transitions still get a quick, quiet fade rather
+      // than a hard snap between the two layouts.
+      focusPending = true;
+      const out = appEl.animate(
+        [{ opacity: 1 }, { opacity: 0 }],
+        { duration: 90, easing: 'ease-out', fill: 'forwards' }
+      );
+      out.finished.then(function () {
+        applyFocusLayout(active);
+        const incoming = appEl.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 160, easing: 'ease-out', fill: 'forwards' }
+        );
+        const done = function () {
+          out.cancel();
+          incoming.cancel();
+          focusPending = false;
+        };
+        incoming.finished.then(done, done);
+      }).catch(function () {
+        applyFocusLayout(active);
+        focusPending = false;
+      });
+    }
+
+    function transitionFocusLayout(active) {
+      const canAnimate = document.startViewTransition && !(reduceMotion && reduceMotion.matches);
+      if (!canAnimate) {
+        softFocusLayout(active);
+        return;
+      }
+      if (focusTransition) {
+        try { focusTransition.skipTransition(); } catch (err) {}
+        focusTransition = null;
+      }
       try {
-        const pending = request.call(root);
-        if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+        const transition = document.startViewTransition(function () {
+          applyFocusLayout(active);
+        });
+        focusTransition = transition;
+        const clear = function () {
+          if (focusTransition === transition) focusTransition = null;
+        };
+        if (transition.finished && transition.finished.then) transition.finished.then(clear, clear);
+        else window.setTimeout(clear, 400);
       } catch (err) {
-        /* the in-window focus layout still applies */
+        softFocusLayout(active);
       }
     }
 
+    function enterFocus() {
+      if (root.classList.contains('is-focus') || focusPending) return;
+
+      // requestFullscreen is optional. The in-window focus layout is a complete
+      // fallback for browsers (or embedded previews) that refuse the request.
+      const request = root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen;
+      if (!request) {
+        transitionFocusLayout(true);
+        return;
+      }
+
+      focusPending = true;
+      let pending;
+      try {
+        pending = request.call(root);
+      } catch (err) {
+        focusPending = false;
+        transitionFocusLayout(true);
+        return;
+      }
+
+      // Older Safari returns nothing even when it starts fullscreen. Apply the
+      // layout immediately in that case; the native transition is already in
+      // progress and the class keeps the fallback available if it was denied.
+      if (!pending || typeof pending.then !== 'function') {
+        focusPending = false;
+        transitionFocusLayout(true);
+        return;
+      }
+
+      // Wait for the browser's own fullscreen animation to settle before
+      // rearranging the page. Doing both at once is what made the board jump.
+      const settle = function () {
+        focusPending = false;
+        transitionFocusLayout(true);
+      };
+      pending.then(settle, settle);
+    }
+
     function exitFocus() {
-      root.classList.remove('is-focus');
-      syncFocusButton();
+      focusPending = false;
+      if (root.classList.contains('is-focus')) transitionFocusLayout(false);
+      else syncFocusButton();
       if (!fullscreenElement()) return;
-      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
       if (!exit) return;
       try {
         const pending = exit.call(document);
@@ -1283,6 +1383,7 @@
     }
 
     function toggleFocus() {
+      if (focusPending) return;
       if (root.classList.contains('is-focus')) exitFocus();
       else enterFocus();
     }
@@ -1290,9 +1391,9 @@
     function syncFromFullscreen() {
       // The browser's Esc key or its own fullscreen control can end native
       // fullscreen without going through exitFocus.
-      if (!fullscreenElement() && root.classList.contains('is-focus')) {
-        root.classList.remove('is-focus');
-        syncFocusButton();
+      if (!fullscreenElement()) {
+        focusPending = false;
+        if (root.classList.contains('is-focus')) transitionFocusLayout(false);
       }
     }
 
@@ -1356,10 +1457,22 @@
     });
   });
 
+  // Coalesce resize notifications into one frame. Native fullscreen and
+  // orientation changes can otherwise trigger several full tile remeasures.
+  let measureQueued = false;
+  function queueMeasure() {
+    if (measureQueued) return;
+    measureQueued = true;
+    window.requestAnimationFrame(function () {
+      measureQueued = false;
+      measure();
+    });
+  }
+
   if (window.ResizeObserver) {
-    new ResizeObserver(function () { measure(); }).observe(boardEl);
+    new ResizeObserver(queueMeasure).observe(boardEl);
   } else {
-    window.addEventListener('resize', measure);
+    window.addEventListener('resize', queueMeasure);
   }
   window.addEventListener('orientationchange', function () {
     window.setTimeout(measure, 250);
