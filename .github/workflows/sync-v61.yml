@@ -41,9 +41,9 @@ jobs:
           set -euo pipefail
           shopt -s dotglob nullglob
           for entry in *; do
-            case "$entry" in
-              .git|. github) continue ;;
-            esac
+            if [ "$entry" = .git ] || [ "$entry" = .github ]; then
+              continue
+            fi
             rm -rf -- "$entry"
           done
           cp -a /tmp/merge-v61/. .
