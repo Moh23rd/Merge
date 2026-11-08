@@ -1,0 +1,48 @@
+name: Publish Merge v1.0
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download the v1.0 release
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 10 --retry-delay 3 --retry-all-errors \
+            "https://site-58d4c06196df4e3aa353fcca2f921cf1.freebuff.page/download/merge-2048-v1.0.zip" \
+            -o /tmp/merge-2048-v1.0.zip
+          rm -rf /tmp/merge-v1.0
+          mkdir -p /tmp/merge-v1.0
+          unzip -q /tmp/merge-2048-v1.0.zip -d /tmp/merge-v1.0
+          test -f /tmp/merge-v1.0/index.html
+          grep -q "Merge version 1.0" /tmp/merge-v1.0/index.html
+          grep -q "const VERSION = 'merge-2048-v1.0'" /tmp/merge-v1.0/sw.js
+
+      - name: Publish app files
+        run: |
+          set -euo pipefail
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            /tmp/merge-v1.0/ ./
+          rm -f .github/workflows/publish-v1.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "Release Merge v1.0"
+          git push origin main
