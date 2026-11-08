@@ -1040,7 +1040,7 @@
 
   function shareText(message, url) {
     if (navigator.share) {
-      navigator.share({ title: 'Merge — 2048', text: message, url: url || undefined }).catch(function (err) {
+      navigator.share({ title: 'Sixfold — Merge', text: message, url: url || undefined }).catch(function (err) {
         // Closing the share sheet is a choice, not a failure.
         if (err && err.name === 'AbortError') return;
         copyResult(message);
@@ -1053,7 +1053,7 @@
   function shareFile(file, message, url) {
     navigator.share({
       files: [file],
-      title: 'Merge — 2048',
+      title: 'Sixfold — Merge',
       text: url ? message + ' ' + url : message
     }).catch(function (err) {
       if (err && err.name === 'AbortError') return;
