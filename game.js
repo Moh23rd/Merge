@@ -1240,7 +1240,6 @@
 
   if (focusBtn) {
     const root = document.documentElement;
-    const desktopQuery = window.matchMedia ? window.matchMedia('(min-width: 900px)') : null;
 
     function fullscreenElement() {
       return document.fullscreenElement || document.webkitFullscreenElement || null;
@@ -1313,20 +1312,11 @@
         return;
       }
       if (e.key !== 'f' && e.key !== 'F') return;
-      if (desktopQuery && !desktopQuery.matches) return;
       if (sheetEl && !sheetEl.hidden) return;
       if (helpEl && !helpEl.hidden) return;
       e.preventDefault();
       toggleFocus();
     });
-
-    if (desktopQuery) {
-      const handleDesktopChange = function (event) {
-        if (!event.matches && root.classList.contains('is-focus')) exitFocus();
-      };
-      if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', handleDesktopChange);
-      else if (desktopQuery.addListener) desktopQuery.addListener(handleDesktopChange);
-    }
 
     syncFocusButton();
   }

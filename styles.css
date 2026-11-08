@@ -1075,10 +1075,12 @@ html[data-theme="dark"] .reset-btn[data-armed="true"] {
 @media (orientation: landscape) and (max-height: 360px) {
   .controls {
     display: grid;
-    grid-template-columns: repeat(4, 44px);
+    grid-template-columns: repeat(5, minmax(0, 44px));
     gap: 6px;
     justify-content: start;
   }
+
+  .controls .btn.icon { width: 100%; }
 
   .controls #new-game {
     grid-column: 1 / -1;
@@ -1599,6 +1601,7 @@ html[data-theme="dark"] #theme-toggle .moon {
   .app { --play-width: min(100%, 52dvh, 460px); }
 
   .footer {
+    width: min(100%, max(320px, var(--play-width)));
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "controls"
@@ -1664,20 +1667,27 @@ html[data-theme="dark"] #theme-toggle .moon {
    fullscreen is used when the browser permits it; these rules also turn the
    current window into a quiet fallback when it does not. */
 html.is-focus body {
-  padding: clamp(12px, 2.4vh, 24px) clamp(20px, 3vw, 48px);
+  padding:
+    calc(env(safe-area-inset-top, 0px) + clamp(12px, 2.4vh, 24px))
+    calc(env(safe-area-inset-right, 0px) + clamp(20px, 3vw, 48px))
+    calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + clamp(12px, 2.4vh, 24px))
+    calc(env(safe-area-inset-left, 0px) + clamp(20px, 3vw, 48px));
 }
 
 html.is-focus .app {
-  --play-width: min(100%, 82dvh, 1120px);
+  --play-width: min(100%, 82dvh, calc(100dvh - 240px), 1120px);
   width: min(100%, 1200px);
   gap: 14px;
 }
 
-html.is-focus .header,
 html.is-focus .result-again,
 html.is-focus .hint,
 html.is-focus .key-hint,
 html.is-focus .app-version { display: none; }
+
+/* Keep the board's context: the wordmark, description and all three scores
+   stay visible. */
+html.is-focus .sub { display: block; }
 
 html.is-focus .footer {
   width: var(--play-width);
@@ -1688,6 +1698,120 @@ html.is-focus .footer {
 }
 
 html.is-focus .controls { width: 100%; }
+
+/* ---------- phone and tablet fullscreen ---------- */
+
+/* Focus joins the footer on touch devices. The row stays flexible so devices
+   without vibration support do not leave an empty control slot; New game only
+   moves to its own line when the width is genuinely tight. */
+@media (max-width: 899px) {
+  .btn.icon.focus-btn { display: grid; }
+
+  .controls { gap: 6px; }
+
+  .controls #new-game {
+    min-width: 0;
+    padding-inline: 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  html.is-focus body {
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 12px)
+      calc(env(safe-area-inset-right, 0px) + 14px)
+      calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 12px)
+      calc(env(safe-area-inset-left, 0px) + 14px);
+  }
+
+  html.is-focus .app {
+    width: min(100%, 1000px);
+    justify-content: center;
+    gap: 12px;
+  }
+
+  html.is-focus .board {
+    width: var(--play-width);
+    margin: 0 auto;
+  }
+
+  html.is-focus .footer {
+    width: min(100%, 560px);
+    max-width: none;
+    margin: 0 auto;
+  }
+}
+
+/* Two rows keep the New game button comfortable on narrow phones. */
+@media (max-width: 380px) {
+  .controls { flex-wrap: wrap; }
+
+  .controls #new-game {
+    flex: 1 0 100%;
+    width: 100%;
+    padding-inline: 10px;
+    font-size: 14px;
+  }
+}
+
+/* The landscape column beside the board can be narrower than the viewport. */
+@media (orientation: landscape) and (max-width: 760px) {
+  .controls { flex-wrap: wrap; }
+
+  .controls #new-game {
+    flex: 1 0 100%;
+    width: 100%;
+  }
+}
+
+/* Landscape keeps the wordmark and scores above the controls, beside a
+   board that still gets most of the width. */
+@media (max-width: 899px) and (orientation: landscape) {
+  html.is-focus .app {
+    width: min(100%, 1000px);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "board header"
+      "board footer";
+    align-content: center;
+    justify-content: center;
+    gap: 18px;
+  }
+
+  html.is-focus .board {
+    grid-area: board;
+    width: min(52vw, 92dvh);
+    margin: 0;
+  }
+
+  html.is-focus .header {
+    flex-wrap: wrap;
+    align-content: flex-start;
+    row-gap: 8px;
+  }
+
+  html.is-focus .scores { margin-left: auto; }
+
+  html.is-focus .footer {
+    grid-area: footer;
+    width: min(100%, 420px);
+    align-self: center;
+    margin: 0;
+  }
+}
+
+/* The focus control adds a fifth icon. On the shortest landscape screens the
+   column beside the board cannot hold five 44px buttons, so the row shrinks
+   evenly to fit without dropping any controls. */
+@media (orientation: landscape) and (max-height: 360px) {
+  html.is-focus .controls {
+    grid-template-columns: repeat(5, minmax(0, 44px));
+  }
+
+  html.is-focus .controls .btn.icon { width: 100%; }
+}
 
 
 /* Only mouse and pen devices get the grab cursor and keyboard cue. Touch
