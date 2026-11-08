@@ -1,0 +1,42 @@
+name: Publish Merge v63
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Replace site files with the v63 release
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 4 --retry-delay 2 \
+            "https://site-58d4c06196df4e3aa353fcca2f921cf1.freebuff.page/download/merge-2048-v63.zip" \
+            -o /tmp/merge-2048-v63.zip
+          echo "d1d8db49f9eb2e1aac597a3738217b5a7888ed4ef40c1e4cdd16d4cdbf653946  /tmp/merge-2048-v63.zip" | sha256sum -c -
+          unzip -oq /tmp/merge-2048-v63.zip -d .
+          rm -f fonts/space-grotesk-700.woff2
+          git rm -q .github/workflows/publish-v63.yml
+          grep -q 'Version 63' index.html
+          grep -q "merge-2048-v63" sw.js
+          grep -q 'Google Sans Flex typeface' README.md
+          test "$(wc -c < fonts/google-sans-flex.woff2)" -gt 100000
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Site is already v63."
+            exit 0
+          fi
+          git commit -m "$(printf 'release: Merge v63\n\nUnified portrait and landscape layouts, restored in-place tips and warnings, and switched to Google Sans Flex.\n\n🤖 Generated with Codebuff\nCo-Authored-By: Codebuff <noreply@codebuff.com>')"
+          git push origin HEAD:main
