@@ -1,10 +1,9 @@
-/* Theme (auto / light / dark), colour palettes, browser chrome and the reopen preference. */
+/* Theme (auto / light / dark), colour palettes and browser chrome. */
 (function () {
   'use strict';
 
   const THEME_KEY = 'merge2048.theme';
   const PALETTE_KEY = 'merge2048.palette';
-  const RESUME_KEY = 'merge2048.resume';
   const LAUNCH_FOCUS_KEY = 'merge2048.launchFullscreen';
 
   // The hand-tuned "Warm" ramp, one colour per tile for 2 … 2048.
@@ -29,14 +28,13 @@
 
   const root = document.documentElement;
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  const state = { theme: 'auto', palette: 'warm', resume: 'continue' };
+  const state = { theme: 'auto', palette: 'warm' };
 
   try {
     const savedTheme = localStorage.getItem(THEME_KEY);
     if (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'auto') state.theme = savedTheme;
     const savedPalette = localStorage.getItem(PALETTE_KEY);
     if (PALETTES.some(function (p) { return p.id === savedPalette; })) state.palette = savedPalette;
-    if (localStorage.getItem(RESUME_KEY) === 'fresh') state.resume = 'fresh';
   } catch (err) {
     /* storage blocked — defaults are fine */
   }
@@ -160,7 +158,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=1.0';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=1.1';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
@@ -273,24 +271,6 @@
       });
       wrap.appendChild(btn);
     });
-  }
-
-  /* ---------- reopen preference ---------- */
-
-  function syncResumeButtons() {
-    document.querySelectorAll('[data-resume-opt]').forEach(function (btn) {
-      btn.setAttribute('aria-pressed', btn.dataset.resumeOpt === state.resume ? 'true' : 'false');
-    });
-  }
-
-  function setResume(mode) {
-    state.resume = mode === 'fresh' ? 'fresh' : 'continue';
-    try {
-      localStorage.setItem(RESUME_KEY, state.resume);
-    } catch (err) {
-      /* ignore */
-    }
-    syncResumeButtons();
   }
 
   /* ---------- fullscreen on open ---------- */
@@ -547,11 +527,6 @@
         applyTheme(btn.dataset.themeOpt, true);
       });
     });
-    appearanceSheet.querySelectorAll('[data-resume-opt]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        setResume(btn.dataset.resumeOpt);
-      });
-    });
   }
 
   /* ---------- start ---------- */
@@ -564,7 +539,6 @@
   buildPalettes();
   applyTheme(state.theme, false);
   applyPalette(state.palette, false);
-  syncResumeButtons();
   syncLaunchFocus();
 
   const onSchemeChange = function () {

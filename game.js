@@ -4,7 +4,6 @@
   const DEFAULT_SIZE = 4;
   const SIZE_KEY = 'merge2048.size';
   const SAVE_KEY = 'merge2048.save';
-  const RESUME_KEY = 'merge2048.resume';
   const LAUNCH_FOCUS_KEY = 'merge2048.launchFullscreen';
   const SWIPE_MIN = 22;
   const MOVE_MS = 150;
@@ -311,14 +310,6 @@
       };
     } catch (err) {
       return null;
-    }
-  }
-
-  function resumeEnabled() {
-    try {
-      return localStorage.getItem(RESUME_KEY) !== 'fresh';
-    } catch (err) {
-      return true;
     }
   }
 
@@ -654,7 +645,7 @@
     overlaySave.textContent = 'Save image';
     if (result) {
       overlayScore.textContent = String(result.score);
-      overlayMeta.textContent = result.size + ' × ' + result.size + ' · ' + result.moves + (result.moves === 1 ? ' move' : ' moves');
+      overlayMeta.textContent = result.size + ' × ' + result.size + ' • ' + result.moves + (result.moves === 1 ? ' move' : ' moves');
       // A new result starts with a clean placeholder rather than the previous
       // round's picture. A theme change keeps the current thumbnail until the
       // replacement is ready below.
@@ -884,7 +875,7 @@
 
     ctx.fillStyle = colors.muted;
     ctx.font = shareFont(500, 31);
-    ctx.fillText(data.size + ' × ' + data.size + ' · ' + data.moves + (data.moves === 1 ? ' move' : ' moves'), W / 2, 624);
+    ctx.fillText(data.size + ' × ' + data.size + ' • ' + data.moves + (data.moves === 1 ? ' move' : ' moves'), W / 2, 624);
 
     ctx.font = shareFont(500, 27);
     ctx.fillText('Best ' + data.best, W / 2, 678);
@@ -1555,9 +1546,10 @@
 
   /* ---------- start ---------- */
 
-  // Leftover from the retired daily puzzle; harmless, so just clear it once.
+  // Leftovers from retired features; harmless, so just clear them once.
   try {
     localStorage.removeItem('merge2048.daily');
+    localStorage.removeItem('merge2048.resume');
   } catch (err) {
     /* ignore */
   }
@@ -1574,7 +1566,7 @@
     newGame: newGame
   };
 
-  const saved = resumeEnabled() ? readSaved() : null;
+  const saved = readSaved();
   if (saved) size = saved.size;
 
   buildCells();
