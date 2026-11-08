@@ -1589,7 +1589,36 @@
     window.visualViewport.addEventListener('resize', queueMeasure);
   }
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(queueMeasure).catch(function () {});
+    document.fonts.ready.then(function () {
+      queueMeasure();
+      const family = 'Google Sans Flex';
+      if (!window.FontFace || !document.fonts.check || document.fonts.check('500 16px "' + family + '"')) return;
+      try {
+        // Rarely, a browser leaves the CSS face in an error state even though
+        // the file is fine. That stale face can also make later font loads
+        // fail, so drop its rule and attach a recovered face instead.
+        for (const sheet of Array.from(document.styleSheets)) {
+          let rules;
+          try { rules = Array.from(sheet.cssRules); } catch (err) { continue; }
+          for (let i = rules.length - 1; i >= 0; i--) {
+            const rule = rules[i];
+            if (window.CSSRule && rule.type === CSSRule.FONT_FACE_RULE && String(rule.style.fontFamily).indexOf(family) !== -1) {
+              try { sheet.deleteRule(i); } catch (err) { /* cross-origin or locked */ }
+            }
+          }
+        }
+        const face = new FontFace(family, 'url("fonts/google-sans-flex.woff2?v=1.0.4")', {
+          weight: '100 1000',
+          display: 'swap'
+        });
+        face.load().then(function (loaded) {
+          document.fonts.add(loaded);
+          queueMeasure();
+        }).catch(function () {});
+      } catch (err) {
+        /* The CSS face may still recover on its own. */
+      }
+    }).catch(function () {});
   }
 
   /* ---------- start ---------- */
