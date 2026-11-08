@@ -5,6 +5,7 @@
   const THEME_KEY = 'merge2048.theme';
   const PALETTE_KEY = 'merge2048.palette';
   const RESUME_KEY = 'merge2048.resume';
+  const LAUNCH_FOCUS_KEY = 'merge2048.launchFullscreen';
 
   // The hand-tuned "Warm" ramp, one colour per tile for 2 … 2048.
   const WARM = [
@@ -159,7 +160,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=63';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=1.0';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
@@ -290,6 +291,54 @@
       /* ignore */
     }
     syncResumeButtons();
+  }
+
+  /* ---------- fullscreen on open ---------- */
+
+  const launchFocusRow = document.getElementById('launch-focus-row');
+  const launchFocusToggle = document.getElementById('launch-focus-toggle');
+  const displayMode = window.matchMedia ? window.matchMedia('(display-mode: standalone)') : null;
+
+  function installedApp() {
+    return !!(
+      (displayMode && displayMode.matches) ||
+      (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
+      navigator.standalone === true
+    );
+  }
+
+  function fullscreenAvailable() {
+    return !!(root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen);
+  }
+
+  function launchFocusOn() {
+    try {
+      return localStorage.getItem(LAUNCH_FOCUS_KEY) === '1';
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function syncLaunchFocus() {
+    if (!launchFocusRow || !launchFocusToggle) return;
+    const show = installedApp() && fullscreenAvailable();
+    launchFocusRow.hidden = !show;
+    launchFocusToggle.setAttribute('aria-checked', String(show && launchFocusOn()));
+  }
+
+  if (launchFocusRow && launchFocusToggle) {
+    launchFocusToggle.addEventListener('click', function () {
+      const next = !launchFocusOn();
+      try {
+        localStorage.setItem(LAUNCH_FOCUS_KEY, next ? '1' : '0');
+      } catch (err) {
+        /* ignore */
+      }
+      syncLaunchFocus();
+    });
+    if (displayMode && displayMode.addEventListener) displayMode.addEventListener('change', syncLaunchFocus);
+    else if (displayMode && displayMode.addListener) displayMode.addListener(syncLaunchFocus);
+    syncLaunchFocus();
   }
 
   /* ---------- reset ---------- */
@@ -516,6 +565,7 @@
   applyTheme(state.theme, false);
   applyPalette(state.palette, false);
   syncResumeButtons();
+  syncLaunchFocus();
 
   const onSchemeChange = function () {
     if (state.theme === 'auto') applyTheme('auto', false);

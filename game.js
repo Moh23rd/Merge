@@ -5,6 +5,7 @@
   const SIZE_KEY = 'merge2048.size';
   const SAVE_KEY = 'merge2048.save';
   const RESUME_KEY = 'merge2048.resume';
+  const LAUNCH_FOCUS_KEY = 'merge2048.launchFullscreen';
   const SWIPE_MIN = 22;
   const MOVE_MS = 150;
   const STORE_BEST = 'merge2048.best';
@@ -768,14 +769,19 @@
 
   function syncResultButton() {
     if (!viewResultBtn) return;
-    // Keep the shortcut stable while a move is animating. Its click handler
-    // already ignores the brief busy window, so toggling visibility here only
-    // made the button flicker on every turn.
-    const show = !!resultSnapshot && overlayEl.hidden;
-    viewResultBtn.hidden = !show;
-    if (show) {
-      viewResultBtn.textContent = resultSnapshot.generation === generation ? 'View result' : 'Last result';
+    // The chip keeps its place in the fixed-height status row even while the
+    // result card is open (it is only veiled). That way closing the card only
+    // reveals it again; nothing in the layout has to move.
+    const hasResult = !!resultSnapshot;
+    viewResultBtn.hidden = !hasResult;
+    if (hasResult) {
+      viewResultBtn.textContent = 'Result';
+      viewResultBtn.setAttribute(
+        'aria-label',
+        resultSnapshot.generation === generation ? 'View result' : 'View last result'
+      );
     }
+    viewResultBtn.classList.toggle('is-veiled', hasResult && !overlayEl.hidden);
   }
 
   overlayBtn.addEventListener('click', function () {
@@ -1246,7 +1252,11 @@
 
   if (focusBtn) {
     const root = document.documentElement;
+    const FOCUS_HANDOFF_MS = 170;
     let focusPending = false;
+    let focusHandoffStarted = 0;
+    let focusSettleTimer = 0;
+    let launchFocusRequest = false;
 
     function fullscreenElement() {
       return document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || null;
@@ -1259,12 +1269,39 @@
       focusBtn.title = active ? 'Exit fullscreen (Esc)' : 'Fullscreen (F)';
     }
 
-    // Fullscreen keeps the same composition. Only the browser chrome changes,
-    // so there is no second layout to morph between and nothing to snap.
+    function prefersReducedMotion() {
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+
     function transitionFocusLayout(active) {
       root.classList.toggle('is-focus', active);
       syncFocusButton();
       measure();
+    }
+
+    function beginFocusHandoff() {
+      focusHandoffStarted = Date.now();
+      root.classList.add('is-focusing');
+    }
+
+    // The native resize happens between two different viewport sizes. Let the
+    // page fade back for it, remeasure at the settled size, then fade in. This
+    // turns the hard snap into one quiet handoff.
+    function completeFocusHandoff(active) {
+      if (focusSettleTimer) return;
+      const wait = prefersReducedMotion()
+        ? 0
+        : Math.max(0, FOCUS_HANDOFF_MS - (Date.now() - focusHandoffStarted));
+      focusSettleTimer = window.setTimeout(function () {
+        focusSettleTimer = 0;
+        transitionFocusLayout(active);
+        window.requestAnimationFrame(function () {
+          window.requestAnimationFrame(function () {
+            root.classList.remove('is-focusing');
+            focusPending = false;
+          });
+        });
+      }, wait);
     }
 
     function enterFocus() {
@@ -1279,45 +1316,53 @@
       }
 
       focusPending = true;
+      beginFocusHandoff();
       let pending;
       try {
         pending = request.call(root);
       } catch (err) {
-        focusPending = false;
-        transitionFocusLayout(true);
+        completeFocusHandoff(false);
         return;
       }
 
-      // Older Safari returns nothing even when it starts fullscreen. Apply the
-      // layout immediately in that case; the native transition is already in
-      // progress and the class keeps the fallback available if it was denied.
+      // Older Safari returns nothing even when it starts fullscreen.
       if (!pending || typeof pending.then !== 'function') {
-        focusPending = false;
-        transitionFocusLayout(true);
+        completeFocusHandoff(true);
         return;
       }
 
-      // Wait for the browser's own fullscreen animation to settle before
-      // rearranging the page. Doing both at once is what made the board jump.
-      const settle = function () {
-        focusPending = false;
-        transitionFocusLayout(true);
-      };
-      pending.then(settle, settle);
+      pending.then(function () {
+        completeFocusHandoff(true);
+      }, function () {
+        completeFocusHandoff(false);
+      });
     }
 
     function exitFocus() {
-      focusPending = false;
-      if (root.classList.contains('is-focus')) transitionFocusLayout(false);
-      else syncFocusButton();
-      if (!fullscreenElement()) return;
+      const native = !!fullscreenElement();
+      if (!native) {
+        if (root.classList.contains('is-focus')) transitionFocusLayout(false);
+        else syncFocusButton();
+        focusPending = false;
+        return;
+      }
+      if (focusPending) return;
+
+      focusPending = true;
+      beginFocusHandoff();
       const exit = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
-      if (!exit) return;
+      if (!exit) {
+        completeFocusHandoff(false);
+        return;
+      }
+
+      const settle = function () { completeFocusHandoff(false); };
       try {
         const pending = exit.call(document);
-        if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+        if (pending && typeof pending.then === 'function') pending.then(settle, settle);
+        else settle();
       } catch (err) {
-        /* the browser will also leave fullscreen from its own control */
+        settle();
       }
     }
 
@@ -1330,9 +1375,20 @@
     function syncFromFullscreen() {
       // The browser's Esc key or its own fullscreen control can end native
       // fullscreen without going through exitFocus.
-      if (!fullscreenElement()) {
+      if (launchFocusRequest) return;
+      const active = !!fullscreenElement();
+      if (active) {
+        if (!root.classList.contains('is-focus') && !focusSettleTimer) {
+          if (!root.classList.contains('is-focusing')) beginFocusHandoff();
+          completeFocusHandoff(true);
+        }
+        return;
+      }
+      if (root.classList.contains('is-focus') || root.classList.contains('is-focusing')) {
+        if (!root.classList.contains('is-focusing')) beginFocusHandoff();
+        completeFocusHandoff(false);
+      } else {
         focusPending = false;
-        if (root.classList.contains('is-focus')) transitionFocusLayout(false);
       }
     }
 
@@ -1359,6 +1415,86 @@
     });
 
     syncFocusButton();
+
+    /* ---------- fullscreen on open (installed app only) ---------- */
+
+    function installedApp() {
+      return !!(
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+        (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
+        navigator.standalone === true
+      );
+    }
+
+    function launchFocusEnabled() {
+      try {
+        return localStorage.getItem(LAUNCH_FOCUS_KEY) === '1';
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function armLaunchFocus() {
+      if (!installedApp() || !launchFocusEnabled()) return;
+
+      let listening = true;
+
+      function stopListening() {
+        if (!listening) return;
+        listening = false;
+        window.removeEventListener('pointerup', onFirstGesture, true);
+        window.removeEventListener('keyup', onFirstGesture, true);
+      }
+
+      function onFirstGesture(e) {
+        if (!listening) return;
+        if (e.type === 'keyup' && ['Meta', 'Control', 'Alt', 'Shift', 'Tab', 'Escape'].indexOf(e.key) !== -1) return;
+        if (e.target && e.target.closest && e.target.closest('#focus-toggle')) return;
+        if (sheetEl && !sheetEl.hidden) return;
+        if (helpEl && !helpEl.hidden) return;
+        if (overlayEl && !overlayEl.hidden) return;
+        stopListening();
+        if (!fullscreenElement()) enterFocus();
+      }
+
+      // Browsers normally block fullscreen without a gesture. If the launch
+      // request is refused, the same promise falls back to the first real
+      // gesture instead of interrupting the opening animation.
+      window.addEventListener('pointerup', onFirstGesture, true);
+      window.addEventListener('keyup', onFirstGesture, true);
+
+      const request = root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen;
+      if (!request) {
+        stopListening();
+        return;
+      }
+
+      launchFocusRequest = true;
+      let pending;
+      try {
+        pending = request.call(root);
+      } catch (err) {
+        launchFocusRequest = false;
+        return;
+      }
+
+      const entered = function () {
+        launchFocusRequest = false;
+        if (!fullscreenElement()) return;
+        stopListening();
+        transitionFocusLayout(true);
+      };
+
+      if (pending && typeof pending.then === 'function') {
+        pending.then(entered, function () {
+          launchFocusRequest = false;
+        });
+      } else {
+        entered();
+      }
+    }
+
+    if (launchFocusEnabled() && installedApp()) armLaunchFocus();
   }
 
   newBtn.addEventListener('click', newGame);
