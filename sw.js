@@ -1,8 +1,9 @@
-/* Offline cache for the Merge game. Bump VERSION whenever the assets change. */
-const VERSION = 'merge-2048-v1.0.4';
+/* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
+const VERSION = 'sixfold-v30';
 // Bump alongside the ?v= numbers in index.html; the new URLs make the browser
 // fetch fresh files even when an older cache is still installed.
-const ASSET = '1.0.4';
+const ASSET = '2.0';
+const GAMES = '2.0';
 
 const SHELL = [
   './',
@@ -12,6 +13,8 @@ const SHELL = [
   './game.js?v=' + ASSET,
   './haptics.js?v=' + ASSET,
   './install.js?v=' + ASSET,
+  './games.css?v=' + GAMES,
+  './games.js?v=' + GAMES,
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png',

@@ -33,7 +33,7 @@
     if (prompt) {
       block.hidden = false;
       btn.hidden = false;
-      copy.textContent = 'Add Merge to your home screen for an app-like, offline-friendly game.';
+      copy.textContent = 'Add Sixfold to your home screen for an app-like, offline-friendly collection.';
       return;
     }
 

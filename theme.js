@@ -4,12 +4,17 @@
 
   const THEME_KEY = 'merge2048.theme';
   const PALETTE_KEY = 'merge2048.palette';
-  const LAUNCH_FOCUS_KEY = 'merge2048.launchFullscreen';
 
   // The hand-tuned "Warm" ramp, one colour per tile for 2 … 2048.
   const WARM = [
     '#f3ecdf', '#f0e3c8', '#efb07a', '#ee9563', '#ec7c55', '#e85f3b',
     '#e7c364', '#e3b94a', '#dcab30', '#cf9822', '#b9801a'
+  ];
+
+  // The seven accent colours the collection games use for tubes, fruit, marks
+  // and mine numbers. They follow the selected palette just like the tiles.
+  const GAME_ACCENTS = [
+    '#e85f3b', '#e3a92f', '#8bbd54', '#39a9a1', '#5b8fd5', '#9a6bb5', '#d96b8a'
   ];
 
   // Other palettes are the warm colours hue-shifted (or, for Mono, desaturated),
@@ -158,7 +163,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=1.0.4';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=2.0';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
@@ -221,6 +226,11 @@
     });
   }
 
+  function syncHubPalette() {
+    const label = document.getElementById('hub-palette-label');
+    if (label) label.textContent = activePalette().label;
+  }
+
   function applyPalette(id, persist) {
     const palette = PALETTES.filter(function (p) { return p.id === id; })[0] || PALETTES[0];
     state.palette = palette.id;
@@ -228,6 +238,10 @@
 
     for (let i = 0; i < WARM.length; i++) {
       root.style.setProperty('--t' + (2 << i), recolor(WARM[i], palette));
+    }
+    // Shared accents for the other five games (see games.css/games.js).
+    for (let i = 0; i < GAME_ACCENTS.length; i++) {
+      root.style.setProperty('--g' + (i + 1), recolor(GAME_ACCENTS[i], palette));
     }
     root.style.setProperty(
       '--ink-tile-low',
@@ -238,6 +252,7 @@
       try { localStorage.setItem(PALETTE_KEY, palette.id); } catch (err) {}
     }
     syncPaletteButtons();
+    syncHubPalette();
     refreshPage();
     announceAppearance();
   }
@@ -273,122 +288,57 @@
     });
   }
 
-  /* ---------- fullscreen on open ---------- */
-
-  const launchFocusRow = document.getElementById('launch-focus-row');
-  const launchFocusToggle = document.getElementById('launch-focus-toggle');
-  const displayMode = window.matchMedia ? window.matchMedia('(display-mode: standalone)') : null;
-
-  function installedApp() {
-    return !!(
-      (displayMode && displayMode.matches) ||
-      (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
-      navigator.standalone === true
-    );
-  }
+  /* ---------- fullscreen ---------- */
 
   function fullscreenAvailable() {
     return !!(root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen);
   }
 
-  function launchFocusOn() {
-    try {
-      return localStorage.getItem(LAUNCH_FOCUS_KEY) === '1';
-    } catch (err) {
-      return false;
+  function fullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+
+  const homeFocusBtn = document.getElementById('home-focus-toggle');
+  if (homeFocusBtn) {
+    if (!fullscreenAvailable()) {
+      homeFocusBtn.hidden = true;
+    } else {
+      const syncHomeFocus = function () {
+        const active = !!fullscreenElement();
+        homeFocusBtn.setAttribute('aria-pressed', String(active));
+        homeFocusBtn.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
+        homeFocusBtn.title = active ? 'Exit fullscreen' : 'Enter fullscreen';
+      };
+
+      const toggleHomeFocus = function () {
+        if (fullscreenElement()) {
+          const exit = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
+          if (!exit) return;
+          try {
+            const pending = exit.call(document);
+            if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+          } catch (err) {}
+          return;
+        }
+        const request = root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen;
+        if (!request) return;
+        try {
+          const pending = request.call(root);
+          if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+        } catch (err) {}
+      };
+
+      homeFocusBtn.addEventListener('click', toggleHomeFocus);
+      document.addEventListener('fullscreenchange', syncHomeFocus);
+      document.addEventListener('webkitfullscreenchange', syncHomeFocus);
+      syncHomeFocus();
     }
-  }
-
-  function syncLaunchFocus() {
-    if (!launchFocusRow || !launchFocusToggle) return;
-    const show = installedApp() && fullscreenAvailable();
-    launchFocusRow.hidden = !show;
-    launchFocusToggle.setAttribute('aria-checked', String(show && launchFocusOn()));
-  }
-
-  if (launchFocusRow && launchFocusToggle) {
-    launchFocusToggle.addEventListener('click', function () {
-      const next = !launchFocusOn();
-      try {
-        localStorage.setItem(LAUNCH_FOCUS_KEY, next ? '1' : '0');
-      } catch (err) {
-        /* ignore */
-      }
-      syncLaunchFocus();
-    });
-    if (displayMode && displayMode.addEventListener) displayMode.addEventListener('change', syncLaunchFocus);
-    else if (displayMode && displayMode.addListener) displayMode.addListener(syncLaunchFocus);
-    syncLaunchFocus();
-  }
-
-  /* ---------- reset ---------- */
-
-  const BEST_KEYS = ['merge2048.best', 'merge2048.best.3', 'merge2048.best.5'];
-
-  // Two taps for anything destructive: the first arms the button, the second does it.
-  function armReset(btn, label, action) {
-    let armed = false;
-    let timer = 0;
-
-    function disarm() {
-      armed = false;
-      btn.dataset.armed = 'false';
-      btn.textContent = label;
-    }
-
-    btn.addEventListener('click', function () {
-      if (!armed) {
-        armed = true;
-        btn.dataset.armed = 'true';
-        btn.textContent = 'Tap again';
-        timer = window.setTimeout(disarm, 3200);
-        return;
-      }
-      window.clearTimeout(timer);
-      armed = false;
-      btn.dataset.armed = 'false';
-      action(btn, label);
-    });
-  }
-
-  function resetBestScores(btn, label) {
-    BEST_KEYS.forEach(function (key) {
-      try { localStorage.removeItem(key); } catch (err) {}
-    });
-    if (window.MergeGame && window.MergeGame.refreshBest) window.MergeGame.refreshBest();
-    btn.textContent = 'Cleared';
-    window.setTimeout(function () { btn.textContent = label; }, 1400);
-  }
-
-  function resetAllSettings(btn) {
-    // Preferences and the saved game go back to defaults; best scores have their own button.
-    // Stop the game's pagehide/visibilitychange save from restoring the board
-    // when the reset reloads the page.
-    if (window.MergeGame && window.MergeGame.suspendSaving) window.MergeGame.suspendSaving();
-    try {
-      Object.keys(localStorage).forEach(function (key) {
-        if (key.indexOf('merge2048.') !== 0) return;
-        if (BEST_KEYS.indexOf(key) !== -1) return;
-        localStorage.removeItem(key);
-      });
-    } catch (err) {
-      /* ignore */
-    }
-    btn.textContent = 'Resetting…';
-    window.setTimeout(function () { window.location.reload(); }, 250);
-  }
-
-  // Light/dark at a glance in the header; the segmented control in the sheet stays.
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', function () {
-      applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
-    });
   }
 
   /* ---------- sheet ---------- */
 
   const appEl = document.querySelector('.app');
+  const hubEl = document.getElementById('hub');
   const sheetOpeners = new WeakMap();
   const sheetCloseTimers = new WeakMap();
 
@@ -407,7 +357,13 @@
     sheet.classList.remove('is-closing');
     sheet.classList.add('is-open');
     // The page behind the sheet can't be tabbed into or tapped while it's open.
-    if (appEl && 'inert' in appEl) appEl.inert = true;
+    // Hub, Merge and the five game screens each have their own top-level layer.
+    const screen = document.body.dataset.screen;
+    const background = screen === 'hub' ? hubEl : screen === 'merge' ? appEl : document.getElementById(screen);
+    if (background && 'inert' in background && !background.inert) {
+      background.inert = true;
+      sheet._inertBackground = background;
+    }
     document.documentElement.classList.add('sheet-open');
     const doneBtn = sheet.querySelector('.sheet-done');
     if (doneBtn) doneBtn.focus();
@@ -422,8 +378,12 @@
     const timer = window.setTimeout(function () {
       sheet.hidden = true;
       sheet.classList.remove('is-open', 'is-closing');
+      sheet.removeAttribute('data-context');
       document.documentElement.classList.remove('sheet-open');
-      if (appEl && 'inert' in appEl) appEl.inert = false;
+      if (sheet._inertBackground) {
+        sheet._inertBackground.inert = false;
+        sheet._inertBackground = null;
+      }
       // Send focus back to whatever opened the sheet.
       const opener = sheetOpeners.get(sheet);
       if (opener) opener.focus();
@@ -435,12 +395,39 @@
 
   const appearanceSheet = document.getElementById('sheet');
   const appearanceBtn = document.getElementById('appearance');
+  const sizeSheet = document.getElementById('size-sheet');
+  const sizeBtn = document.getElementById('merge-size');
   const helpSheet = document.getElementById('help');
   const helpBtn = document.getElementById('how-to');
+  const resetSheet = document.getElementById('reset-sheet');
+  const resetTitleEl = document.getElementById('reset-title');
+  const resetCopyEl = document.getElementById('reset-copy');
+  const resetConfirmBtn = document.getElementById('reset-confirm');
+  let resetAction = null;
+  const helpTitleEl = document.getElementById('help-title');
+  const helpStepsEl = document.getElementById('help-steps');
+  const defaultHelpTitle = helpTitleEl ? helpTitleEl.textContent : 'How to play';
+  const defaultHelpSteps = helpStepsEl
+    ? Array.prototype.map.call(helpStepsEl.children, function (item) { return item.textContent; })
+    : [];
+
+  function renderHelp(title, steps) {
+    if (!helpTitleEl || !helpStepsEl) return;
+    helpTitleEl.textContent = title || defaultHelpTitle;
+    helpStepsEl.textContent = '';
+    (steps && steps.length ? steps : defaultHelpSteps).forEach(function (copy) {
+      const item = document.createElement('li');
+      item.textContent = copy;
+      helpStepsEl.appendChild(item);
+    });
+  }
 
   function wireSheet(sheet, openerBtn) {
     if (!sheet || !openerBtn) return;
     openerBtn.addEventListener('click', function () {
+      // Merge's own help button always sees Merge's instructions, even after
+      // another game has borrowed the sheet.
+      if (sheet === helpSheet) renderHelp(defaultHelpTitle, defaultHelpSteps);
       openSheet(sheet, openerBtn);
     });
     sheet.querySelectorAll('[data-close], .sheet-done').forEach(function (el) {
@@ -451,11 +438,44 @@
   }
 
   wireSheet(appearanceSheet, appearanceBtn);
+  wireSheet(sizeSheet, sizeBtn);
   wireSheet(helpSheet, helpBtn);
+
+  if (resetSheet) {
+    resetSheet.querySelectorAll('[data-close]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        resetAction = null;
+        closeSheet(resetSheet);
+      });
+    });
+    if (resetConfirmBtn) {
+      resetConfirmBtn.addEventListener('click', function () {
+        const action = resetAction;
+        resetAction = null;
+        closeSheet(resetSheet);
+        if (action) action();
+      });
+    }
+  }
+
+  function openGameReset(options) {
+    if (!options) return;
+    if (!resetSheet || !resetTitleEl || !resetCopyEl || !resetConfirmBtn) {
+      if (options.onConfirm) options.onConfirm();
+      return;
+    }
+    resetTitleEl.textContent = 'Reset ' + options.name + '?';
+    resetCopyEl.textContent = options.copy || ('This clears ' + options.name + ' data on this device.');
+    resetConfirmBtn.textContent = 'Reset ' + options.name;
+    resetAction = options.onConfirm || null;
+    openSheet(resetSheet, options.opener || null);
+  }
 
   function activeSheet() {
     if (appearanceSheet && !appearanceSheet.hidden) return appearanceSheet;
+    if (sizeSheet && !sizeSheet.hidden) return sizeSheet;
     if (helpSheet && !helpSheet.hidden) return helpSheet;
+    if (resetSheet && !resetSheet.hidden) return resetSheet;
     return null;
   }
 
@@ -467,7 +487,7 @@
     });
   }
 
-  if (appearanceSheet || helpSheet) {
+  if (appearanceSheet || helpSheet || resetSheet) {
     document.addEventListener('keydown', function (e) {
       const sheet = activeSheet();
       if (!sheet) return;
@@ -493,33 +513,7 @@
     });
   }
 
-  // Show the panel by itself once, and only to someone who has never played
-  // here before. Any trace of earlier use means this is not a first visit.
-  const HELP_SEEN_KEY = 'merge2048.helpSeen';
-
-  function firstVisit() {
-    try {
-      if (localStorage.getItem(HELP_SEEN_KEY)) return false;
-      return !Object.keys(localStorage).some(function (key) {
-        return key.indexOf('merge2048.') === 0;
-      });
-    } catch (err) {
-      // Storage blocked: don't risk greeting the same person on every load.
-      return false;
-    }
-  }
-
-  if (helpSheet && helpBtn && firstVisit()) {
-    try {
-      // Mark it before showing, so a reload mid-read doesn't ask again.
-      localStorage.setItem(HELP_SEEN_KEY, '1');
-    } catch (err) {
-      /* storage blocked: the welcome simply won't repeat */
-    }
-    window.requestAnimationFrame(function () {
-      openSheet(helpSheet, helpBtn);
-    });
-  }
+  // The in-game coach handles the first moves; Help stays available in Look.
 
   if (appearanceSheet) {
     appearanceSheet.querySelectorAll('[data-theme-opt]').forEach(function (btn) {
@@ -531,15 +525,34 @@
 
   /* ---------- start ---------- */
 
-  const resetBestBtn = document.getElementById('reset-best');
-  const resetSettingsBtn = document.getElementById('reset-settings');
-  if (resetBestBtn) armReset(resetBestBtn, 'Best scores', resetBestScores);
-  if (resetSettingsBtn) armReset(resetSettingsBtn, 'All settings', resetAllSettings);
-
   buildPalettes();
   applyTheme(state.theme, false);
   applyPalette(state.palette, false);
-  syncLaunchFocus();
+
+  // Display controls on the other game screens use the same theme state and
+  // persistence as Merge's footer toggle, without duplicating the theme logic.
+  window.MergeTheme = {
+    toggle: function () {
+      applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
+    },
+    isDark: function () {
+      return root.dataset.theme === 'dark';
+    },
+    openHelp: function (title, steps, opener) {
+      if (!helpSheet) return;
+      renderHelp(title, steps);
+      openSheet(helpSheet, opener || helpBtn);
+    },
+    palette: function () {
+      return state.palette;
+    },
+    // Recolour any accent hex with the active palette. Canvas games call this.
+    colour: function (hex) {
+      return recolor(hex, activePalette());
+    },
+    confirmReset: openGameReset,
+    closeSheet: closeSheet
+  };
 
   const onSchemeChange = function () {
     if (state.theme === 'auto') applyTheme('auto', false);

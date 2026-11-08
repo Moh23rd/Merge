@@ -4,7 +4,6 @@
   const DEFAULT_SIZE = 4;
   const SIZE_KEY = 'merge2048.size';
   const SAVE_KEY = 'merge2048.save';
-  const LAUNCH_FOCUS_KEY = 'merge2048.launchFullscreen';
   const SWIPE_MIN = 22;
   const MOVE_MS = 150;
   const STORE_BEST = 'merge2048.best';
@@ -28,7 +27,6 @@
   const resultPreview = document.getElementById('result-preview');
   const resultPreviewImg = document.getElementById('result-preview-img');
   const newBtn = document.getElementById('new-game');
-  const focusBtn = document.getElementById('focus-toggle');
   const viewResultBtn = document.getElementById('view-result');
   const hapticBtn = document.getElementById('vibration-toggle');
   const sheetEl = document.getElementById('sheet');
@@ -440,6 +438,10 @@
     moves += 1;
     setStat(movesEl, moves);
 
+    window.dispatchEvent(new CustomEvent('sixfold:merge-move', {
+      detail: { moves: moves, merges: merges.length }
+    }));
+
     if (merges.length) {
       let biggest = 0;
       for (const m of merges) biggest = Math.max(biggest, m.keep.value * 2);
@@ -644,6 +646,7 @@
   /* ---------- overlay ---------- */
 
   function showOverlay(title, text, btnLabel, action, result) {
+    if (window.MergeAutoNext) window.MergeAutoNext.cancel();
     overlayTitle.textContent = title;
     overlayText.textContent = text;
     overlayBtn.textContent = btnLabel;
@@ -706,6 +709,7 @@
   }
 
   function hideOverlay() {
+    if (window.MergeAutoNext) window.MergeAutoNext.cancel();
     if (overlayEl.hidden) return;
     overlayAction = null;
     overlayWin = false;
@@ -777,6 +781,19 @@
     }
     const action = (reopen || (snapshot.win && !finished)) ? hideOverlay : newGame;
     showOverlay(snapshot.title, snapshot.text, label, action, snapshot);
+    if (action !== newGame) {
+      if (window.MergeAutoNext) window.MergeAutoNext.cancel();
+      return;
+    }
+    // game.js runs before games.js, so a resumed game-over card can be shown
+    // before the shared countdown helper exists. Retry on the next task.
+    const startCountdown = function () {
+      if (!window.MergeAutoNext || document.body.dataset.screen !== 'merge' ||
+          overlayEl.hidden || overlayAction !== newGame) return;
+      window.MergeAutoNext.schedule(overlayBtn, newGame);
+    };
+    if (window.MergeAutoNext) startCountdown();
+    else window.setTimeout(startCountdown, 0);
   }
 
   function syncResultButton() {
@@ -909,9 +926,9 @@
     });
 
     if (typeof File === 'function') {
-      return new File([blob], 'merge-2048-result.png', { type: 'image/png' });
+      return new File([blob], 'sixfold-merge-result.png', { type: 'image/png' });
     }
-    blob.name = 'merge-2048-result.png';
+    blob.name = 'sixfold-merge-result.png';
     return blob;
   }
 
@@ -1083,7 +1100,7 @@
     const href = URL.createObjectURL(file);
     const link = document.createElement('a');
     link.href = href;
-    link.download = 'merge-2048-result.png';
+    link.download = 'sixfold-merge-result.png';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -1144,18 +1161,47 @@
     resetBoard();
   }
 
+  function resetSavedData() {
+    try {
+      localStorage.removeItem(SAVE_KEY);
+      localStorage.removeItem(TIP_KEY);
+      ['merge2048.best', 'merge2048.best.3', 'merge2048.best.5'].forEach(function (key) {
+        localStorage.removeItem(key);
+      });
+    } catch (err) {
+      /* storage blocked — reset the board below anyway */
+    }
+    best = 0;
+    bestAtStart = 0;
+    tipIndex = 0;
+    movesSinceTip = 0;
+    resultSnapshot = null;
+    loadBest();
+    resetBoard();
+    syncResultButton();
+  }
+
   /* ---------- board size switch ---------- */
 
   function syncSizeButtons() {
     document.querySelectorAll('[data-size-opt]').forEach(function (btn) {
       btn.setAttribute('aria-pressed', Number(btn.dataset.sizeOpt) === size ? 'true' : 'false');
     });
+    const trigger = document.getElementById('merge-size');
+    if (trigger) {
+      trigger.setAttribute('aria-label', 'Board size, ' + size + ' by ' + size);
+      trigger.title = 'Board size: ' + size + ' × ' + size;
+    }
   }
 
   function setSize(next) {
     if (next !== 3 && next !== 4 && next !== 5) return;
     if (next === size) {
       syncSizeButtons();
+      if (window.MergeTheme && window.MergeTheme.closeSheet) {
+        const sheet = document.getElementById('size-sheet');
+        if (sheet && !sheet.hidden) window.MergeTheme.closeSheet(sheet);
+      }
       return;
     }
     size = next;
@@ -1168,6 +1214,10 @@
     loadBest();
     newGame();
     syncSizeButtons();
+    if (window.MergeTheme && window.MergeTheme.closeSheet) {
+      const sheet = document.getElementById('size-sheet');
+      if (sheet && !sheet.hidden) window.MergeTheme.closeSheet(sheet);
+    }
   }
 
   /* ---------- input ---------- */
@@ -1250,6 +1300,9 @@
   };
 
   window.addEventListener('keydown', function (e) {
+    // The hub and other games have their own keyboard handling. Never move the
+    // hidden 2048 board from behind another screen.
+    if (document.body.dataset.screen && document.body.dataset.screen !== 'merge') return;
     // A sheet sits on top of the board; the game must not move underneath it.
     if (sheetEl && !sheetEl.hidden) return;
     if (helpEl && !helpEl.hidden) return;
@@ -1259,255 +1312,6 @@
     e.preventDefault();
     move(dir);
   });
-
-  /* ---------- distraction-free desktop mode ---------- */
-
-  if (focusBtn) {
-    const root = document.documentElement;
-    const FOCUS_HANDOFF_MS = 170;
-    let focusPending = false;
-    let focusHandoffStarted = 0;
-    let focusSettleTimer = 0;
-    let launchFocusRequest = false;
-
-    function fullscreenElement() {
-      return document.fullscreenElement || document.webkitFullscreenElement || document.webkitCurrentFullScreenElement || null;
-    }
-
-    function syncFocusButton() {
-      const active = root.classList.contains('is-focus');
-      focusBtn.setAttribute('aria-pressed', String(active));
-      focusBtn.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
-      focusBtn.title = active ? 'Exit fullscreen (Esc)' : 'Fullscreen (F)';
-    }
-
-    function prefersReducedMotion() {
-      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    }
-
-    function transitionFocusLayout(active) {
-      root.classList.toggle('is-focus', active);
-      syncFocusButton();
-      measure();
-    }
-
-    function beginFocusHandoff() {
-      focusHandoffStarted = Date.now();
-      root.classList.add('is-focusing');
-    }
-
-    // The native resize happens between two different viewport sizes. Let the
-    // page fade back for it, remeasure at the settled size, then fade in. This
-    // turns the hard snap into one quiet handoff.
-    function completeFocusHandoff(active) {
-      if (focusSettleTimer) return;
-      const wait = prefersReducedMotion()
-        ? 0
-        : Math.max(0, FOCUS_HANDOFF_MS - (Date.now() - focusHandoffStarted));
-      focusSettleTimer = window.setTimeout(function () {
-        focusSettleTimer = 0;
-        transitionFocusLayout(active);
-        window.requestAnimationFrame(function () {
-          window.requestAnimationFrame(function () {
-            root.classList.remove('is-focusing');
-            focusPending = false;
-          });
-        });
-      }, wait);
-    }
-
-    function enterFocus() {
-      if (root.classList.contains('is-focus') || focusPending) return;
-
-      // requestFullscreen is optional. The in-window focus layout is a complete
-      // fallback for browsers (or embedded previews) that refuse the request.
-      const request = root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen;
-      if (!request) {
-        transitionFocusLayout(true);
-        return;
-      }
-
-      focusPending = true;
-      beginFocusHandoff();
-      let pending;
-      try {
-        pending = request.call(root);
-      } catch (err) {
-        completeFocusHandoff(false);
-        return;
-      }
-
-      // Older Safari returns nothing even when it starts fullscreen.
-      if (!pending || typeof pending.then !== 'function') {
-        completeFocusHandoff(true);
-        return;
-      }
-
-      pending.then(function () {
-        completeFocusHandoff(true);
-      }, function () {
-        completeFocusHandoff(false);
-      });
-    }
-
-    function exitFocus() {
-      const native = !!fullscreenElement();
-      if (!native) {
-        if (root.classList.contains('is-focus')) transitionFocusLayout(false);
-        else syncFocusButton();
-        focusPending = false;
-        return;
-      }
-      if (focusPending) return;
-
-      focusPending = true;
-      beginFocusHandoff();
-      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.webkitCancelFullScreen;
-      if (!exit) {
-        completeFocusHandoff(false);
-        return;
-      }
-
-      const settle = function () { completeFocusHandoff(false); };
-      try {
-        const pending = exit.call(document);
-        if (pending && typeof pending.then === 'function') pending.then(settle, settle);
-        else settle();
-      } catch (err) {
-        settle();
-      }
-    }
-
-    function toggleFocus() {
-      if (focusPending) return;
-      if (root.classList.contains('is-focus')) exitFocus();
-      else enterFocus();
-    }
-
-    function syncFromFullscreen() {
-      // The browser's Esc key or its own fullscreen control can end native
-      // fullscreen without going through exitFocus.
-      if (launchFocusRequest) return;
-      const active = !!fullscreenElement();
-      if (active) {
-        if (!root.classList.contains('is-focus') && !focusSettleTimer) {
-          if (!root.classList.contains('is-focusing')) beginFocusHandoff();
-          completeFocusHandoff(true);
-        }
-        return;
-      }
-      if (root.classList.contains('is-focus') || root.classList.contains('is-focusing')) {
-        if (!root.classList.contains('is-focusing')) beginFocusHandoff();
-        completeFocusHandoff(false);
-      } else {
-        focusPending = false;
-      }
-    }
-
-    focusBtn.addEventListener('click', toggleFocus);
-    document.addEventListener('fullscreenchange', syncFromFullscreen);
-    document.addEventListener('webkitfullscreenchange', syncFromFullscreen);
-
-    window.addEventListener('keydown', function (e) {
-      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === 'Escape') {
-        // Native fullscreen handles Esc itself; this is for the windowed
-        // fallback and for browsers without the Fullscreen API.
-        if (root.classList.contains('is-focus') && !fullscreenElement()) {
-          e.preventDefault();
-          exitFocus();
-        }
-        return;
-      }
-      if (e.key !== 'f' && e.key !== 'F') return;
-      if (sheetEl && !sheetEl.hidden) return;
-      if (helpEl && !helpEl.hidden) return;
-      e.preventDefault();
-      toggleFocus();
-    });
-
-    syncFocusButton();
-
-    /* ---------- fullscreen on open (installed app only) ---------- */
-
-    function installedApp() {
-      return !!(
-        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
-        (window.matchMedia && window.matchMedia('(display-mode: fullscreen)').matches) ||
-        navigator.standalone === true
-      );
-    }
-
-    function launchFocusEnabled() {
-      try {
-        return localStorage.getItem(LAUNCH_FOCUS_KEY) === '1';
-      } catch (err) {
-        return false;
-      }
-    }
-
-    function armLaunchFocus() {
-      if (!installedApp() || !launchFocusEnabled()) return;
-
-      let listening = true;
-
-      function stopListening() {
-        if (!listening) return;
-        listening = false;
-        window.removeEventListener('pointerup', onFirstGesture, true);
-        window.removeEventListener('keyup', onFirstGesture, true);
-      }
-
-      function onFirstGesture(e) {
-        if (!listening) return;
-        if (e.type === 'keyup' && ['Meta', 'Control', 'Alt', 'Shift', 'Tab', 'Escape'].indexOf(e.key) !== -1) return;
-        if (e.target && e.target.closest && e.target.closest('#focus-toggle')) return;
-        if (sheetEl && !sheetEl.hidden) return;
-        if (helpEl && !helpEl.hidden) return;
-        if (overlayEl && !overlayEl.hidden) return;
-        stopListening();
-        if (!fullscreenElement()) enterFocus();
-      }
-
-      // Browsers normally block fullscreen without a gesture. If the launch
-      // request is refused, the same promise falls back to the first real
-      // gesture instead of interrupting the opening animation.
-      window.addEventListener('pointerup', onFirstGesture, true);
-      window.addEventListener('keyup', onFirstGesture, true);
-
-      const request = root.requestFullscreen || root.webkitRequestFullscreen || root.webkitRequestFullScreen;
-      if (!request) {
-        stopListening();
-        return;
-      }
-
-      launchFocusRequest = true;
-      let pending;
-      try {
-        pending = request.call(root);
-      } catch (err) {
-        launchFocusRequest = false;
-        return;
-      }
-
-      const entered = function () {
-        launchFocusRequest = false;
-        if (!fullscreenElement()) return;
-        stopListening();
-        transitionFocusLayout(true);
-      };
-
-      if (pending && typeof pending.then === 'function') {
-        pending.then(entered, function () {
-          launchFocusRequest = false;
-        });
-      } else {
-        entered();
-      }
-    }
-
-    if (launchFocusEnabled() && installedApp()) armLaunchFocus();
-  }
 
   newBtn.addEventListener('click', newGame);
 
@@ -1607,7 +1411,7 @@
             }
           }
         }
-        const face = new FontFace(family, 'url("fonts/google-sans-flex.woff2?v=1.0.4")', {
+        const face = new FontFace(family, 'url("fonts/google-sans-flex.woff2?v=2.0")', {
           weight: '100 1000',
           display: 'swap'
         });
@@ -1631,7 +1435,7 @@
     /* ignore */
   }
 
-  // Used by the reset buttons in the appearance sheet.
+  // Used by shared reset controls in the game shell.
   window.MergeGame = {
     refreshBest: function () {
       loadBest();
@@ -1640,7 +1444,8 @@
     suspendSaving: function () {
       saveSuspended = true;
     },
-    newGame: newGame
+    newGame: newGame,
+    resetData: resetSavedData
   };
 
   const saved = readSaved();

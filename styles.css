@@ -3,7 +3,7 @@
    unused language subsets and axes are trimmed away. */
 @font-face {
   font-family: "Google Sans Flex";
-  src: url("fonts/google-sans-flex.woff2?v=1.0.4") format("woff2");
+  src: url("fonts/google-sans-flex.woff2?v=2.0") format("woff2");
   font-weight: 100 1000;
   font-style: normal;
   font-display: swap;
@@ -675,23 +675,6 @@ h1 {
   font-size: 11px;
   font-weight: 800;
   line-height: 1;
-}
-
-/* The build label: quiet, fixed, and clear of the phone's home indicator. */
-.app-version {
-  position: fixed;
-  left: 50%;
-  bottom: calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 3px);
-  transform: translateX(-50%);
-  z-index: 2;
-  margin: 0;
-  font-size: 9.5px;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  pointer-events: none;
-  user-select: none;
 }
 
 .version-note {
@@ -1697,8 +1680,6 @@ html[data-theme="dark"] #theme-toggle .moon {
   .sheet-label { margin-top: 22px; }
   .sheet-note { font-size: 12px; line-height: 1.5; }
   .steps li { font-size: 14px; }
-
-  .app-version { bottom: 10px; }
 }
 
 /* Short desktop windows (including small laptop screens) get a more compact
@@ -1872,7 +1853,6 @@ html[data-theme="dark"] #theme-toggle .moon {
   }
 
   .sub { display: block; }
-  .app-version { display: none; }
 
   .sheet { align-items: center; }
   .sheet-card {

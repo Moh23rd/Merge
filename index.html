@@ -3,30 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Merge — 2048</title>
-  <meta name="description" content="A calm little slide-and-merge puzzle. Slide matching tiles together to double them." />
+  <title>Sixfold — Puzzles</title>
+  <meta name="description" content="Sixfold — six offline puzzle games: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper." />
   <link rel="canonical" href="https://moh23rd.github.io/Merge/" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Merge" />
-  <meta property="og:title" content="Merge — 2048" />
-  <meta property="og:description" content="A calm little slide-and-merge puzzle. Slide matching tiles together to double them." />
+  <meta property="og:site_name" content="Sixfold" />
+  <meta property="og:title" content="Sixfold — Puzzles" />
+  <meta property="og:description" content="Sixfold — six offline puzzle games: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper." />
   <meta property="og:url" content="https://moh23rd.github.io/Merge/" />
-  <meta property="og:image" content="https://moh23rd.github.io/Merge/og-image.png?v=1.0.5" />
+  <meta property="og:image" content="https://moh23rd.github.io/Merge/og-image.png?v=2.0" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Merge — a calm slide-and-merge puzzle" />
+  <meta property="og:image:alt" content="Sixfold — six calm puzzle games" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Merge — 2048" />
-  <meta name="twitter:description" content="A calm little slide-and-merge puzzle. Slide matching tiles together to double them." />
-  <meta name="twitter:image" content="https://moh23rd.github.io/Merge/og-image.png?v=1.0.5" />
+  <meta name="twitter:title" content="Sixfold — Puzzles" />
+  <meta name="twitter:description" content="Sixfold — six offline puzzle games: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper." />
+  <meta name="twitter:image" content="https://moh23rd.github.io/Merge/og-image.png?v=2.0" />
   <meta name="theme-color" content="#f6f1e8" />
   <meta name="color-scheme" content="light" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Merge" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=1.0.4" />
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=1.0.4" />
+  <meta name="apple-mobile-web-app-title" content="Sixfold" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=2.0" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=2.0" />
   <script>
     (function () {
       // A phone captures the installed app's bottom chrome when the app is
@@ -60,7 +60,7 @@
       var link = document.createElement('link');
       link.rel = 'manifest';
       link.id = 'manifest-link';
-      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=1.0.4';
+      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=2.0';
       document.head.appendChild(link);
 
       // Capture Chrome's install event early enough that the Help panel can
@@ -108,15 +108,17 @@
     /* Absolute geometry keeps the tile proportions exact at any width. */
     .boot-mark span {
       position: absolute;
-      width: 25.5%;
-      height: 25.5%;
-      border-radius: 20%;
+      width: 24%;
+      height: 24%;
+      border-radius: 18%;
       background: #f3ecdf;
     }
-    .boot-mark span:nth-child(1) { left: 21.3%; top: 21.3%; }
-    .boot-mark span:nth-child(2) { left: 53.2%; top: 21.3%; background: #efb07a; }
-    .boot-mark span:nth-child(3) { left: 21.3%; top: 53.2%; background: #ec7c55; }
-    .boot-mark span:nth-child(4) { left: 53.2%; top: 53.2%; background: #e85f3b; }
+    .boot-mark span:nth-child(1) { left: 10.5%; top: 24.25%; }
+    .boot-mark span:nth-child(2) { left: 38%; top: 24.25%; background: #ee9563; }
+    .boot-mark span:nth-child(3) { left: 65.5%; top: 24.25%; background: #e7c364; }
+    .boot-mark span:nth-child(4) { left: 10.5%; top: 51.75%; background: #efb07a; }
+    .boot-mark span:nth-child(5) { left: 38%; top: 51.75%; background: #ec7c55; }
+    .boot-mark span:nth-child(6) { left: 65.5%; top: 51.75%; background: #e85f3b; }
     .boot-word {
       margin: clamp(20px, 3.2vh, 30px) 0 0;
       margin-right: -0.22em;
@@ -153,48 +155,49 @@
       #boot-splash { transition-duration: 0.01ms; animation: none; }
     }
   </style>
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=1.0.4" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=2.0" />
   <!-- Native iOS launch images, light and dark, portrait phone and tablet sizes. -->
-  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-light.png?v=1.0.4" media="screen and (prefers-color-scheme: light) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-dark.png?v=1.0.4" media="screen and (prefers-color-scheme: dark) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="preload" href="fonts/google-sans-flex.woff2?v=1.0.4" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=1.0.4" />
+  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-light.png?v=2.0" media="screen and (prefers-color-scheme: light) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-dark.png?v=2.0" media="screen and (prefers-color-scheme: dark) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="preload" href="fonts/google-sans-flex.woff2?v=2.0" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css?v=2.0" />
+  <link rel="stylesheet" href="games.css?v=2.0" />
 </head>
-<body>
+<body data-screen="hub">
   <div class="boot-splash" id="boot-splash" aria-hidden="true">
     <div class="boot-stage">
       <div class="boot-mark">
@@ -202,14 +205,160 @@
         <span></span>
         <span></span>
         <span></span>
+        <span></span>
+        <span></span>
       </div>
-      <p class="boot-word">Merge</p>
+      <p class="boot-word">Sixfold</p>
       <div class="boot-track"><span></span></div>
     </div>
   </div>
+
+  <section class="hub" id="hub" aria-labelledby="hub-title">
+    <div class="hub-shell">
+      <header class="hub-top">
+        <div class="hub-brand">
+          <span class="hub-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span>
+          <span class="hub-word">Sixfold</span>
+        </div>
+        <div class="hub-actions">
+          <button class="hub-share" id="hub-share" type="button" aria-label="Share this game collection" title="Share">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 15V4M12 4l-3.4 3.4M12 4l3.4 3.4M5.5 12.5V19h13v-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <button class="hub-focus" id="home-focus-toggle" type="button" aria-pressed="false" aria-label="Enter fullscreen" title="Enter fullscreen">
+            <svg class="focus-enter" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg class="focus-exit" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 4v5H4M15 4v5h5M15 20v-5h5M9 20v-5H4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+          <button class="hub-look" id="appearance" type="button" aria-label="Appearance and colours">
+            <span class="hub-look-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16a5 5 0 0 0 5-5c0-4.42-4.03-8-9-8zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor" /></svg>
+            </span>
+            <span class="hub-look-copy"><span>Look</span><strong id="hub-palette-label">Warm</strong></span>
+            <span class="hub-look-chevron" aria-hidden="true">›</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="hub-intro">
+        <h1 id="hub-title"><span>Pick a puzzle.</span><span class="hub-title-soft">Take your time.</span></h1>
+        <p class="hub-sub">Six calm games. Your progress saves here, even offline.</p>
+      </div>
+
+      <aside class="whats-new" id="whats-new" data-version="2.0" aria-labelledby="whats-new-title" hidden>
+        <span class="whats-new-mark" aria-hidden="true">✦</span>
+        <div class="whats-new-copy">
+          <p class="whats-new-label" id="whats-new-title">What’s new in 2.0</p>
+          <ul class="whats-new-list">
+            <li>Six games, each checked against its original rules</li>
+            <li>Faster, quieter boards and a calmer home screen</li>
+            <li>Installable offline play on phone and desktop</li>
+          </ul>
+        </div>
+        <button class="whats-new-close" id="whats-new-close" type="button" aria-label="Dismiss what’s new">×</button>
+      </aside>
+
+      <div class="hub-grid">
+        <button class="game-card game-card--wide" type="button" data-game="merge" aria-label="Play Merge">
+          <span class="game-art game-art--merge" aria-hidden="true">
+            <span class="mini-merge">
+              <span class="mini-tile mini-2">2</span>
+              <span class="mini-tile mini-4">4</span>
+              <span class="mini-tile mini-8">8</span>
+              <span class="mini-tile mini-16">16</span>
+            </span>
+          </span>
+          <span class="game-copy">
+            <span class="game-top"><span class="game-tag">Numbers</span></span>
+            <span class="game-title">Merge</span>
+            <span class="game-desc">Slide the tiles. Match numbers to double them. Keep the board alive.</span>
+            <span class="game-foot"><span>Endless · best saved</span><span class="game-play">Play</span></span>
+          </span>
+        </button>
+
+        <button class="game-card" type="button" data-game="water" aria-label="Play Water Sort">
+          <span class="game-art game-art--water" aria-hidden="true">
+            <span class="mini-water">
+              <span class="mini-tube"><i class="g5"></i><i class="g3"></i><i class="g2"></i><i class="g1"></i></span>
+              <span class="mini-tube"><i class="g2"></i><i class="g1"></i><i class="g5"></i></span>
+              <span class="mini-tube"><i class="g3"></i><i class="g4"></i></span>
+            </span>
+          </span>
+          <span class="game-copy">
+            <span class="game-top"><span class="game-tag">Sorting</span></span>
+            <span class="game-title">Water Sort</span>
+            <span class="game-desc">Pour each colour into one matching tube.</span>
+            <span class="game-foot"><span>Easy → Hard · 8 levels</span><span class="game-play">Play</span></span>
+          </span>
+        </button>
+
+        <button class="game-card" type="button" data-game="oneline" aria-label="Play One Line">
+          <span class="game-art game-art--oneline" aria-hidden="true">
+            <svg class="mini-oneline" viewBox="0 0 100 100">
+              <path d="M24 24 L76 24 L76 76 L24 76 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+              <path d="M24 24 L76 76 M76 24 L24 76" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <circle cx="24" cy="24" r="4" fill="currentColor" /><circle cx="76" cy="24" r="4" fill="currentColor" />
+              <circle cx="76" cy="76" r="4" fill="currentColor" /><circle cx="24" cy="76" r="4" fill="currentColor" />
+            </svg>
+          </span>
+          <span class="game-copy">
+            <span class="game-top"><span class="game-tag">Drawing</span></span>
+            <span class="game-title">One Line</span>
+            <span class="game-desc">Trace every link in one unbroken stroke.</span>
+            <span class="game-foot"><span>Easy → Hard · 10 shapes</span><span class="game-play">Play</span></span>
+          </span>
+        </button>
+
+        <button class="game-card" type="button" data-game="fruit" aria-label="Play Fruit Merge">
+          <span class="game-art game-art--fruit" aria-hidden="true">
+            <span class="mini-fruit-cluster"><i class="mini-fruit f1"></i><i class="mini-fruit f2"></i><i class="mini-fruit f3"></i><i class="mini-fruit f4"></i><i class="mini-fruit f5"></i></span>
+          </span>
+          <span class="game-copy">
+            <span class="game-top"><span class="game-tag">Merging</span></span>
+            <span class="game-title">Fruit Merge</span>
+            <span class="game-desc">Drop matching fruit and keep the pile below the line.</span>
+            <span class="game-foot"><span>Endless · best saved</span><span class="game-play">Play</span></span>
+          </span>
+        </button>
+
+        <button class="game-card" type="button" data-game="ttt" aria-label="Play Tic Tac Toe">
+          <span class="game-art game-art--ttt" aria-hidden="true">
+            <span class="mini-ttt"><i class="x">×</i><i class="o">o</i><i></i><i class="o">o</i><i class="x">×</i><i></i><i></i><i class="x">×</i><i class="o">o</i></span>
+          </span>
+          <span class="game-copy">
+            <span class="game-top"><span class="game-tag">Classic</span></span>
+            <span class="game-title">Tic Tac Toe</span>
+            <span class="game-desc">Beat the computer to three in a row.</span>
+            <span class="game-foot"><span>Three difficulties</span><span class="game-play">Play</span></span>
+          </span>
+        </button>
+
+        <button class="game-card game-card--wide" type="button" data-game="mines" aria-label="Play Minesweeper">
+          <span class="game-art game-art--mines" aria-hidden="true">
+            <span class="mini-mines">
+              <i class="mines-open">1</i><i class="mines-flag">⚑</i><i class="mines-open">2</i>
+              <i class="mines-open"></i><i class="mines-mine">✹</i><i class="mines-open">3</i>
+              <i class="mines-open">2</i><i class="mines-open">1</i><i class="mines-flag">⚑</i>
+            </span>
+          </span>
+          <span class="game-copy">
+            <span class="game-top"><span class="game-tag">Logic</span></span>
+            <span class="game-title">Minesweeper</span>
+            <span class="game-desc">Read the numbers, flag the mines, clear the field.</span>
+            <span class="game-foot"><span>Beginner → Expert · first tap safe</span><span class="game-play">Play</span></span>
+          </span>
+        </button>
+      </div>
+
+      <footer class="hub-foot"><span>No accounts. No ads.</span><span>Works offline.</span></footer>
+      <p class="hub-version" id="app-version" aria-label="Sixfold version 2.0">v2.0</p>
+    </div>
+  </section>
+
   <main class="app">
     <header class="header">
       <div class="title-block">
+        <button class="games-home" id="back-to-games" data-back type="button" aria-label="Back to all games" title="Back to all games">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
         <h1>Merge</h1>
         <p class="sub">Slide the tiles. Match numbers to double them.</p>
       </div>
@@ -263,25 +412,6 @@
             <path class="slash" d="M4.5 19.5l15-15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
           </svg>
         </button>
-        <button class="btn ghost icon" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark theme" title="Switch to dark theme">
-          <svg class="moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M20.4 14.3A8.6 8.6 0 0 1 9.7 3.6a8.6 8.6 0 1 0 10.7 10.7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
-          </svg>
-          <svg class="sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.8" />
-            <g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-              <path d="M12 2.7v2.1" /><path d="M12 19.2v2.1" />
-              <path d="M2.7 12h2.1" /><path d="M19.2 12h2.1" />
-              <path d="M5.5 5.5l1.5 1.5" /><path d="M17 17l1.5 1.5" />
-              <path d="M18.5 5.5L17 7" /><path d="M7 17l-1.5 1.5" />
-            </g>
-          </svg>
-        </button>
-        <button class="btn ghost icon" id="appearance" type="button" aria-label="Appearance and colours" title="Appearance">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16a5 5 0 0 0 5-5c0-4.42-4.03-8-9-8zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor" />
-          </svg>
-        </button>
         <button class="btn ghost icon" id="how-to" type="button" aria-label="How to play" title="How to play">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.8" />
@@ -289,13 +419,11 @@
             <circle cx="12" cy="17.3" r="1.05" fill="currentColor" />
           </svg>
         </button>
-        <button class="btn ghost icon focus-btn" id="focus-toggle" type="button" aria-pressed="false" aria-label="Enter fullscreen" aria-keyshortcuts="F" title="Fullscreen (F)">
-          <svg class="focus-enter" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <svg class="focus-exit" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M9 4v5H4M15 4v5h5M15 20v-5h5M9 20v-5H4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
+        <button class="btn ghost icon" id="merge-size" type="button" aria-label="Board size, 4 by 4" title="Board size">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="6.4" height="6.4" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8" /><rect x="13.6" y="4" width="6.4" height="6.4" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8" /><rect x="4" y="13.6" width="6.4" height="6.4" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8" /><rect x="13.6" y="13.6" width="6.4" height="6.4" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8" /></svg>
+        </button>
+        <button class="btn ghost icon" id="merge-reset" type="button" aria-label="Reset Merge data" title="Reset Merge data">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><path d="M20 4v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </button>
         <button class="btn ghost" id="new-game" type="button">New game</button>
       </div>
@@ -310,42 +438,295 @@
         </p>
       </div>
     </footer>
-
-    <p class="app-version" id="app-version" aria-label="Merge version 1.0">v1.0</p>
   </main>
+
+  <section class="play-screen" id="water" aria-labelledby="water-title" hidden>
+    <div class="play-shell">
+      <header class="play-head">
+        <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <div class="play-title-row">
+          <div class="play-intro">
+            <p class="game-tag" id="water-level-label">Easy · Level 1 of 8</p>
+            <h1 id="water-title" tabindex="-1">Water Sort</h1>
+            <p class="sub">Pour colours until every tube holds one.</p>
+          </div>
+          <div class="play-stats" aria-label="Water Sort progress">
+            <div class="play-stat"><span class="label">Moves</span><strong id="water-moves">0</strong></div>
+            <div class="play-stat"><span class="label">Level</span><strong id="water-level">1</strong></div>
+          </div>
+        </div>
+      </header>
+      <main class="play-main">
+        <div class="board-stage">
+          <div class="water-board">
+            <div class="water-tubes" id="water-tubes" role="group" aria-label="Water Sort tubes"></div>
+          </div>
+        </div>
+        <div class="play-feedback">
+          <p class="play-status" id="water-status" role="status" aria-live="polite">Tap a tube, then tap where to pour.</p>
+          <div class="play-win" id="water-win" hidden>
+            <p><strong>Level clear.</strong> Every colour has its own tube.</p>
+            <button class="play-btn play-btn--solid" id="water-next" type="button">Next level</button>
+            <button class="result-share" id="water-share" type="button" aria-label="Share result" title="Share result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6H5.6A1.6 1.6 0 0 0 4 7.6v10.8A1.6 1.6 0 0 0 5.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V15M14 4h6v6M20 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
+          </div>
+        </div>
+      </main>
+      <footer class="play-foot">
+        <div class="play-actions">
+          <button class="play-btn play-btn--ghost" id="water-undo" type="button">Undo</button>
+          <button class="play-btn play-btn--solid" id="water-new" type="button">New board</button>
+        </div>
+        <span class="play-note">Tap one tube, then another to pour.</span>
+      </footer>
+    </div>
+  </section>
+
+  <section class="play-screen" id="oneline" aria-labelledby="one-line-title" hidden>
+    <div class="play-shell one-line-shell">
+      <header class="play-head">
+        <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <div class="play-title-row">
+          <div class="play-intro">
+            <p class="game-tag" id="one-line-level">Trace 1 of 10</p>
+            <h1 id="one-line-title" tabindex="-1">One Line</h1>
+            <p class="sub">Trace every link in one unbroken stroke.</p>
+          </div>
+          <div class="play-stats" aria-label="One Line progress">
+            <div class="play-stat"><span class="label">Links</span><strong id="one-line-moves">0</strong></div>
+            <div class="play-stat"><span class="label">Level</span><strong id="one-line-level-value">1</strong></div>
+          </div>
+        </div>
+      </header>
+      <main class="play-main">
+        <div class="board-stage">
+          <div class="one-line-wrap">
+            <svg class="one-line-board" id="one-line-svg" viewBox="0 0 100 100" role="group" aria-label="One Line puzzle" aria-describedby="one-line-status"></svg>
+          </div>
+        </div>
+        <div class="play-feedback">
+          <p class="play-status" id="one-line-status" role="status" aria-live="polite">Drag from any dot. Lift and continue from the glowing dot.</p>
+          <div class="play-win" id="one-line-win" hidden>
+            <p><strong>One line.</strong> <span id="one-line-win-copy"></span></p>
+            <button class="play-btn play-btn--solid" id="one-line-win-next" type="button">Next shape</button>
+            <button class="result-share" id="one-line-share" type="button" aria-label="Share result" title="Share result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6H5.6A1.6 1.6 0 0 0 4 7.6v10.8A1.6 1.6 0 0 0 5.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V15M14 4h6v6M20 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
+          </div>
+        </div>
+      </main>
+      <footer class="play-foot">
+        <div class="play-actions">
+          <button class="play-btn play-btn--ghost" id="one-line-undo" type="button">Undo</button>
+          <button class="play-btn play-btn--ghost" id="one-line-restart" type="button">Restart</button>
+          <button class="play-btn play-btn--solid" id="one-line-new" type="button">New shape</button>
+        </div>
+        <span class="play-note">Drag to trace · ringed dots are open ends.</span>
+      </footer>
+    </div>
+  </section>
+
+  <section class="play-screen" id="fruit" aria-labelledby="fruit-title" hidden>
+    <div class="play-shell fruit-shell">
+      <header class="play-head">
+        <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <div class="play-title-row">
+          <div class="play-intro">
+            <p class="game-tag">Drop · pair · grow</p>
+            <h1 id="fruit-title" tabindex="-1">Fruit Merge</h1>
+            <p class="sub">Pair the same fruit. Don’t reach the top.</p>
+          </div>
+          <div class="play-stats" aria-label="Fruit Merge score">
+            <div class="play-stat"><span class="label">Score</span><strong id="fruit-score">0</strong></div>
+            <div class="play-stat"><span class="label">Best</span><strong id="fruit-best">0</strong></div>
+          </div>
+        </div>
+      </header>
+      <main class="play-main fruit-main">
+        <div class="board-stage">
+        <div class="fruit-stage">
+          <div class="fruit-hud">
+            <span class="fruit-next-label">Next <i class="fruit-next-dot" id="fruit-next-dot"></i><span id="fruit-next-name">Cherry</span></span>
+            <span class="fruit-hint">Drag to aim</span>
+          </div>
+          <canvas id="fruit-canvas" width="720" height="860" tabindex="0" role="application" aria-label="Fruit Merge board"></canvas>
+          <div class="fruit-over" id="fruit-over" hidden>
+            <div class="fruit-over-card">
+              <p class="game-tag">Run over</p>
+              <h2>Fruit reached the top.</h2>
+              <p><strong id="fruit-final-score">0</strong> points · best <span id="fruit-final-best">0</span></p>
+              <div class="fruit-over-actions">
+                <button class="play-btn play-btn--solid" id="fruit-again" type="button">Try again</button>
+                <button class="result-share" id="fruit-share" type="button" aria-label="Share result" title="Share result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6H5.6A1.6 1.6 0 0 0 4 7.6v10.8A1.6 1.6 0 0 0 5.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V15M14 4h6v6M20 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="play-feedback">
+          <p class="play-status" id="fruit-status" role="status" aria-live="polite">Drag to aim. Release to drop.</p>
+        </div>
+      </main>
+      <footer class="play-foot">
+        <div class="play-actions">
+          <button class="play-btn play-btn--solid" id="fruit-new" type="button">New game</button>
+        </div>
+        <span class="play-note">Drag to aim · release to drop.</span>
+      </footer>
+    </div>
+  </section>
+
+  <section class="play-screen" id="ttt" aria-labelledby="ttt-title" hidden>
+    <div class="play-shell">
+      <header class="play-head">
+        <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <div class="play-title-row">
+          <div class="play-intro">
+            <p class="game-tag" id="ttt-tag">You are X · first move</p>
+            <h1 id="ttt-title" tabindex="-1">Tic Tac Toe</h1>
+            <p class="sub" id="ttt-sub">Beat the computer to three in a row.</p>
+          </div>
+          <div class="play-stats" aria-label="Tic Tac Toe record">
+            <div class="play-stat"><span class="label" id="ttt-wins-label">Wins</span><strong id="ttt-wins">0</strong></div>
+            <div class="play-stat"><span class="label" id="ttt-draws-label">Draws</span><strong id="ttt-draws">0</strong></div>
+            <div class="play-stat"><span class="label" id="ttt-losses-label">Losses</span><strong id="ttt-losses">0</strong></div>
+          </div>
+        </div>
+      </header>
+      <main class="play-main ttt-main">
+        <div class="ttt-difficulty" id="ttt-difficulty" role="group" aria-label="Computer difficulty or two players">
+          <button type="button" data-ttt-difficulty="easy" aria-pressed="false">Easy</button>
+          <button type="button" data-ttt-difficulty="sharp" aria-pressed="true">Sharp</button>
+          <button type="button" data-ttt-difficulty="perfect" aria-pressed="false">Perfect</button>
+          <button type="button" data-ttt-mode="two" aria-pressed="false">2 players</button>
+        </div>
+        <div class="board-stage">
+          <div class="ttt-board" id="ttt-board" role="group" aria-label="Tic Tac Toe board"></div>
+        </div>
+        <div class="play-feedback">
+          <p class="play-status" id="ttt-status" role="status" aria-live="polite">Your move. You are X.</p>
+          <div class="play-win" id="ttt-result" hidden>
+            <p><strong id="ttt-result-title">You win.</strong> <span id="ttt-result-copy">Three in a row.</span></p>
+            <button class="play-btn play-btn--solid" id="ttt-again" type="button">New round</button>
+            <button class="result-share" id="ttt-share" type="button" aria-label="Share result" title="Share result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6H5.6A1.6 1.6 0 0 0 4 7.6v10.8A1.6 1.6 0 0 0 5.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V15M14 4h6v6M20 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
+          </div>
+        </div>
+      </main>
+      <footer class="play-foot">
+        <div class="play-actions">
+          <button class="play-btn play-btn--solid" id="ttt-new" type="button">New round</button>
+        </div>
+        <span class="play-note" id="ttt-note">You are X. The computer moves after you.</span>
+      </footer>
+    </div>
+  </section>
+
+  <section class="play-screen" id="mines" aria-labelledby="mines-title" hidden>
+    <div class="play-shell">
+      <header class="play-head">
+        <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </button>
+        <div class="play-title-row">
+          <div class="play-intro">
+            <p class="game-tag" id="mines-level-tag">Beginner · 9 × 9</p>
+            <h1 id="mines-title" tabindex="-1">Minesweeper</h1>
+            <p class="sub">Read the numbers. Clear every safe square.</p>
+          </div>
+          <div class="play-stats" aria-label="Minesweeper progress">
+            <div class="play-stat"><span class="label">Mines</span><strong id="mines-left">10</strong></div>
+            <div class="play-stat"><span class="label">Time</span><strong id="mines-time">0:00</strong></div>
+          </div>
+        </div>
+      </header>
+      <main class="play-main mines-main">
+        <div class="mines-toolbar">
+          <div class="mines-difficulty" id="mines-difficulty" role="group" aria-label="Board size">
+            <button type="button" data-mines-difficulty="easy" aria-pressed="true">Beginner</button>
+            <button type="button" data-mines-difficulty="medium" aria-pressed="false">Intermediate</button>
+            <button type="button" data-mines-difficulty="hard" aria-pressed="false">Expert</button>
+          </div>
+          <button class="mines-flag-toggle" id="mines-flag-toggle" type="button" aria-pressed="false">
+            <span aria-hidden="true">⚑</span> Flag mode
+          </button>
+        </div>
+        <div class="board-stage">
+          <div class="mines-board-wrap">
+            <div class="mines-board" id="mines-board" role="grid" aria-label="Minesweeper board"></div>
+          </div>
+        </div>
+        <div class="play-feedback">
+          <p class="play-status" id="mines-status" role="status" aria-live="polite">Tap a square to begin. Long-press to flag.</p>
+          <div class="play-win" id="mines-result" hidden>
+            <p><strong id="mines-result-title">Field cleared.</strong> <span id="mines-result-copy">Every safe square is open.</span></p>
+            <button class="play-btn play-btn--solid" id="mines-again" type="button">New board</button>
+            <button class="result-share" id="mines-share" type="button" aria-label="Share result" title="Share result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6H5.6A1.6 1.6 0 0 0 4 7.6v10.8A1.6 1.6 0 0 0 5.6 20h10.8a1.6 1.6 0 0 0 1.6-1.6V15M14 4h6v6M20 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></button>
+          </div>
+        </div>
+      </main>
+      <footer class="play-foot">
+        <div class="play-actions">
+          <button class="play-btn play-btn--solid" id="mines-new" type="button">New board</button>
+        </div>
+        <span class="play-note">Tap to dig · tap a number to chord · hold to flag.</span>
+      </footer>
+    </div>
+  </section>
 
   <div class="sheet" id="sheet" hidden>
     <div class="sheet-backdrop" data-close></div>
     <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
       <div class="sheet-head">
-        <h2 id="sheet-title">Appearance</h2>
+        <h2 id="sheet-title">Look &amp; feel</h2>
         <button class="sheet-done" id="sheet-done" type="button">Done</button>
       </div>
+      <p class="sheet-sub">One look for every game. Saved on this device.</p>
       <p class="sheet-label">Theme</p>
       <div class="seg" id="theme-seg" role="group" aria-label="Theme">
         <button type="button" data-theme-opt="auto" aria-pressed="true">Auto</button>
         <button type="button" data-theme-opt="light" aria-pressed="false">Light</button>
         <button type="button" data-theme-opt="dark" aria-pressed="false">Dark</button>
       </div>
-      <p class="sheet-label">Board</p>
+      <p class="sheet-label">Colours</p>
+      <div class="palettes" id="palettes"></div>
+      <p class="sheet-note">Each game has its own reset in its bottom tool row.</p>
+    </div>
+  </div>
+
+  <div class="sheet" id="size-sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="size-title">
+      <div class="sheet-head">
+        <h2 id="size-title">Merge board</h2>
+        <button class="sheet-done" data-close type="button">Cancel</button>
+      </div>
+      <p class="sheet-sub">Pick a board size. Changing it starts a new round.</p>
       <div class="seg" id="size-seg" role="group" aria-label="Board size">
         <button type="button" data-size-opt="3" aria-pressed="false">3 × 3</button>
         <button type="button" data-size-opt="4" aria-pressed="true">4 × 4</button>
         <button type="button" data-size-opt="5" aria-pressed="false">5 × 5</button>
       </div>
-      <p class="sheet-note">Changing size starts a new board.</p>
-      <p class="sheet-label">Colours</p>
-      <div class="palettes" id="palettes"></div>
-      <div class="sheet-toggle" id="launch-focus-row" hidden>
-        <span class="sheet-toggle-label" id="launch-focus-label">Fullscreen on open</span>
-        <button class="switch" id="launch-focus-toggle" type="button" role="switch" aria-checked="false" aria-labelledby="launch-focus-label"></button>
+      <p class="sheet-note">3 × 3 is a quick warm-up, 4 × 4 is the standard, and 5 × 5 is the long game. Each size keeps its own best score.</p>
+    </div>
+  </div>
+
+  <div class="sheet" id="reset-sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-card sheet-card--confirm" role="dialog" aria-modal="true" aria-labelledby="reset-title" aria-describedby="reset-copy">
+      <div class="sheet-head">
+        <h2 id="reset-title">Reset this game?</h2>
+        <button class="sheet-done" data-close type="button">Cancel</button>
       </div>
-      <p class="sheet-label">Reset</p>
-      <div class="reset-row">
-        <button class="reset-btn" id="reset-best" type="button">Best scores</button>
-        <button class="reset-btn" id="reset-settings" type="button">All settings</button>
+      <p class="sheet-sub" id="reset-copy">Only this game’s saved progress will be cleared.</p>
+      <p class="sheet-note">Your look and every other game stay exactly as they are.</p>
+      <div class="reset-actions">
+        <button class="btn reset-confirm" id="reset-confirm" type="button">Reset game</button>
       </div>
-      <p class="sheet-note">Both ask for a second tap before anything is cleared.</p>
     </div>
   </div>
 
@@ -356,7 +737,7 @@
         <h2 id="help-title">How to play</h2>
         <button class="sheet-done" id="help-done" type="button">Got it</button>
       </div>
-      <ol class="steps">
+      <ol class="steps" id="help-steps">
         <li>Swipe or drag anywhere on the board, or use the arrow keys, to slide every tile.</li>
         <li>Two tiles with the same number merge into one and double, adding to your score.</li>
         <li>Every move drops in a new tile. If the board fills with no merges left, the round ends.</li>
@@ -364,40 +745,53 @@
       </ol>
       <section class="sheet-block" id="install-block" hidden>
         <p class="sheet-label">Install</p>
-        <p class="sheet-note" id="install-copy">Install Merge for an app-like window and offline play.</p>
+        <p class="sheet-note" id="install-copy">Install Sixfold for an app-like window and offline play.</p>
         <button class="btn install-btn" id="install-app" type="button" hidden>Install app</button>
-        <p class="sheet-note">Phone says Merge is installed but won’t open? Remove the old app from your Home Screen or browser app settings, then try again. The phone controls the bottom system bar, so it keeps the colour it was given when the app was installed.</p>
+        <p class="sheet-note">Already installed but it won’t open? Remove the old app from your Home Screen or browser app settings, then try again. The phone controls the bottom system bar, so it keeps the colour it was given when the app was installed.</p>
       </section>
       <section class="sheet-block">
         <p class="sheet-label">About &amp; privacy</p>
-        <p class="sheet-note">No accounts, ads or tracking. Your board, best scores and appearance choices stay on this device. Your light/dark choice is also remembered in a first-party cookie so an installed app can choose matching launch chrome. “All settings” clears the saved board and appearance choices; best scores have their own reset.</p>
+        <p class="sheet-note">No accounts, ads or tracking. Your board, best scores and appearance choices stay on this device. Each game has its own reset in its tool row, so clearing one game never touches the others. Your light/dark choice is also remembered in a first-party cookie so an installed app can choose matching launch chrome.</p>
         <p class="sheet-note">Questions, bug reports or feedback?<br /><a class="contact-link" href="mailto:mohrd9685@gmail.com">Email mohrd9685@gmail.com</a></p>
-        <p class="sheet-note version-note">Version 1.0</p>
+        <p class="sheet-note version-note">Version 2.0</p>
       </section>
       <p class="sheet-note">Your board is saved as you play — reopen the app and pick up where you left off.</p>
     </div>
   </div>
 
-  <script src="haptics.js?v=1.0.4"></script>
-  <script src="theme.js?v=1.0.4"></script>
-  <script src="game.js?v=1.0.4"></script>
-  <script src="install.js?v=1.0.4"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="haptics.js?v=2.0"></script>
+  <script src="theme.js?v=2.0"></script>
+  <script src="game.js?v=2.0"></script>
+  <script src="install.js?v=2.0"></script>
+  <script src="games.js?v=2.0"></script>
   <script>
     (function () {
       var splash = document.getElementById('boot-splash');
       if (!splash) return;
       var started = Date.now();
       var gone = false;
+      var standalone = false;
+      var calm = false;
+      try {
+        standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (err) {}
+      // An installed app keeps the full launch composition. A browser visit
+      // gets the same frame without the extra second in front of the hub.
+      var minimum = calm ? 0 : (standalone ? 460 : 80);
+      var fade = calm ? 60 : (standalone ? 540 : 400);
       function lift() {
         if (gone) return;
         gone = true;
         // Let the progress rail finish and the first board paint beneath it.
-        var wait = Math.max(0, 460 - (Date.now() - started));
+        var wait = Math.max(0, minimum - (Date.now() - started));
         window.setTimeout(function () {
           document.documentElement.classList.add('app-ready');
           window.setTimeout(function () {
             if (splash.parentNode) splash.parentNode.removeChild(splash);
-          }, 540);
+          }, fade);
         }, wait);
       }
       window.requestAnimationFrame(function () {
