@@ -1,44 +1,69 @@
-# Merge — 2048
+# Sixfold 2.0
 
-![Merge — 2048](og-image.png?v=1.0.5)
+Six calm puzzle games in one page. No accounts, no ads, no tracking — and it keeps working offline.
 
-A calm little slide-and-merge puzzle for your phone, tablet or desktop browser.
+**[Play Sixfold →](https://moh23rd.github.io/Merge/)**
 
-**[Play Merge →](https://moh23rd.github.io/Merge/)**
+**Merge** · **Water Sort** · **One Line** · **Fruit Merge** · **Tic Tac Toe** · **Minesweeper**
 
-## How to play
+Built as a small installable web app: plain HTML, CSS and JavaScript, no framework, no build step.
 
-- Swipe anywhere on the board, drag with a mouse on desktop, or use the arrow keys to slide every tile.
-- Two tiles with the same number merge into one and double, adding to your score.
-- Every move drops in a new tile. The round ends when the board fills with no merges left.
-- Aim for 2048. There is no undo, so think before you move.
+## The games
+
+- **Merge** — classic 2048. Slide the tiles, match equal numbers, reach 2048 and keep going. Also plays on a 3 × 3 or 5 × 5 board.
+- **Water Sort** — pour colour until every tube holds one colour. Eight fixed levels, easy to hard.
+- **One Line** — draw every link exactly once. Ten shapes, each solvable from any dot.
+- **Fruit Merge** — a Suika-style drop-and-merge board with the canonical eleven-fruit chain and triangular pair scoring.
+- **Tic Tac Toe** — X goes first against a Perfect opponent that cannot be beaten, only drawn.
+- **Minesweeper** — Beginner 9 × 9, Intermediate 16 × 16 and Expert 30 × 16, with a safe first tap, flags and chording.
+
+Every game saves its own board, best score and progress on the device, so closing the tab never loses a round.
 
 ## Install
 
-- **Android / Chrome:** open **How to play**, then tap **Install app** if it appears.
+- **Android / Chrome:** open **How to play** and tap **Install app** when it appears.
 - **iPhone / Safari:** tap **Share**, then **Add to Home Screen**.
 - **Other browsers:** use the browser menu’s **Install** or **Add to Home Screen** option.
 
-The game works offline after it has been opened once. If Chrome says the app is already installed but it won’t open, remove any old copy from your Home Screen or browser app settings and try again; Chromium can confuse web apps that share the same `github.io` address.
+The app works offline after the first visit. If Chrome says it is installed but will not open, remove any old copy from the Home Screen or browser app settings and try again.
 
 ## Privacy
 
-No accounts, ads, analytics or third-party tracking scripts. Your board, best scores and appearance choices stay on your device. The light/dark choice is also remembered in a first-party cookie so an installed app can choose matching launch chrome. The phone controls the bottom system bar, so that bar keeps the colour it was given when the app was installed.
-
-## Contact
-
-Questions, bug reports or feedback? Email [mohrd9685@gmail.com](mailto:mohrd9685@gmail.com).
-
-## License
-
-The game code is available under the [MIT License](LICENSE). The Google Sans Flex typeface is included under the [SIL Open Font License 1.1](fonts/OFL.txt).
+No accounts, ads, analytics or third-party scripts. Boards, scores and appearance choices stay in local storage on the device. The light/dark choice is also kept in a first-party cookie so an installed app can pick matching launch chrome. The phone controls the bottom system bar, so that bar keeps the colour it was given at install time.
 
 ## Running locally
 
-Open `index.html` in a modern browser for normal play. To test install and offline support, serve the folder that contains `index.html` over HTTPS or localhost:
+Serve the repository root over localhost, because the service worker and install prompt need a real origin:
 
 ```sh
 python3 -m http.server 8000
 ```
 
-Then open `http://localhost:8000`.
+Open `http://localhost:8000`. Opening `index.html` directly still plays, but offline caching and installation stay off.
+
+## Project structure
+
+```
+index.html                 hub, game screens, help and install sheets
+styles.css                 shared shell, theme tokens, 2048 board
+games.css                  hub cards and the five other games
+game.js                    Merge (2048)
+games.js                   Water Sort, One Line, Fruit Merge, Tic Tac Toe, Minesweeper
+theme.js                   palettes, light/dark, focus and appearance controls
+sw.js                      offline cache (bump VERSION when assets change)
+manifest*.webmanifest      install metadata for light and dark chrome
+icons/, splash/, fonts/    app icons, iOS launch images and the typeface
+CHANGELOG.md               release history, including the beta builds
+```
+
+The site is published with GitHub Pages from the `main` branch root. No build step is required.
+
+## Rules references
+
+The games were checked against their original rules: Gabriele Cirulli’s 2048, Nintendo’s Suika Game (fruit chain and pair scoring), the standard Minesweeper field sizes and first-click convention, classic water-sort rules, Euler-trail puzzles for One Line, and standard tic-tac-toe with a minimax opponent.
+
+## Credits and licence
+
+Game code is released under the [MIT License](LICENSE). The Google Sans Flex typeface is included under the [SIL Open Font License 1.1](fonts/OFL.txt).
+
+Questions or bug reports: [mohrd9685@gmail.com](mailto:mohrd9685@gmail.com).

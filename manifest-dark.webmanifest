@@ -1,8 +1,8 @@
 {
-  "id": "./merge-2048",
-  "name": "Merge — 2048",
-  "short_name": "Merge",
-  "description": "A calm little slide-and-merge puzzle.",
+  "id": "./sixfold",
+  "name": "Sixfold \u2014 Puzzles",
+  "short_name": "Sixfold",
+  "description": "Sixfold \u2014 six offline puzzle games: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./",
