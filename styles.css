@@ -310,6 +310,10 @@ h1 {
   border-radius: 10px;
   transition: transform 110ms cubic-bezier(0.25, 0.8, 0.35, 1);
   will-change: transform;
+  /* A merge or new tile is scaled on its face. Clipping the tile cell keeps
+     that little pop inside its own square instead of covering the gap or
+     the board's edge. */
+  overflow: hidden;
 }
 
 .tile.instant { transition: none; }
@@ -347,12 +351,13 @@ h1 {
 
 @keyframes appear {
   from { transform: scale(0.25); opacity: 0; }
+  72%  { transform: scale(1.03); opacity: 1; }
   to   { transform: scale(1); opacity: 1; }
 }
 
 @keyframes bump {
   0%   { transform: scale(1); }
-  45%  { transform: scale(1.15); }
+  45%  { transform: scale(1.08); }
   100% { transform: scale(1); }
 }
 

@@ -103,7 +103,11 @@
   let busy = false;
   let nextId = 1;
   let cell = 0;
-  let gap = 0;
+  // One measured box per grid cell, in pixels relative to the tile layer.
+  // Tiles use these directly instead of recomputing cell + gap, so they stay
+  // pinned to the real grid even when a cell lands on a fractional pixel or
+  // the viewport is still settling after a resize.
+  let cellBoxes = [];
   let overlayAction = null;
   // Bumped on every reset so a move that is still animating can't touch the new board.
   let generation = 0;
@@ -173,44 +177,57 @@
 
   /* ---------- layout ---------- */
 
-  function fontFor(value) {
+  function fontFor(value, base) {
     const len = String(value).length;
     const factor = len <= 2 ? 0.44 : len === 3 ? 0.36 : len === 4 ? 0.29 : 0.23;
-    return Math.max(11, Math.round(cell * factor)) + 'px';
+    return Math.max(11, Math.round((base || cell) * factor)) + 'px';
+  }
+
+  function boxFor(tile) {
+    return cellBoxes[tile.row * size + tile.col] || null;
   }
 
   function place(tile, animate) {
-    const x = tile.col * (cell + gap);
-    const y = tile.row * (cell + gap);
+    const box = boxFor(tile);
+    if (!box) return;
     if (animate === false) {
       tile.el.classList.add('instant');
-      tile.el.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+      tile.el.style.transform = 'translate3d(' + box.x + 'px, ' + box.y + 'px, 0)';
       void tile.el.offsetWidth;
       tile.el.classList.remove('instant');
     } else {
-      tile.el.style.transform = 'translate3d(' + x + 'px, ' + y + 'px, 0)';
+      tile.el.style.transform = 'translate3d(' + box.x + 'px, ' + box.y + 'px, 0)';
     }
   }
 
   function measure() {
-    const first = gridEl.children[0];
-    if (!first) return;
-    const r1 = first.getBoundingClientRect();
-    if (!r1.width) return;
-    const second = gridEl.children[1];
-    const r2 = second ? second.getBoundingClientRect() : null;
-    cell = r1.width;
-    gap = r2 ? r2.left - r1.right : 0;
+    const cells = gridEl.children;
+    if (!cells.length) return;
+    const origin = tilesEl.getBoundingClientRect();
+    const boxes = [];
+    for (let i = 0; i < cells.length; i++) {
+      const r = cells[i].getBoundingClientRect();
+      // A hidden or not-yet-laid-out board has no usable geometry. Keep the
+      // last good boxes and wait for the next resize rather than collapsing
+      // every tile to zero.
+      if (!r.width || !r.height) return;
+      boxes.push({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height });
+    }
+    if (!boxes.length) return;
+    cellBoxes = boxes;
+    cell = boxes[0].w;
 
     // Resizing the board moves every tile at once. Suppress their travel
     // transitions for that frame so a fullscreen or orientation change does
     // not look like a hundred tiles are sliding at the same time.
     tilesEl.classList.add('is-measuring');
     for (const t of tiles) {
-      t.el.style.width = cell + 'px';
-      t.el.style.height = cell + 'px';
-      t.el.style.fontSize = fontFor(t.value);
-      t.el.style.transform = 'translate3d(' + (t.col * (cell + gap)) + 'px, ' + (t.row * (cell + gap)) + 'px, 0)';
+      const box = boxFor(t);
+      if (!box) continue;
+      t.el.style.width = box.w + 'px';
+      t.el.style.height = box.h + 'px';
+      t.el.style.fontSize = fontFor(t.value, box.w);
+      t.el.style.transform = 'translate3d(' + box.x + 'px, ' + box.y + 'px, 0)';
     }
     void tilesEl.offsetWidth;
     tilesEl.classList.remove('is-measuring');
@@ -219,12 +236,16 @@
   /* ---------- tiles ---------- */
 
   function createTile(value, row, col, isNew) {
+    // The first tile of a new board can be asked for before the browser has
+    // measured the freshly rebuilt grid.
+    if (!cellBoxes.length) measure();
+    const box = cellBoxes[row * size + col] || { x: 0, y: 0, w: cell, h: cell };
     const el = document.createElement('div');
     el.className = 'tile';
     el.dataset.v = String(value);
-    el.style.width = cell + 'px';
-    el.style.height = cell + 'px';
-    el.style.fontSize = fontFor(value);
+    el.style.width = box.w + 'px';
+    el.style.height = box.h + 'px';
+    el.style.fontSize = fontFor(value, box.w);
 
     const face = document.createElement('div');
     face.className = 'face' + (isNew ? ' appear' : '');
@@ -1525,8 +1546,22 @@
 
   // Coalesce resize notifications into one frame. Native fullscreen and
   // orientation changes can otherwise trigger several full tile remeasures.
+  // A resize also ends with a couple of trailing passes: the browser can
+  // finish a fullscreen handoff a few frames after its last resize event, and
+  // measuring only on the event would leave tiles a fraction behind the grid.
   let measureQueued = false;
+  let settleTimer = 0;
+  let settleTimerLate = 0;
+
+  function afterResize() {
+    window.clearTimeout(settleTimer);
+    window.clearTimeout(settleTimerLate);
+    settleTimer = window.setTimeout(measure, 180);
+    settleTimerLate = window.setTimeout(measure, 450);
+  }
+
   function queueMeasure() {
+    afterResize();
     if (measureQueued) return;
     measureQueued = true;
     window.requestAnimationFrame(function () {
@@ -1536,13 +1571,26 @@
   }
 
   if (window.ResizeObserver) {
-    new ResizeObserver(queueMeasure).observe(boardEl);
-  } else {
-    window.addEventListener('resize', queueMeasure);
+    const resizeObserver = new ResizeObserver(queueMeasure);
+    resizeObserver.observe(boardEl);
+    // Watching the grid as well catches a gap or padding shift that leaves
+    // the board's outer box untouched.
+    resizeObserver.observe(gridEl);
   }
-  window.addEventListener('orientationchange', function () {
-    window.setTimeout(measure, 250);
+  window.addEventListener('resize', queueMeasure);
+  window.addEventListener('orientationchange', queueMeasure);
+  window.addEventListener('pageshow', queueMeasure);
+  document.addEventListener('fullscreenchange', queueMeasure);
+  document.addEventListener('webkitfullscreenchange', queueMeasure);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) queueMeasure();
   });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', queueMeasure);
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(queueMeasure).catch(function () {});
+  }
 
   /* ---------- start ---------- */
 
@@ -1591,4 +1639,8 @@
   } else {
     newGame();
   }
+
+  // The launch screen and the board's entrance both finish after the first
+  // measurement. One quiet pass at the end pins the tiles to the settled grid.
+  window.setTimeout(measure, 700);
 })();
