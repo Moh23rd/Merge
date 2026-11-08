@@ -28,16 +28,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Keep the beta history and place the public 2.0 release above it.
-          {
-            printf '# Sixfold — Changelog\n\n'
-            cat .github/CHANGELOG-HEAD.md
-            printf '\n---\n\n## Beta history\n\n'
-            tail -n +2 CHANGELOG.md
-          } > CHANGELOG.md.new
-          mv CHANGELOG.md.new CHANGELOG.md
-          rm -f .github/CHANGELOG-HEAD.md
-
           # Remove the old single-game app; 2.0 replaces every path.
           rm -rf OFL.txt fonts game.js games.css games.js haptics.js icons \
             index.html install.js og-image.png splash styles.css sw.js theme.js
