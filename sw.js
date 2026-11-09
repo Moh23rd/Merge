@@ -1,9 +1,9 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-const VERSION = 'sixfold-2.0.1';
+const VERSION = 'sixfold-2.1.0';
 // Bump alongside the ?v= numbers in index.html; the new URLs make the browser
 // fetch fresh files even when an older cache is still installed.
-const ASSET = '2.0.1';
-const GAMES = '2.0.1';
+const ASSET = '2.1.0';
+const GAMES = '2.1.0';
 
 const SHELL = [
   './',
@@ -18,7 +18,10 @@ const SHELL = [
   './install.js?v=' + ASSET,
   './games.css?v=' + GAMES,
   './home.css?v=' + GAMES,
+  './polish.css?v=' + GAMES,
   './games.js?v=' + GAMES,
+  './wordle-words.js?v=' + GAMES,
+  './wordle.js?v=' + GAMES,
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png',

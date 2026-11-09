@@ -1,0 +1,389 @@
+/* ==========================================================================
+   Sixfold 2.1 — desktop motion, Fruit Merge polish and the hidden word game.
+   This file sits after the three original stylesheets so the release fixes can
+   stay together without disturbing the 2.0 layout rules.
+   ========================================================================== */
+
+/* ---------- desktop breathing room around the header ---------- */
+
+@media (min-width: 721px) {
+  .play-head { gap: 14px; }
+  .play-title-row { margin-top: 18px; }
+  .play-head > .play-cart-row { margin-bottom: 2px; }
+}
+
+/* ---------- desktop motion ---------- */
+
+.home-hero-art { perspective: 900px; }
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .home-six {
+    transform: rotate(-3deg) rotateX(var(--six-tilt-x, 0deg)) rotateY(var(--six-tilt-y, 0deg));
+    transform-style: preserve-3d;
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .home-six-piece {
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), filter 240ms ease;
+  }
+
+  .home-six-piece:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.045);
+  }
+
+  .home-six-piece:active { transform: translateY(0) scale(0.975); }
+
+  .home-game {
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 180ms ease,
+      box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .home-game:hover { transform: translateY(-5px); }
+
+  .home-game-stage { transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1); }
+  .home-game:hover .home-game-stage { transform: scale(1.015); }
+
+  .home-cta,
+  .home-surprise,
+  .hub-share,
+  .hub-focus,
+  .hub-look,
+  .play-btn,
+  .play-tool,
+  .games-home,
+  .result-share {
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-duration: 240ms;
+  }
+
+  .play-btn:hover:not(:active),
+  .play-tool:hover,
+  .games-home:hover { transform: translateY(-2px); }
+
+  .result-share:hover { transform: translateY(-1px); }
+
+  .tile,
+  .water-glass,
+  .one-node { will-change: transform; backface-visibility: hidden; }
+}
+
+@keyframes sixTap {
+  0% { transform: translateY(0) scale(1); }
+  42% { transform: translateY(1px) scale(0.93); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.home-six-piece.is-six-hit { animation: sixTap 260ms cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Merge tiles keep their responsive 150ms feel on touch, but a mouse gets a
+   slightly longer, springier slide so a fast swipe no longer looks like a snap. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .tile { transition: transform 170ms cubic-bezier(0.22, 1, 0.36, 1); }
+}
+
+/* A screen settles in with a little more travel on a large display, while the
+   board itself stays perfectly still once it has arrived. */
+@keyframes sixfoldShellIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.992); }
+  to { opacity: 1; transform: none; }
+}
+
+.play-screen:not([hidden]) .play-shell {
+  animation: sixfoldShellIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.play-win:not([hidden]),
+.fruit-over-card:not([hidden]) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- hidden word game ---------- */
+
+#wordle {
+  --cart: var(--g6, #9a6bb5);
+  --cart-ink: var(--home-accent-ink, #211d18);
+  --wordle-correct: #4c8a55;
+  --wordle-present: #b38425;
+  --wordle-absent: #746d61;
+  --wordle-tile: color-mix(in srgb, var(--card) 62%, var(--page));
+  --wordle-key: color-mix(in srgb, var(--panel) 42%, var(--card));
+}
+
+html[data-theme="dark"] #wordle {
+  --wordle-correct: #4f9159;
+  --wordle-present: #b78a2b;
+  --wordle-absent: #5c5851;
+  --wordle-tile: color-mix(in srgb, var(--card) 34%, var(--page));
+  --wordle-key: color-mix(in srgb, var(--panel) 48%, var(--card));
+}
+
+.wordle-main {
+  justify-content: center;
+  gap: clamp(7px, 1.4dvh, 12px);
+  overflow: hidden;
+}
+
+.wordle-board-wrap {
+  position: relative;
+  width: min(100%, 310px, 40dvh);
+  aspect-ratio: 5 / 6;
+  flex: none;
+}
+
+.wordle-board {
+  display: grid;
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+  gap: clamp(4px, 0.8dvh, 7px);
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.wordle-board:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 5px;
+  border-radius: 10px;
+}
+
+.wordle-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(4px, 0.8dvh, 7px);
+  min-height: 0;
+}
+
+.wordle-tile {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--wordle-tile);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(18px, 4.8dvh, 30px);
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  transform: rotateX(0);
+  backface-visibility: hidden;
+  transition: border-color 140ms ease, background-color 160ms ease, transform 140ms ease;
+}
+
+.wordle-tile[data-filled="true"] {
+  border-color: color-mix(in srgb, var(--ink) 30%, transparent);
+  animation: wordleType 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.wordle-row.is-current .wordle-tile[data-filled="false"] {
+  border-color: color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.wordle-tile[data-state="correct"] {
+  border-color: var(--wordle-correct);
+  background: var(--wordle-correct);
+  color: #fffdf8;
+}
+
+.wordle-tile[data-state="present"] {
+  border-color: var(--wordle-present);
+  background: var(--wordle-present);
+  color: #fffdf8;
+}
+
+.wordle-tile[data-state="absent"] {
+  border-color: var(--wordle-absent);
+  background: var(--wordle-absent);
+  color: #fffdf8;
+}
+
+.wordle-tile.is-revealing {
+  animation: wordleFlip 480ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation-delay: calc(var(--i) * 82ms);
+}
+
+@keyframes wordleType {
+  from { transform: scale(0.9); }
+  65% { transform: scale(1.035); }
+  to { transform: scale(1); }
+}
+
+@keyframes wordleFlip {
+  0% { transform: rotateX(0deg); }
+  48% { transform: rotateX(90deg); }
+  52% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+@keyframes wordleShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+.wordle-row.is-shaking { animation: wordleShake 340ms ease-out; }
+
+.wordle-status { min-height: 17px; }
+
+.wordle-keyboard {
+  display: grid;
+  gap: clamp(4px, 0.8dvh, 6px);
+  width: min(100%, 360px);
+  flex: none;
+  margin-top: 1px;
+}
+
+.wordle-key-row {
+  display: flex;
+  justify-content: center;
+  gap: clamp(3px, 0.6vw, 5px);
+}
+
+.wordle-key {
+  display: grid;
+  place-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+  height: clamp(34px, 4.7dvh, 44px);
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  border-radius: 7px;
+  background: var(--wordle-key);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 9%, transparent);
+  color: var(--ink);
+  font-family: var(--font-mono, ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace);
+  font-size: clamp(11px, 1.6dvh, 14px);
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 110ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.wordle-key:hover { background: color-mix(in srgb, var(--wordle-key) 70%, var(--card)); }
+.wordle-key:active { transform: translateY(1px) scale(0.97); }
+.wordle-key:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.wordle-key--wide {
+  flex-grow: 1.55;
+  font-size: clamp(9px, 1.25dvh, 11px);
+  letter-spacing: 0.02em;
+}
+
+.wordle-key[data-state="correct"] {
+  background: var(--wordle-correct);
+  color: #fffdf8;
+}
+
+.wordle-key[data-state="present"] {
+  background: var(--wordle-present);
+  color: #fffdf8;
+}
+
+.wordle-key[data-state="absent"] {
+  background: var(--wordle-absent);
+  color: #fffdf8;
+  opacity: 0.78;
+}
+
+.wordle-result {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--page) 72%, transparent);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+}
+
+.wordle-result[hidden] { display: none; }
+
+.wordle-result-card {
+  width: 100%;
+  padding: 15px 14px 13px;
+  border: 1px solid color-mix(in srgb, var(--ink) 13%, transparent);
+  border-radius: 14px;
+  background: var(--sheet-bg, var(--card));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ink) 9%, transparent), 0 24px 42px -30px rgba(0, 0, 0, 0.5);
+  animation: sixfoldCardIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.wordle-result-card h2 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: clamp(21px, 3.2dvh, 27px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.wordle-result-card > p:not(.game-tag):not(.wordle-result-stats) {
+  margin: 7px 0 0;
+  color: var(--muted-strong);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.wordle-result-stats {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
+.wordle-result-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.wordle-result-actions .play-btn { flex: 1; min-height: 38px; padding-inline: 10px; font-size: 11px; }
+.wordle-result-actions .result-share { width: auto; min-width: 34px; height: 36px; padding: 0 9px; border-radius: 9px; }
+
+/* Short portrait phones trade tile size for the keyboard, never information. */
+@media (orientation: portrait) and (max-height: 680px) {
+  .wordle-board-wrap { width: min(100%, 270px, 33dvh); }
+  .wordle-key { height: 32px; }
+  .wordle-main { gap: 5px; }
+  .wordle-keyboard { gap: 4px; }
+}
+
+@media (max-width: 380px) {
+  .wordle-board-wrap { width: min(100%, 286px, 39dvh); }
+  .wordle-key { height: 34px; border-radius: 6px; }
+  .wordle-key-row { gap: 3px; }
+  .wordle-status { font-size: 10.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-six,
+  .home-six-piece,
+  .home-game,
+  .home-game-stage,
+  .play-screen:not([hidden]) .play-shell,
+  .play-win:not([hidden]),
+  .fruit-over-card:not([hidden]),
+  .wordle-tile,
+  .wordle-tile.is-revealing,
+  .wordle-row.is-shaking,
+  .wordle-key,
+  .wordle-result-card {
+    animation: none;
+    transition: none;
+  }
+  .home-six-piece.is-six-hit { animation: none; }
+}

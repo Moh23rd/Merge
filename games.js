@@ -13,11 +13,12 @@
     oneline: $('oneline'),
     fruit: $('fruit'),
     ttt: $('ttt'),
-    mines: $('mines')
+    mines: $('mines'),
+    wordle: $('wordle')
   };
   const cards = $$('[data-game]');
   const backButtons = $$('[data-back]');
-  if (!app || !hub || !screens.water || !screens.oneline || !screens.fruit || !screens.ttt || !screens.mines) return;
+  if (!app || !hub || !screens.water || !screens.oneline || !screens.fruit || !screens.ttt || !screens.mines || !screens.wordle) return;
 
   function load(key, fallback) {
     try {
@@ -410,12 +411,14 @@
     oneline: 'One Line',
     fruit: 'Fruit Merge',
     ttt: 'Tic Tac Toe',
-    mines: 'Minesweeper'
+    mines: 'Minesweeper',
+    wordle: 'Wordle'
   };
   const VALID_GAMES = Object.keys(GAME_NAMES);
+  const PUBLIC_GAMES = VALID_GAMES.filter(function (name) { return name !== 'wordle'; });
 
   function focusLastCard() {
-    const card = document.querySelector('[data-game="' + lastGame + '"]');
+    const card = document.querySelector('[data-game="' + lastGame + '"]') || document.querySelector('[data-game]');
     if (card) card.focus({ preventScroll: true });
   }
 
@@ -424,13 +427,28 @@
   }
 
   function openGame(game) {
-    if (VALID_GAMES.indexOf(game) === -1) return;
+    if (VALID_GAMES.indexOf(game) === -1 || game === 'wordle') return;
     lastGame = game;
     setScreen(game);
     updateDocumentTitle();
     try {
       if (!history.state || history.state.game !== game) {
         history.pushState({ game: game }, '', '#' + game);
+      }
+    } catch (err) {
+      /* file:// or a browser with history restricted */
+    }
+  }
+
+  // The word game is absent from the collection cards and the initial hash
+  // route. The six-piece cover opens it, after which it behaves like the rest.
+  function openWordle() {
+    lastGame = 'wordle';
+    setScreen('wordle');
+    updateDocumentTitle();
+    try {
+      if (!history.state || history.state.game !== 'wordle') {
+        history.pushState({ game: 'wordle' }, '', '#wordle');
       }
     } catch (err) {
       /* file:// or a browser with history restricted */
@@ -473,7 +491,7 @@
     }
     setScreen('hub');
     updateDocumentTitle();
-    if (VALID_GAMES.indexOf(initial) !== -1) openGame(initial);
+    if (PUBLIC_GAMES.indexOf(initial) !== -1) openGame(initial);
   }
 
   cards.forEach(function (card) {
@@ -495,6 +513,60 @@
       if (pick && pick.dataset.game) openGame(pick.dataset.game);
     });
   }
+
+  /* The cover is the six-piece Sixfold mark, so its six numbered tiles are the
+     secret key. Tap 01 through 06 in order; any wrong tap starts the sequence
+     again. The only feedback is a tiny physical press, which keeps the game
+     hidden until it is actually found. */
+  const sixPieces = $$('.home-six-piece');
+  let sixStep = 0;
+  function clearSixPress() {
+    sixPieces.forEach(function (piece) { piece.classList.remove('is-six-hit'); });
+  }
+  sixPieces.forEach(function (piece, index) {
+    piece.addEventListener('click', function () {
+      if (index !== sixStep) {
+        sixStep = index === 0 ? 1 : 0;
+        clearSixPress();
+        if (index === 0) {
+          piece.classList.remove('is-six-hit');
+          void piece.offsetWidth;
+          piece.classList.add('is-six-hit');
+        }
+        return;
+      }
+      sixStep += 1;
+      piece.classList.remove('is-six-hit');
+      void piece.offsetWidth;
+      piece.classList.add('is-six-hit');
+      if (sixStep === sixPieces.length) {
+        sixStep = 0;
+        window.setTimeout(openWordle, 120);
+      }
+    });
+  });
+
+  /* A small pointer tilt on the cover gives desktop mice the same sense of
+     physicality that touch scrolling already gives the phone layout. */
+  const sixArt = document.querySelector('.home-hero-art');
+  const sixGrid = document.querySelector('.home-six');
+  if (sixArt && sixGrid && window.matchMedia &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    sixArt.addEventListener('pointermove', function (event) {
+      const rect = sixArt.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      sixGrid.style.setProperty('--six-tilt-x', (y * -4.5).toFixed(2) + 'deg');
+      sixGrid.style.setProperty('--six-tilt-y', (x * 6.5).toFixed(2) + 'deg');
+    });
+    sixArt.addEventListener('pointerleave', function () {
+      sixGrid.style.removeProperty('--six-tilt-x');
+      sixGrid.style.removeProperty('--six-tilt-y');
+    });
+  }
+
   backButtons.forEach(function (button) {
     button.addEventListener('click', backToHub);
   });
@@ -562,6 +634,16 @@
         'Tap an open number to clear around it when its flags match.',
         'Open every safe square to clear the field. Flags are optional.'
       ]
+    },
+    wordle: {
+      title: 'How to play Wordle',
+      steps: [
+        'Guess the five-letter word in six tries.',
+        'Green means the letter is in the right spot. Yellow means it is in the word but in another spot. Gray means it is not in the word.',
+        'Duplicate letters score only as many times as they appear in the answer.',
+        'Type on a keyboard or tap the keys, then press Enter to submit.',
+        'After a win or a loss, New word starts a fresh round.'
+      ]
     }
   };
 
@@ -571,7 +653,8 @@
     oneline: 'This clears One Line progress, every star and all unlocked shapes, and starts again at shape 1. Your other games are untouched.',
     fruit: 'This clears your Fruit Merge best score and starts a fresh run. Your other games are untouched.',
     ttt: 'This clears your Tic Tac Toe records for both computer and two-player games and starts a new round. Your other games are untouched.',
-    mines: 'This clears your Minesweeper field choice and starts a new Beginner field. Your other games are untouched.'
+    mines: 'This clears your Minesweeper field choice and starts a new Beginner field. Your other games are untouched.',
+    wordle: 'This clears your Wordle stats and starts a fresh word. Your other games are untouched.'
   };
 
   function requestGameReset(game, opener) {
@@ -2617,12 +2700,13 @@
     const FRUIT_BASE = FRUITS.map(function (fruit) { return Object.assign({}, fruit); });
 
     function syncPalette() {
-      const theme = window.MergeTheme;
+      // Fruit has its own natural colours. The app palette may recolour the
+      // board, tubes and chrome, but a cherry should never turn teal.
       FRUITS.forEach(function (fruit, index) {
         const base = FRUIT_BASE[index];
-        fruit.color = theme && theme.colour ? theme.colour(base.color) : base.color;
-        fruit.light = theme && theme.colour ? theme.colour(base.light) : base.light;
-        fruit.deep = theme && theme.colour ? theme.colour(base.deep) : base.deep;
+        fruit.color = base.color;
+        fruit.light = base.light;
+        fruit.deep = base.deep;
       });
     }
 
@@ -3157,6 +3241,13 @@
         ctx.strokeStyle = 'rgba(57, 39, 24, 0.18)';
         ctx.lineWidth = 1.2;
         ctx.stroke();
+      } else {
+        // A dark, opaque body behind the individual grapes closes the little
+        // transparent gaps between them without changing the bunch silhouette.
+        ctx.beginPath();
+        ctx.ellipse(0, r * 0.02, r * 0.72, r * 0.78, 0, 0, Math.PI * 2);
+        ctx.fillStyle = def.deep;
+        ctx.fill();
       }
 
       if (fruit.tier === 1) {
@@ -4106,6 +4197,19 @@
       requestGameReset('merge', mergeResetBtn);
     });
   }
+
+  games.wordle = {
+    title: $('wordle-title'),
+    activate: function () {
+      if (window.SixfoldWordle) window.SixfoldWordle.activate();
+    },
+    deactivate: function () {
+      if (window.SixfoldWordle) window.SixfoldWordle.deactivate();
+    },
+    reset: function () {
+      if (window.SixfoldWordle) window.SixfoldWordle.reset();
+    }
+  };
 
   installPlayTools();
   initRoute();

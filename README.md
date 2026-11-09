@@ -1,6 +1,6 @@
-# Sixfold 2.0
+# Sixfold 2.1
 
-![Sixfold 2.0 — six games. no filler.](og-image.png)
+![Sixfold 2.1 — six games. no filler.](og-image.png)
 
 Six games. No filler. A pocket arcade for the in-between: six satisfying puzzles, no accounts, no ads, no tracking — and it keeps working offline.
 
@@ -10,12 +10,12 @@ Six games. No filler. A pocket arcade for the in-between: six satisfying puzzles
 
 Built as a small installable web app: plain HTML, CSS and JavaScript, no framework, no build step.
 
-## What’s new in 2.0
+## What’s new in 2.1
 
-- **A new front door.** Six cartridge cards, a six-piece cover and a Surprise me button make the collection feel like a small arcade rather than a menu.
-- **A more tactile game shell.** Each game carries its own cartridge number, category and accent colour into its score card and primary actions.
-- **One Line, much bigger.** 100 shapes across four chapters, a shape map with saved stars, a star meter, hints and progress sharing.
-- **One flat page.** The home and in-game backgrounds now match the browser and phone chrome exactly in light and dark.
+- **Smoother on desktop.** Springier screen entrances, card lifts, cover tilt and hover motion bring the home screen and every game to life with a mouse.
+- **Fruit that looks like fruit.** Fruit Merge now keeps its natural colours regardless of the app palette, and the grape bunch has an opaque body instead of see-through gaps.
+- **More room to breathe.** In-game titles and descriptions now sit clear of the back button on wide screens.
+- **A hidden word game.** The six-piece cover keeps a small five-letter puzzle for anyone curious enough to find it. It behaves like a normal, replayable game once opened.
 
 ## The games
 
@@ -56,9 +56,12 @@ Open `http://localhost:8000`. Opening `index.html` directly still plays, but off
 index.html                 hub, game screens, help, install and rules sheets
 styles.css                 shared shell, theme tokens and the 2048 board
 home.css                   hub layout, six-piece intro and cartridge cards
-games.css                  in-game screens and controls for the five other games
+games.css                  in-game screens and controls
+polish.css                 2.1 motion, header spacing and Wordle styles
 game.js                    Merge (2048)
 games.js                   Water Sort, One Line, Fruit Merge, Tic Tac Toe, Minesweeper
+wordle.js                  the hidden five-letter game and its saved stats
+wordle-words.js            offline answer and accepted-guess lists
 theme.js                   palettes, light/dark, focus and appearance controls
 sw.js                      offline cache (bump VERSION when assets change)
 manifest*.webmanifest      install metadata for light and dark chrome
