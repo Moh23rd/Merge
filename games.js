@@ -503,7 +503,8 @@
         'Start on any dot. Every link can be used exactly once.',
         'Revisit dots, never links. Lift and continue from the glowing end.',
         'Later shapes have two ringed open ends — start on one of them.',
-        'Finish without undo or restart to earn three stars. Shapes opens the full map.'
+        'Finish without undo, restart or a hint to earn three stars. Shapes opens the full map.',
+        'Stuck? Hint (or H) pulses the next dot. A hint caps that shape at two stars.'
       ]
     },
     fruit: {
@@ -1055,6 +1056,11 @@
     const title = $('one-line-title');
     const levelSheet = $('one-line-levels');
     const levelGrid = $('one-line-level-grid');
+    const hintBtn = $('one-line-hint');
+    const statusRow = $('one-line-status-row');
+    const shareBtn = $('one-line-share');
+    const shareStarsBtn = $('one-line-share-stars');
+    const starTotalEl = $('one-line-star-total');
     const LEVEL_KEY = 'merge-games.oneline.level.v2';
     const CHAPTERS = ['Easy', 'Medium', 'Hard', 'Expert'];
 
@@ -1374,6 +1380,7 @@
     let pointerActive = false;
     let attemptUndo = false;
     let attemptRestart = false;
+    let attemptHint = false;
 
     function data() {
       return LEVELS[level];
@@ -1399,6 +1406,139 @@
         unlocked: unlocked,
         stars: starMap
       });
+    }
+
+    function starSummary() {
+      let total = 0;
+      let solvedCount = 0;
+      Object.keys(starMap).forEach(function (key) {
+        const value = starMap[key] || 0;
+        total += value;
+        if (value > 0) solvedCount += 1;
+      });
+      return { total: total, solved: solvedCount };
+    }
+
+    function shareStarProgress(justSolved) {
+      // Sharing is a deliberate pause: keep the result card up instead of
+      // letting the five-second next-round timer replace it.
+      if (window.MergeAutoNext) window.MergeAutoNext.cancel();
+      const summary = starSummary();
+      const max = LEVELS.length * 3;
+      let message;
+      if (summary.total >= max) {
+        message = justSolved
+          ? 'I just completed One Line — all ' + LEVELS.length + ' shapes and ' + max + ' stars. Can you match it?'
+          : 'I earned all ' + max + ' stars in One Line — all ' + LEVELS.length + ' shapes solved. Can you match it?';
+      } else if (justSolved && starMap[String(level)]) {
+        message = 'I solved One Line shape ' + (level + 1) + ' with ' + starMap[String(level)] +
+          ' stars — ' + summary.total + ' of ' + max + ' stars so far. Can you beat it?';
+      } else if (!summary.solved) {
+        message = 'I’m playing One Line in Sixfold — ' + LEVELS.length +
+          ' shapes, one unbroken line each. Can you beat my stars?';
+      } else {
+        message = 'I’ve earned ' + summary.total + ' of ' + max + ' stars in One Line — ' +
+          summary.solved + ' of ' + LEVELS.length + ' shapes solved. Can you beat it?';
+      }
+      share('One Line', message);
+    }
+
+    /* Walk the unused links with Hierholzer's algorithm. If the trail uses
+       every remaining link, it is a real continuation from the current dot. */
+    function remainingTrail(start) {
+      const board = data();
+      const adjacency = board.nodes.map(function () { return []; });
+      let remaining = 0;
+      board.edges.forEach(function (edge) {
+        const key = edgeKey(edge[0], edge[1]);
+        if (used.has(key)) return;
+        adjacency[edge[0]].push({ to: edge[1], key: key });
+        adjacency[edge[1]].push({ to: edge[0], key: key });
+        remaining += 1;
+      });
+      let odd = 0;
+      adjacency.forEach(function (list) {
+        if (list.length % 2) odd += 1;
+      });
+      if (!remaining || !adjacency[start].length) {
+        return { trail: [start], edges: 0, remaining: remaining, odd: odd, startOdd: adjacency[start].length % 2 === 1 };
+      }
+      const seen = new Set();
+      const stack = [start];
+      const trail = [];
+      while (stack.length) {
+        const node = stack[stack.length - 1];
+        const next = adjacency[node].find(function (option) { return !seen.has(option.key); });
+        if (next) {
+          seen.add(next.key);
+          stack.push(next.to);
+        } else {
+          trail.push(stack.pop());
+        }
+      }
+      trail.reverse();
+      return { trail: trail, edges: seen.size, remaining: remaining, odd: odd, startOdd: adjacency[start].length % 2 === 1 };
+    }
+
+    function highlightHint(index) {
+      const nodes = svg.querySelectorAll('.one-node');
+      for (let i = 0; i < nodes.length; i += 1) {
+        nodes[i].classList.toggle('is-hint', i === index);
+      }
+      const target = nodes[index];
+      if (!target) return;
+      const label = target.getAttribute('aria-label') || '';
+      if (label.indexOf(', hint') === -1) target.setAttribute('aria-label', label + ', hint');
+      target.focus({ preventScroll: true });
+    }
+
+    function showHint() {
+      if (solved) return;
+      const board = data();
+      const degrees = degreeCounts(board);
+      const open = degrees.filter(function (count) { return count % 2; }).length;
+      const firstHint = !attemptHint;
+
+      if (!path.length) {
+        const candidates = board.nodes.map(function (_, index) { return index; }).filter(function (index) {
+          return open === 2 ? degrees[index] % 2 === 1 : degrees[index] > 0;
+        });
+        for (let i = 0; i < candidates.length; i += 1) {
+          const trial = remainingTrail(candidates[i]);
+          if (trial.remaining > 0 && trial.edges === trial.remaining && trial.trail.length > 1) {
+            attemptHint = true;
+            highlightHint(candidates[i]);
+            setStatus('Hint: start on the pulsing dot.' +
+              (firstHint && !attemptUndo && !attemptRestart ? ' This shape now tops out at two stars.' : ''));
+            return;
+          }
+        }
+        setStatus('No hint is available for this shape.');
+        return;
+      }
+
+      const current = path[path.length - 1];
+      const trial = remainingTrail(current);
+      if (!trial.remaining) {
+        setStatus('Every link is already used.');
+        return;
+      }
+      // A trail can only start on an even dot when every unused dot is even.
+      // Starting on a closed dot of an open shape cannot finish the shape.
+      const canFinish = trial.odd === 0 || (trial.odd === 2 && trial.startOdd);
+      if (!canFinish || trial.edges !== trial.remaining || trial.trail.length < 2) {
+        if (path.length === 1 && open === 2 && degrees[current] % 2 === 0) {
+          setStatus('Start on a ringed dot. Restart to begin again.');
+        } else {
+          setStatus('This line can’t be finished from here. Undo a step or restart.');
+        }
+        return;
+      }
+
+      attemptHint = true;
+      highlightHint(trial.trail[1]);
+      setStatus('Hint: tap the pulsing dot.' +
+        (firstHint && !attemptUndo && !attemptRestart ? ' This shape now tops out at two stars.' : ''));
     }
 
     function introMessage() {
@@ -1496,7 +1636,9 @@
       svg.appendChild(pathLayer);
       svg.appendChild(nodeLayer);
       if (winEl) winEl.hidden = !solved;
-      if (statusEl) statusEl.hidden = solved;
+      if (statusEl) statusEl.hidden = false;
+      if (statusRow) statusRow.hidden = solved;
+      else if (statusEl) statusEl.hidden = solved;
       svg.classList.toggle('is-complete', solved);
     }
 
@@ -1514,7 +1656,7 @@
       solved = true;
       pointerActive = false;
       pointerId = null;
-      const earned = attemptRestart ? 1 : attemptUndo ? 2 : 3;
+      const earned = attemptRestart ? 1 : (attemptUndo || attemptHint) ? 2 : 3;
       const key = String(level);
       starMap[key] = Math.max(starMap[key] || 0, earned);
       if (level === unlocked && unlocked < LEVELS.length - 1) {
@@ -1624,6 +1766,7 @@
       pointerActive = false;
       attemptUndo = false;
       attemptRestart = !!isRestart;
+      attemptHint = false;
       if (winEl) winEl.hidden = true;
       if (winCopy) winCopy.textContent = '';
       if (starsEl) {
@@ -1655,6 +1798,7 @@
 
     function renderLevelGrid() {
       if (!levelGrid) return;
+      if (starTotalEl) starTotalEl.textContent = starSummary().total + ' of ' + (LEVELS.length * 3) + ' stars';
       levelGrid.innerHTML = '';
       LEVELS.forEach(function (board, index) {
         const stars = starMap[String(index)] || 0;
@@ -1816,6 +1960,9 @@
       } else if (key === 'r') {
         event.preventDefault();
         reset('Same shape. Start again.', true);
+      } else if (key === 'h') {
+        event.preventDefault();
+        showHint();
       } else if (key === 'n') {
         event.preventDefault();
         nextLevel();
@@ -1830,9 +1977,12 @@
 
     restartBtn.addEventListener('click', function () { reset('Same shape. Start again.', true); });
     if (undoBtn) undoBtn.addEventListener('click', stepBack);
+    if (hintBtn) hintBtn.addEventListener('click', showHint);
     if (shapesBtn) shapesBtn.addEventListener('click', function () { openLevelSheet(shapesBtn); });
     if (levelEl) levelEl.addEventListener('click', function () { openLevelSheet(levelEl); });
     nextBtn.addEventListener('click', nextLevel);
+    if (shareBtn) shareBtn.addEventListener('click', function () { shareStarProgress(true); });
+    if (shareStarsBtn) shareStarsBtn.addEventListener('click', function () { shareStarProgress(false); });
     if (levelSheet) {
       levelSheet.querySelectorAll('[data-close], .sheet-done').forEach(function (el) {
         el.addEventListener('click', closeLevelSheet);
