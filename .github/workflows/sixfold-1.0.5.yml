@@ -1,0 +1,37 @@
+name: Sixfold 1.0.5 release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ship:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the release base
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply the verified 1.0.5 patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d release/sixfold-1.0.5.b64 > /tmp/sixfold-1.0.5.patch.gz
+          gunzip -c /tmp/sixfold-1.0.5.patch.gz > /tmp/sixfold-1.0.5.patch
+          echo "16d4cc2e7d6a59ff44a575f6c01c87440db85b10bb505ac1071bc31a6a51571e  /tmp/sixfold-1.0.5.patch" | sha256sum -c -
+          git apply --binary --check /tmp/sixfold-1.0.5.patch
+          git apply --binary /tmp/sixfold-1.0.5.patch
+          node --check games.js
+          node --check sw.js
+          grep -q "sixfold-1.0.5" sw.js
+          grep -q "one-line-hint" index.html
+          rm -f release/sixfold-1.0.5.b64
+          rm -f .github/workflows/sixfold-1.0.5.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Ship Sixfold 1.0.5 with One Line hints and star sharing"
+          git push origin HEAD:main
