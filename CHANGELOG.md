@@ -42,8 +42,7 @@ Sixfold’s pocket-arcade release. The six games and their rules are unchanged; 
 - **Opaque grapes.** The grape bunch has a solid body behind its separate circles, closing the transparent gaps that let the board show through.
 - **Header spacing.** On wide screens, the in-game title and description now sit clearly below the back button and cartridge label.
 - **PC layout.** The larger play-screen entrance and the new cover tilt respect fine-pointer and reduced-motion preferences.
-- The page title, social metadata, install manifests, About panel, version label and collection share text now identify Sixfold 2.0.
-- The README uses the new 2.0 card as its banner and now correctly documents 100 One Line shapes.
+- The About sheet reads Version 2.0, the home version label reads v2.0, and the README uses the new 2.0 card as its banner and correctly documents 100 One Line shapes.
 
 ## Under the hood
 
