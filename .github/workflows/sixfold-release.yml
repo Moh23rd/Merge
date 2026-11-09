@@ -1,0 +1,24 @@
+name: Sixfold release
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the prepared patch
+        run: |
+          set -euo pipefail
+          gunzip -c .sixfold-release.patch.gz > /tmp/sixfold.patch
+          git apply --check /tmp/sixfold.patch
+          git apply /tmp/sixfold.patch
+          git rm -q .sixfold-release.patch.gz .github/workflows/sixfold-release.yml
+          git config user.name "Sixfold release"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html games.css install.js theme.js sw.js
+          git commit -m "Make the install notice dismissible and move About to the hub"
+          git push
