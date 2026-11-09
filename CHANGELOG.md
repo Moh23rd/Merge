@@ -4,6 +4,12 @@
 
 Sixfold’s first public release: six complete games, audited against their originals, polished for phones, and ready to install.
 
+**Patch · 9 November 2026**
+
+- **The five other games now use Merge’s control shapes.** Their action buttons have Merge’s 11px rounded corners, and portrait phones use the same 44px tool buttons and 12px corners.
+- **GitHub Pages install recovery.** Chrome Android 154–156 has a browser bug that reports a second app on a shared `github.io` origin as already installed, then cannot open it. The hub now detects that combination and offers a direct Chrome update link plus the page’s own install prompt, which bypasses the broken browser-menu path. Chrome 157.0.8103.15 and newer contains the permanent scope-aware fix.
+- **Offline cache `sixfold-1.0.2`.**
+
 ## Six games
 
 - **Merge** — classic 2048 with 3 × 3 and 5 × 5 options, merge-value scoring, a 2048 win that lets you keep going, and a no-move loss.

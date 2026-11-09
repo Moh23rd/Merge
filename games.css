@@ -3891,3 +3891,176 @@ html[data-theme="dark"] .reset-confirm:hover {
 @media (prefers-reduced-motion: reduce) {
   .coach.coach-in { animation: none; }
 }
+
+/* ==========================================================================
+   Portrait phone controls — one centred group, like Merge
+   The board used to consume the whole middle row, which pinned every game's
+   controls to the screen edge. Grouping the board, feedback and footer lets
+   the whole cluster sit with Merge's breathing room at the bottom.
+   ========================================================================== */
+
+.play-body { display: contents; }
+
+@media (orientation: portrait) and (max-width: 720px) {
+  .play-shell { grid-template-rows: auto minmax(0, 1fr); }
+
+  .play-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    min-height: 0;
+    gap: 10px;
+    container-type: size;
+  }
+
+  .play-main {
+    height: auto;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .board-stage {
+    flex: 0 0 auto;
+    container-type: normal;
+  }
+
+  .play-body > .play-foot {
+    width: 100%;
+    flex: none;
+  }
+}
+
+/* Keep tall boards from outgrowing the centred group on short phones. These
+   caps only bind when the phone is shorter than a typical modern handset. */
+@media (orientation: portrait) and (max-width: 720px) {
+  .fruit-stage { width: min(100%, 390px, 55cqh); }
+  #ttt-board,
+  #mines:not([data-difficulty="hard"]) .mines-board-wrap {
+    width: min(100%, 360px, 64cqh);
+  }
+  .one-line-wrap { width: min(100%, 430px, 72cqh); }
+}
+
+/* At 380px and below the footer and tools share one compact row. This keeps
+   the cluster short enough for 360x640 and 320x568 screens. */
+@media (orientation: portrait) and (max-width: 380px) {
+  .play-body > .play-foot {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .play-body > .play-foot .play-tools { grid-row: 1; gap: 3px; }
+  .play-body > .play-foot .play-tool { width: 36px; height: 36px; }
+  .play-body > .play-foot .play-tools svg { width: 16px; height: 16px; }
+
+  .play-body > .play-foot .play-actions {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 3px;
+  }
+
+  .play-body > .play-foot .play-btn {
+    min-height: 38px;
+    padding-inline: clamp(4px, 1.8vw, 7px);
+    font-size: clamp(10px, 3.05vw, 11.5px);
+  }
+
+  .play-body > .play-foot .play-note { display: none; }
+}
+
+/* Every other game now uses Merge's control geometry: 11px action corners
+   and 44px tool buttons on portrait phones. The compact 320–380px row keeps
+   its smaller controls so all three actions still fit. */
+.play-btn { border-radius: 11px; }
+.play-tool { border-radius: 12px; }
+
+@media (orientation: portrait) and (min-width: 381px) {
+  .play-body > .play-foot .play-tools { gap: 8px; }
+  .play-body > .play-foot .play-tool {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+  .play-body > .play-foot .play-tools svg { width: 21px; height: 21px; }
+  .play-body > .play-foot .play-actions { gap: 8px; }
+  .play-body > .play-foot .play-actions .play-btn { min-height: 44px; }
+}
+
+/* A one-off recovery notice for the Chrome Android install regression. It is
+   only shown on GitHub Pages in Chrome 154–156, and gives those visitors the
+   page-prompt route while they update to 157 or newer. */
+.install-fix {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px 10px;
+  margin-top: 16px;
+  padding: 11px 12px;
+  border: 1px solid color-mix(in srgb, var(--warn, #b74a34) 24%, var(--line));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--warn, #b74a34) 7%, var(--panel));
+}
+
+.install-fix[hidden],
+.install-fix-install[hidden] { display: none; }
+
+.install-fix-mark {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 9px;
+  background: var(--warn, #b74a34);
+  color: #fff7f3;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.install-fix-copy {
+  flex: 1 1 205px;
+  min-width: 0;
+}
+
+.install-fix-title {
+  margin: 0;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.install-fix-note {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.install-fix-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  width: 100%;
+}
+
+.install-fix-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+@media (orientation: portrait) and (max-width: 340px) {
+  .fruit-stage { width: min(100%, 390px, 52cqh); }
+}

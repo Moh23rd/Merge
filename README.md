@@ -27,7 +27,7 @@ Every game saves its own board, best score and progress on the device, so closin
 - **iPhone / Safari:** tap **Share**, then **Add to Home Screen**.
 - **Other browsers:** use the browser menu’s **Install** or **Add to Home Screen** option.
 
-The app works offline after the first visit. If Chrome says it is installed but will not open, remove any old copy from the Home Screen or browser app settings and try again.
+The app works offline after the first visit. If Chrome says it is installed but will not open, remove any old copy from the Home Screen or browser app settings and try again. On Chrome for Android 154–156, Chrome’s own install menu can confuse two apps on the same `github.io` origin; update Chrome to **157.0.8103.15** or newer. The hub shows this recovery note automatically on older builds and offers the page’s install prompt as a workaround.
 
 ## Privacy
 

@@ -4,6 +4,9 @@
   const block = document.getElementById('install-block');
   const btn = document.getElementById('install-app');
   const copy = document.getElementById('install-copy');
+  const fix = document.getElementById('install-fix');
+  const fixBtn = document.getElementById('install-fix-install');
+  const fixNote = document.getElementById('install-fix-note');
   if (!block || !btn || !copy) return;
 
   const displayMode = window.matchMedia('(display-mode: standalone)');
@@ -12,6 +15,14 @@
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   // Chrome, Firefox and other iOS browsers still need Safari for a home-screen app.
   const isIOSNonSafari = /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
+  const isAndroid = /Android/.test(ua);
+  const isChrome = /Chrome\//.test(ua) && !/EdgA|OPR|SamsungBrowser/.test(ua);
+  const chromeMajor = Number((ua.match(/Chrome\/(\d+)/) || [])[1] || 0);
+  const isGitHubPages = /(^|\.)github\.io$/i.test(window.location.hostname);
+  // Chrome 154–156 treats every app on one origin as installed. The fix
+  // shipped in 157.0.8103.15, so only older Chromium builds need this notice.
+  const needsChromeInstallFix = isAndroid && isChrome && isGitHubPages &&
+    chromeMajor >= 154 && chromeMajor < 157;
   let prompt = null;
 
   function installed() {
@@ -23,14 +34,34 @@
     btn.hidden = true;
   }
 
+  function hideFix() {
+    if (fix) fix.hidden = true;
+    if (fixBtn) fixBtn.hidden = true;
+  }
+
   function sync() {
     if (installed()) {
       hide();
+      hideFix();
       return;
     }
 
     prompt = window.__mergeInstallPrompt || null;
-    if (prompt) {
+    const canPrompt = Boolean(prompt);
+
+    if (needsChromeInstallFix && fix) {
+      fix.hidden = false;
+      if (fixBtn) fixBtn.hidden = !canPrompt;
+      if (fixNote) {
+        fixNote.textContent = canPrompt
+          ? 'Chrome 154–156 cannot install a second app from github.io. Use Install app here instead of Chrome’s menu, or update Chrome to 157 or newer.'
+          : 'Chrome 154–156 cannot install a second app from github.io. Update Chrome to 157 or newer, then install Sixfold again.';
+      }
+    } else {
+      hideFix();
+    }
+
+    if (canPrompt) {
       block.hidden = false;
       btn.hidden = false;
       copy.textContent = 'Add Sixfold to your home screen for an app-like, offline-friendly collection.';
@@ -46,27 +77,38 @@
       return;
     }
 
+    if (needsChromeInstallFix) {
+      block.hidden = false;
+      btn.hidden = true;
+      copy.textContent = 'Chrome 154–156 cannot install a second app from github.io. Update Chrome to 157 or newer, then try again.';
+      return;
+    }
+
     hide();
   }
 
-  btn.addEventListener('click', async function () {
+  async function installFromPrompt() {
     if (!prompt) return;
     const deferred = prompt;
     prompt = null;
+    window.__mergeInstallPrompt = null;
     try {
       deferred.prompt();
       await deferred.userChoice;
     } catch (err) {
       /* the browser declined to show its prompt */
     }
-    window.__mergeInstallPrompt = null;
     sync();
-  });
+  }
+
+  btn.addEventListener('click', installFromPrompt);
+  if (fixBtn) fixBtn.addEventListener('click', installFromPrompt);
 
   window.addEventListener('merge:install-available', sync);
   window.addEventListener('appinstalled', function () {
     window.__mergeInstallPrompt = null;
     hide();
+    hideFix();
   });
   if (displayMode.addEventListener) displayMode.addEventListener('change', sync);
 
