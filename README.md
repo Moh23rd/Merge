@@ -1,6 +1,6 @@
-# Sixfold 2.1
+# Sixfold 2.0
 
-![Sixfold 2.1 — six games. no filler.](og-image.png)
+![Sixfold 2.0 — six games. no filler.](og-image.png)
 
 Six games. No filler. A pocket arcade for the in-between: six satisfying puzzles, no accounts, no ads, no tracking — and it keeps working offline.
 
@@ -10,7 +10,7 @@ Six games. No filler. A pocket arcade for the in-between: six satisfying puzzles
 
 Built as a small installable web app: plain HTML, CSS and JavaScript, no framework, no build step.
 
-## What’s new in 2.1
+## What’s new in 2.0
 
 - **Smoother on desktop.** Springier screen entrances, card lifts, cover tilt and hover motion bring the home screen and every game to life with a mouse.
 - **Fruit that looks like fruit.** Fruit Merge now keeps its natural colours regardless of the app palette, and the grape bunch has an opaque body instead of see-through gaps.
@@ -57,7 +57,7 @@ index.html                 hub, game screens, help, install and rules sheets
 styles.css                 shared shell, theme tokens and the 2048 board
 home.css                   hub layout, six-piece intro and cartridge cards
 games.css                  in-game screens and controls
-polish.css                 2.1 motion, header spacing and Wordle styles
+polish.css                 2.0 motion, header spacing and Wordle styles
 game.js                    Merge (2048)
 games.js                   Water Sort, One Line, Fruit Merge, Tic Tac Toe, Minesweeper
 wordle.js                  the hidden five-letter game and its saved stats

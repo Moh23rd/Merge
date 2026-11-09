@@ -1,6 +1,6 @@
 # Sixfold — Changelog
 
-**Version 2.1 · Public release · 9 November 2026**
+**Version 2.0 · Silent update · 9 November 2026**
 
 A polish and motion pass, with one small secret in the cover.
 
@@ -26,8 +26,8 @@ A polish and motion pass, with one small secret in the cover.
 
 ## Under the hood
 
-- App version 2.1.
-- Offline cache moves to `sixfold-2.1.0`; asset URLs use `?v=2.1.0`.
+- App version 2.0.
+- Offline cache moves to `sixfold-2.0.0`; asset URLs use `?v=2.0.0`.
 - New styles live in `polish.css`; the hidden game uses `wordle.js` and `wordle-words.js`.
 
 ---
