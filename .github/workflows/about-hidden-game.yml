@@ -1,0 +1,39 @@
+name: Update About copy
+
+on:
+  push:
+    paths:
+      - '.github/workflows/about-hidden-game.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-about:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add hidden word game to the About summary
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text()
+          old = '<p class="sheet-note">A new pocket-arcade home with six game cartridges, a six-piece cover and a Surprise me button. Every game now has its own cartridge header and accent, One Line has a star meter, and the flat page matches the phone chrome.</p>'
+          new = '<p class="sheet-note">A new pocket-arcade home with six game cartridges, a six-piece cover and a Surprise me button. Every game now has its own cartridge header and accent, One Line has a star meter, and the flat page matches the phone chrome. The cover also hides a replayable five-letter word game for anyone curious enough to find it.</p>'
+
+          if text.count(old) != 1:
+              raise SystemExit('Expected exactly one 2.0 About paragraph, found ' + str(text.count(old)))
+          path.write_text(text.replace(old, new))
+          PY
+
+          git rm -q .github/workflows/about-hidden-game.yml
+          git add index.html
+          git config user.name 'Moh23rd'
+          git config user.email 'mohrd9685@gmail.com'
+          git commit -m 'Mention the hidden word game in About'
+          git push origin HEAD:main
