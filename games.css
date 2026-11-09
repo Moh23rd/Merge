@@ -87,27 +87,6 @@ body[data-screen="mines"] .app {
   white-space: nowrap;
 }
 
-.hub-kicker {
-  color: var(--muted);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.hub-intro {
-  margin-top: clamp(46px, 9vh, 90px);
-}
-
-.hub-eyebrow {
-  margin: 0 0 12px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
 .hub h1 {
   margin: 0;
   max-width: 12ch;
@@ -120,73 +99,6 @@ body[data-screen="mines"] .app {
 }
 
 .hub h1 span { display: block; }
-
-.hub-title-soft { color: var(--muted-strong); }
-
-.hub-sub {
-  max-width: 46ch;
-  margin: 18px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.hub-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(14px, 2.2vw, 20px);
-  margin-top: clamp(30px, 5vh, 48px);
-}
-
-.game-card {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: var(--card);
-  box-shadow: var(--card-shadow);
-  color: var(--ink);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
-}
-
-.game-card:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--ink) 20%, transparent);
-  box-shadow: 0 16px 30px -22px rgba(59, 56, 51, 0.6), var(--card-shadow);
-}
-
-.game-card:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
-}
-
-.game-card--wide {
-  grid-column: span 2;
-}
-
-.game-art {
-  --art-a: var(--g1, #e85f3b);
-  --art-b: var(--g2, #e3a92f);
-  display: flex;
-  position: relative;
-  align-items: center;
-  justify-content: center;
-  min-height: 164px;
-  border-radius: 15px;
-  background: color-mix(in srgb, var(--panel) 30%, var(--page));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 6%, transparent);
-  overflow: hidden;
-}
-
-html[data-theme="dark"] .game-art {
-  background: color-mix(in srgb, var(--panel) 30%, var(--page));
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
-}
 
 .mini-merge {
   display: grid;
@@ -397,21 +309,6 @@ html[data-theme="dark"] .game-art {
 .mini-mines .mines-flag { color: var(--t64); }
 .mini-mines .mines-mine { color: var(--warn); background: color-mix(in srgb, var(--warn) 18%, var(--panel)); }
 
-.game-copy {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 6px;
-  padding: 15px 5px 3px;
-}
-
-.game-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
 .game-tag {
   color: var(--muted);
   font-size: 9px;
@@ -419,60 +316,6 @@ html[data-theme="dark"] .game-art {
   letter-spacing: 0.15em;
   line-height: 1.2;
   text-transform: uppercase;
-}
-
-.game-arrow {
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1;
-}
-
-.game-title {
-  font-size: clamp(24px, 3.6vw, 30px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.game-desc {
-  max-width: 36ch;
-  color: var(--muted);
-  font-size: 12.5px;
-  line-height: 1.45;
-}
-
-.game-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 13px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.game-play {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--ink);
-  color: var(--page);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.game-play::after {
-  content: "→";
-  font-size: 11px;
-  line-height: 1;
 }
 
 .hub-foot {
@@ -536,15 +379,6 @@ html[data-theme="dark"] .game-art {
 
 .title-block .games-home { margin-bottom: 3px; }
 
-.play-zero { display: none; }
-
-.play-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .play-tools {
   display: flex;
   align-items: center;
@@ -574,12 +408,7 @@ html[data-theme="dark"] .game-art {
   display: block;
 }
 
-.play-tool .tool-sun,
 .play-tool .exit { display: none; }
-html[data-theme="dark"] .play-tool .tool-moon { display: none; }
-html[data-theme="dark"] .play-tool .tool-sun { display: block; }
-.play-tool.is-fullscreen .enter { display: none; }
-.play-tool.is-fullscreen .exit { display: block; }
 .play-tool.is-off { color: var(--muted); }
 .play-tool.is-off .waves { display: none; }
 .play-tool.is-off .slash { display: block; }
@@ -1613,11 +1442,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 /* ---------- responsive ---------- */
 
 @media (max-width: 720px) {
-  .hub-intro { margin-top: clamp(38px, 8vh, 64px); }
-  .hub-grid { grid-template-columns: minmax(0, 1fr); }
-  .game-card--wide { grid-column: auto; }
-  .game-art { min-height: 142px; }
-  .game-card--wide .game-art { min-height: 142px; }
   .mini-merge,
   .mini-oneline { width: 124px; }
   .mini-water { height: 108px; }
@@ -1625,9 +1449,7 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 }
 
 @media (max-width: 420px) {
-  .hub-kicker { display: none; }
   .hub h1 { font-size: clamp(40px, 11.5vw, 52px); }
-  .hub-sub { font-size: 13px; }
   .play-title-row { gap: 10px; }
   .play-intro h1 { font-size: clamp(28px, 8vw, 36px); }
   .play-stats { width: 142px; }
@@ -1639,11 +1461,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
   .water-glass { height: clamp(138px, 40vw, 174px); }
   .one-line-wrap { width: min(100%, 380px); }
   .ttt-board { width: min(100%, 310px); }
-}
-
-@media (max-height: 650px) and (min-width: 721px) {
-  .hub-intro { margin-top: 38px; }
-  .game-art { min-height: 132px; }
 }
 
 @media (orientation: landscape) and (max-height: 560px) {
@@ -1686,12 +1503,10 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .game-card,
   .water-glass,
   .ttt-cell,
   .play-btn,
   .one-node { transition: none; }
-  .game-card:hover { transform: none; }
 }
 
 
@@ -1725,7 +1540,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 .play-stats { width: 152px; }
 
 @media (max-width: 720px) {
-  .game-card--wide { grid-column: 1 / -1; }
   .mini-mines { width: 126px; height: 126px; }
 }
 
@@ -1795,74 +1609,15 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 
 /* ---------- hub ---------- */
 
-.hub-intro { margin-top: clamp(24px, 4.5vh, 44px); }
-
-.hub-eyebrow {
-  margin-bottom: 9px;
-  letter-spacing: 0.14em;
-}
-
 .hub h1 {
   font-size: clamp(38px, 10vw, 56px);
   letter-spacing: -0.05em;
-}
-
-.hub-sub {
-  max-width: 40ch;
-  margin-top: 14px;
-  font-size: 13.5px;
-}
-
-.hub-grid {
-  gap: 14px;
-  margin-top: clamp(24px, 4vh, 34px);
-}
-
-.game-card {
-  padding: 10px;
-  border-radius: 20px;
-}
-
-.game-art,
-.game-card--wide .game-art {
-  min-height: 124px;
-  border-radius: 13px;
 }
 
 .mini-merge { width: 112px; }
 .mini-oneline { width: 110px; height: 110px; }
 .mini-water { height: 106px; }
 .mini-fruit-cluster { transform: scale(0.9); }
-
-.game-copy {
-  gap: 5px;
-  padding: 12px 5px 2px;
-}
-
-.game-title { font-size: clamp(23px, 3.4vw, 27px); }
-
-.game-desc {
-  font-size: 12.2px;
-  line-height: 1.42;
-}
-
-.game-foot { padding-top: 10px; }
-
-.game-play {
-  padding: 0;
-  border-radius: 0;
-  background: none;
-  color: var(--ink);
-  font-size: 9px;
-  font-weight: 800;
-}
-
-.game-play::after {
-  content: "→";
-  margin-left: 4px;
-  color: var(--muted);
-  font-size: 10px;
-}
 
 .hub-foot {
   padding-top: 26px;
@@ -1877,7 +1632,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 }
 
 /* One shared tool cluster instead of three floating white cards. */
-.play-topbar { align-items: center; }
 
 .play-tools {
   gap: 0;
@@ -2325,8 +2079,7 @@ html[data-theme="dark"] .ttt-cell { box-shadow: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .play-tool,
-  .game-play { transition: none; }
+  .play-tool { transition: none; }
 }
 
 /* =====================================================================
@@ -2663,17 +2416,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
     min-width: 0;
   }
 
-  /* Out of the grid flow so it can span the whole frame without shrinking
-     the board column. The frame padding reserves its height. */
-  .play-topbar {
-    position: absolute;
-    top: calc(env(safe-area-inset-top, 0px) + 16px);
-    right: calc(env(safe-area-inset-right, 0px) + 28px);
-    left: calc(env(safe-area-inset-left, 0px) + 28px);
-    z-index: 2;
-    width: auto;
-  }
-
   .play-title-row {
     display: block;
     width: 100%;
@@ -2829,12 +2571,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
     gap: 6px;
   }
 
-  .play-topbar {
-    position: static;
-    width: 100%;
-    gap: 6px;
-  }
-
   .play-tools { padding: 2px; }
   .play-tool { width: 34px; height: 34px; }
   .play-tool svg { width: 15px; height: 15px; }
@@ -2973,7 +2709,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
     padding: 0;
     justify-content: center;
   }
-  .play-topbar { gap: 4px; }
   .play-tools .play-tool { width: 32px; height: 32px; }
   .play-tools .play-tool svg { width: 14px; height: 14px; }
 }
@@ -3070,18 +2805,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
   outline-offset: 3px;
 }
 
-.hub-look-icon {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--ghost-bg);
-}
-
-.hub-look-icon svg { width: 16px; height: 16px; display: block; }
-
 .hub-look-copy {
   display: flex;
   flex-direction: column;
@@ -3116,20 +2839,10 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
   line-height: 1;
 }
 
-.hub-intro { margin-top: clamp(30px, 5.5vh, 50px); }
-
 .hub h1 {
   max-width: 14ch;
   font-size: clamp(38px, 7.4vw, 64px);
 }
-
-.hub-sub {
-  max-width: 42ch;
-  margin-top: 12px;
-  font-size: 13px;
-}
-
-.hub-grid { margin-top: clamp(22px, 3.8vh, 34px); }
 
 .sheet-sub {
   margin: 6px 0 0;
@@ -3138,32 +2851,7 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
   line-height: 1.45;
 }
 
-@media (min-width: 760px) {
-  .game-card--wide {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-    align-items: stretch;
-    gap: 8px 18px;
-  }
-
-  .game-card--wide .game-art {
-    height: 100%;
-    min-height: 220px;
-  }
-
-  .game-card--wide .game-copy {
-    justify-content: center;
-    padding: 18px 10px 7px;
-  }
-
-  .game-card--wide .game-title { font-size: clamp(28px, 3.2vw, 36px); }
-  .game-card--wide .game-desc { max-width: 30ch; font-size: 13px; }
-  .game-card--wide .mini-merge { width: 146px; }
-  .game-card--wide .mini-mines { width: 142px; height: 142px; }
-}
-
 @media (max-width: 480px) {
-  .hub-kicker { display: none; }
   .hub-look { padding-right: 8px; }
 }
 
@@ -3265,8 +2953,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 .play-tool.is-off .slash { display: block; }
 .play-tool .slash { display: none; }
 .play-tool .exit { display: none; }
-.play-tool.is-fullscreen .enter { display: none; }
-.play-tool.is-fullscreen .exit { display: block; }
 
 .play-actions {
   grid-column: 2;
@@ -3356,9 +3042,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
   .hub-look { transition: none; }
 }
 
-/* Merge's fullscreen control joins the same three-tool row on phones too. */
-.btn.icon.focus-btn { display: grid; }
-
 @media (orientation: landscape) and (max-height: 520px) {
   .play-foot {
     grid-template-columns: 1fr;
@@ -3381,17 +3064,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
   .title-block { min-width: 0; }
   .scores { width: 168px; gap: 5px; }
 }
-
-/* A clear affordance on every game card; the whole card is still the target. */
-.game-play {
-  padding: 6px 11px;
-  border-radius: 999px;
-  background: var(--ink);
-  color: var(--page);
-  letter-spacing: 0.08em;
-}
-
-.game-play::after { color: inherit; }
 
 /* Portrait starts at the same quiet top inset as Merge. */
 @media (orientation: portrait) {
@@ -3586,7 +3258,6 @@ html[data-theme="dark"] .reset-confirm:hover {
     gap: 6px;
     padding: 4px 9px 4px 5px;
   }
-  .hub-look-icon { width: 28px; height: 28px; }
   .hub-look-copy span {
     display: block;
     color: var(--ink);
@@ -3603,7 +3274,6 @@ html[data-theme="dark"] .reset-confirm:hover {
   .games-home { width: 36px; height: 36px; }
   .hub-focus { width: 38px; height: 38px; }
   .hub-share { width: 38px; height: 38px; }
-  .hub-look-icon { width: 26px; height: 26px; }
   .hub-look-copy span { display: block; font-size: 11px; }
   .hub-look-copy strong { display: none; }
   .hub-look-chevron { display: block; }
@@ -4438,205 +4108,12 @@ html[data-theme="dark"] .reset-confirm:hover {
   --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
 }
 
-.hub-intro {
-  display: block;
-  margin-top: clamp(32px, 6vh, 54px);
-  padding-top: clamp(14px, 2.2vh, 20px);
-  border-top: 1px solid var(--line);
-}
-
-.hub-cover-copy { min-width: 0; }
-
-.hub-issue {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 9px;
-  margin: 0 0 clamp(18px, 3.4vh, 26px);
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  line-height: 1.25;
-  text-transform: uppercase;
-}
-
-.hub-issue span + span::before {
-  content: "/";
-  margin-right: 9px;
-  color: color-mix(in srgb, var(--muted) 55%, transparent);
-}
-
 .hub h1 {
   max-width: none;
   font-size: clamp(42px, 10.2vw, 76px);
   line-height: 0.9;
   letter-spacing: -0.06em;
   text-wrap: balance;
-}
-
-.hub-sub {
-  max-width: 34ch;
-  margin: 15px 0 0;
-  font-size: 13.5px;
-  line-height: 1.5;
-}
-
-.hub-cover-art {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  margin-top: clamp(22px, 4vh, 30px);
-}
-
-.hub-plate {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--page) 62%, var(--panel));
-  box-shadow: none;
-}
-
-.hub-plate-cell {
-  display: grid;
-  place-items: center;
-  min-width: 0;
-  height: 38px;
-  border-radius: 6px;
-  color: #3b3833;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-
-.plate-1 { background: var(--t2); }
-.plate-2 { background: var(--t8); }
-.plate-3 { background: var(--t16); }
-.plate-4 { background: var(--t32); }
-.plate-5 { background: var(--t64); }
-.plate-6 { background: var(--t128); }
-
-.hub-plate-caption {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 2px;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.hub-section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: clamp(30px, 5.4vh, 48px);
-  padding-bottom: 9px;
-  border-bottom: 1px solid var(--line);
-}
-
-.hub-section-head h2 {
-  margin: 0;
-  color: var(--ink);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  line-height: 1.2;
-  text-transform: uppercase;
-}
-
-.hub-section-head > span {
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-}
-
-.hub-grid {
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.game-card {
-  padding: 9px;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: var(--card);
-  box-shadow: none;
-  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
-}
-
-.game-card:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--ink) 26%, var(--line));
-  background: color-mix(in srgb, var(--card) 88%, var(--page));
-  box-shadow: none;
-}
-
-.game-art {
-  min-height: 126px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--panel) 30%, var(--page));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent);
-}
-
-.game-card--wide .game-art { min-height: 158px; }
-
-.game-top {
-  justify-content: flex-start;
-  gap: 7px;
-}
-
-.game-index {
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.game-copy {
-  gap: 4px;
-  padding: 11px 4px 2px;
-}
-
-.game-title {
-  font-size: clamp(22px, 5.4vw, 28px);
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-}
-
-.game-desc {
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.game-foot {
-  padding-top: 9px;
-  font-size: 9px;
-  letter-spacing: 0.01em;
-}
-
-.game-play {
-  font-size: 8.5px;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
 }
 
 .hub-foot {
@@ -4660,44 +4137,11 @@ html[data-theme="dark"] .reset-confirm:hover {
 .hub-foot span:last-child { text-align: right; }
 
 @media (min-width: 760px) {
-  .hub-intro {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 238px;
-    align-items: end;
-    gap: clamp(28px, 5vw, 56px);
-  }
-
-  .hub-cover-art { margin-top: 0; }
-
-  .hub-plate {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 5px;
-    padding: 5px;
-    border-radius: 12px;
-  }
-
-  .hub-plate-cell {
-    height: 64px;
-    font-size: 10px;
-  }
-
   .hub h1 { font-size: clamp(52px, 7.6vw, 76px); }
-  .game-card--wide .game-art { min-height: 220px; }
-  .game-card--wide .game-title { font-size: clamp(28px, 3.2vw, 36px); }
 }
 
 @media (max-width: 360px) {
   .hub h1 { font-size: 41px; }
-  .hub-issue { font-size: 8px; }
-  .hub-plate-cell { height: 34px; font-size: 8.5px; }
-  .hub-grid { gap: 10px; }
-  .game-card { padding: 8px; border-radius: 12px; }
-  .game-art { min-height: 112px; }
-  .game-card--wide .game-art { min-height: 140px; }
-  .game-copy { padding: 9px 3px 2px; }
-  .game-title { font-size: 20px; }
-  .game-desc { font-size: 11.2px; }
-  .game-foot { padding-top: 7px; font-size: 8.5px; }
   .mini-merge { width: 92px; gap: 6px; }
   .mini-oneline { width: 94px; height: 94px; }
   .mini-water { transform: scale(0.82); transform-origin: bottom; }
@@ -4705,75 +4149,6 @@ html[data-theme="dark"] .reset-confirm:hover {
   .mini-ttt { width: 92px; height: 92px; gap: 4px; }
   .mini-mines { width: 94px; height: 94px; gap: 4px; }
   .hub-foot { font-size: 7.5px; letter-spacing: 0.04em; }
-}
-
-@media (max-width: 380px) {
-  .hub-grid { grid-template-columns: 1fr; }
-}
-
-/* Phone and small tablet: four compact covers in a 2×2 shelf, with Merge and
-   Minesweeper as wider horizontal features. This keeps the collection from
-   becoming a long stack of six identical posters. */
-@media (min-width: 381px) and (max-width: 759px) {
-  .hub-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .game-card--wide {
-    display: grid;
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-    align-items: stretch;
-    gap: 13px;
-  }
-
-  .game-card--wide .game-art {
-    width: 100%;
-    height: 100%;
-    min-height: 186px;
-  }
-
-  .game-card--wide .game-copy {
-    justify-content: center;
-    padding: 4px 6px 4px 0;
-  }
-
-  .game-card--wide .game-title { font-size: clamp(23px, 5.8vw, 26px); }
-  .game-card--wide .game-desc { font-size: 12px; }
-}
-
-.hub-plate-cell {
-  box-shadow: inset 0 0 0 1px rgba(59, 56, 51, 0.12);
-}
-
-/* A printed contents line, not another filled button. */
-.game-play {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 0 2px;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--ink);
-  font-size: 8.5px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.game-play::after {
-  content: "↗";
-  color: var(--muted);
-  font-size: 10px;
-}
-
-.game-card:hover .game-play {
-  border-bottom-color: var(--ink);
 }
 
 /* Keep the install notice in the same printed language as the shelf. */

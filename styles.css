@@ -713,12 +713,10 @@ h1 {
 /* Native-feeling press response on the small controls too. */
 .seg button,
 .palette,
-.reset-btn,
 .sheet-done { transition: transform 120ms ease; }
 
 .seg button:active,
 .palette:active,
-.reset-btn:active,
 .sheet-done:active { transform: scale(0.97); }
 
 /* A visible keyboard focus ring; taps don't show it. */
@@ -749,12 +747,6 @@ button:focus-visible {
   display: block;
 }
 
-/* Focus mode is a desktop nicety; phones keep their compact control row. */
-.btn.icon.focus-btn { display: none; }
-.btn.icon.focus-btn .focus-exit { display: none; }
-html.is-focus .btn.focus-btn .focus-enter { display: none; }
-html.is-focus .btn.focus-btn .focus-exit { display: block; }
-
 /* The browser's native fullscreen resize is outside the page's control. Step
    the content back under a short fade, settle at the new size, then bring it
    back, so the board never snaps between two viewport layouts. */
@@ -762,17 +754,7 @@ html.is-focus .btn.focus-btn .focus-exit { display: block; }
   .app {
     transition: opacity 160ms var(--ease-out), transform 240ms var(--ease-out);
   }
-
-  html.is-focusing .app {
-    opacity: 0;
-    transform: scale(0.985);
-    pointer-events: none;
-  }
 }
-
-#theme-toggle .sun { display: none; }
-html[data-theme="dark"] #theme-toggle .moon { display: none; }
-html[data-theme="dark"] #theme-toggle .sun { display: block; }
 
 .btn.icon .slash { display: none; }
 .btn.icon.is-off { color: var(--muted); }
@@ -893,76 +875,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"] {
   background: rgba(255, 255, 255, 0.16);
 }
 
-/* One compact row, only shown when the app is installed and the browser can
-   actually enter fullscreen. */
-.sheet-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 44px;
-  margin-top: 10px;
-  padding: 0 8px 0 14px;
-  border-radius: 12px;
-  background: var(--seg-bg);
-  box-shadow: var(--ghost-shadow);
-}
-
-.sheet-toggle[hidden] { display: none; }
-
-.sheet-toggle-label {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.switch {
-  position: relative;
-  flex: none;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.switch::before {
-  content: "";
-  width: 40px;
-  height: 24px;
-  border-radius: 999px;
-  background: #8a8175;
-  background: color-mix(in srgb, var(--muted) 72%, transparent);
-  transition: background-color var(--motion-base) var(--ease-out);
-}
-
-.switch::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 18px;
-  height: 18px;
-  margin: -9px 0 0 -9px;
-  border-radius: 50%;
-  background: var(--sheet-bg);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
-  transform: translateX(-8px);
-  transition: transform var(--motion-base) var(--ease-spring);
-}
-
-.switch[aria-checked="true"]::before {
-  background: var(--ink);
-}
-
-.switch[aria-checked="true"]::after {
-  transform: translateX(8px);
-}
-
 .palettes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1001,37 +913,6 @@ html[data-theme="dark"] .seg button[aria-pressed="true"] {
 }
 
 .swatches span:first-child { margin-left: 0; }
-
-.reset-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.reset-btn {
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  min-height: 44px;
-  padding: 11px 4px;
-  border: 0;
-  border-radius: 12px;
-  background: var(--seg-bg);
-  box-shadow: var(--ghost-shadow);
-  color: var(--ink);
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.reset-btn[data-armed="true"] {
-  background: #c0452f;
-  color: #fdf6f2;
-}
-
-html[data-theme="dark"] .reset-btn[data-armed="true"] {
-  background: #d4573f;
-  color: #fff5f1;
-}
 
 .sheet-note {
   margin: 8px 0 0;
@@ -1221,7 +1102,6 @@ html[data-theme="dark"] .reset-btn[data-armed="true"] {
   .btn,
   .seg button,
   .palette,
-  .reset-btn,
   .sheet-done { transition-duration: 0.01ms; }
 }
 
@@ -1333,43 +1213,9 @@ body {
 
 .seg button,
 .palette,
-.reset-btn,
 .sheet-done,
 .contact-link {
   transition: transform var(--motion-fast) var(--ease-out), background-color var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out), box-shadow var(--motion-base) var(--ease-out);
-}
-
-/* The sun and moon trade places instead of blinking between two icons. */
-#theme-toggle svg {
-  grid-area: 1 / 1;
-  transition: opacity 200ms ease, transform 320ms var(--ease-spring);
-}
-
-#theme-toggle .sun,
-#theme-toggle .moon {
-  display: block;
-}
-
-#theme-toggle .sun {
-  opacity: 0;
-  transform: rotate(-35deg) scale(0.72);
-}
-
-#theme-toggle .moon {
-  opacity: 1;
-  transform: none;
-}
-
-html[data-theme="dark"] #theme-toggle .sun {
-  display: block;
-  opacity: 1;
-  transform: none;
-}
-
-html[data-theme="dark"] #theme-toggle .moon {
-  display: block;
-  opacity: 0;
-  transform: rotate(35deg) scale(0.72);
 }
 
 /* Result card: fade the dimmer, then let the card settle in from a small
@@ -1474,13 +1320,9 @@ html[data-theme="dark"] #theme-toggle .moon {
   .btn,
   .seg button,
   .palette,
-  .reset-btn,
   .sheet-done,
   .contact-link,
-  .hint,
-  .switch::before,
-  .switch::after,
-  #theme-toggle svg {
+  .hint {
     transition-duration: 0.01ms;
   }
   .face.appear,
@@ -1599,8 +1441,6 @@ html[data-theme="dark"] #theme-toggle .moon {
     width: 22px;
     height: 22px;
   }
-
-  .btn.icon.focus-btn { display: grid; }
 
   .result-again {
     min-width: 0;
@@ -1883,8 +1723,6 @@ html[data-theme="dark"] #theme-toggle .moon {
    devices without vibration support do not leave an empty control slot; New
    game only moves to its own line when the width is genuinely tight. */
 @media (max-width: 899px) {
-  .btn.icon.focus-btn { display: grid; }
-
   .controls { gap: 6px; }
 
   .controls #new-game {
@@ -1963,8 +1801,7 @@ html[data-theme="dark"] #theme-toggle .moon {
   }
 
   .seg button:not([aria-pressed="true"]):hover,
-  .palette:hover,
-  .reset-btn:hover {
+  .palette:hover {
     background: color-mix(in srgb, var(--seg-bg) 82%, var(--ink) 7%);
   }
 
