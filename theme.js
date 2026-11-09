@@ -366,7 +366,16 @@
     }
     document.documentElement.classList.add('sheet-open');
     const doneBtn = sheet.querySelector('.sheet-done');
-    if (doneBtn) doneBtn.focus();
+    if (doneBtn) {
+      doneBtn.focus();
+      // Applying inert to the page can move focus to the document in some
+      // browsers, so re-assert the dialog focus on the next frame.
+      window.setTimeout(function () {
+        if (!sheet.hidden && !sheet.classList.contains('is-closing')) {
+          doneBtn.focus({ preventScroll: true });
+        }
+      }, 40);
+    }
   }
 
   function closeSheet(sheet) {
@@ -475,6 +484,8 @@
   }
 
   function activeSheet() {
+    const open = document.querySelector('.sheet.is-open:not(.is-closing)');
+    if (open) return open;
     if (appearanceSheet && !appearanceSheet.hidden) return appearanceSheet;
     if (sizeSheet && !sizeSheet.hidden) return sizeSheet;
     if (helpSheet && !helpSheet.hidden) return helpSheet;
@@ -555,7 +566,8 @@
       return recolor(hex, activePalette());
     },
     confirmReset: openGameReset,
-    closeSheet: closeSheet
+    closeSheet: closeSheet,
+    openSheet: openSheet
   };
 
   const onSchemeChange = function () {
