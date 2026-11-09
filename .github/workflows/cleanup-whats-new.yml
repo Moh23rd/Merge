@@ -1,0 +1,82 @@
+name: Clean up the unused What's New notice
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cleanup-whats-new.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Remove the unused handler and styles
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('games.js')
+          text = p.read_text()
+          start = text.index("  /* ---------- what's new ---------- */")
+          end = text.index("  /* ---------- first-play coach ---------- */", start)
+          assert 'whatsNew' in text[start:end]
+          text = text[:start] + text[end:]
+          assert 'whatsNew' not in text
+          p.write_text(text)
+
+          p = Path('home.css')
+          text = p.read_text()
+          text = text.replace('/* ---------- release notes and install notice ---------- */', '/* ---------- install notice ---------- */', 1)
+          old_selector = '.whats-new,\n.install-fix {'
+          assert text.count(old_selector) == 1
+          text = text.replace(old_selector, '.install-fix {', 1)
+          start = text.index('.whats-new {\n  align-items: flex-start;')
+          end = text.index('.install-fix {\n  border-color:', start)
+          assert '.install-fix' not in text[start:end]
+          text = text[:start] + text[end:]
+          assert '.whats-new' not in text
+          p.write_text(text)
+
+          p = Path('games.css')
+          text = p.read_text()
+          start = text.index('\n.whats-new {\n  display: flex;')
+          end = text.index('\n.hub-grid {', start)
+          assert '.install-fix' not in text[start:end]
+          text = text[:start] + text[end:]
+          old_responsive = '  .whats-new { margin-top: 14px; }\n  .whats-new-list { display: grid; gap: 2px; }\n'
+          assert text.count(old_responsive) == 1
+          text = text.replace(old_responsive, '', 1)
+          old_shared = '.overlay-card,\n.fruit-over-card,\n.whats-new,\n.install-fix {'
+          assert text.count(old_shared) == 1
+          text = text.replace(old_shared, '.overlay-card,\n.fruit-over-card,\n.install-fix {', 1)
+          start = text.index('/* Keep the two service notes in the same printed language as the shelf. */')
+          end = text.index('\n.install-fix-mark {', start)
+          replacement = '''/* Keep the install notice in the same printed language as the shelf. */
+          .install-fix {
+            margin-top: 24px;
+            padding: 13px 8px 0 0;
+            border: 0;
+            border-top: 1px solid color-mix(in srgb, var(--warn, #b74a34) 42%, var(--line));
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+          }
+          '''
+          text = text[:start] + replacement + text[end:]
+          assert '.whats-new' not in text
+          p.write_text(text)
+          PY
+
+          node --check games.js
+          git rm -q .github/workflows/cleanup-whats-new.yml
+          git add games.js home.css games.css
+          git config user.name 'Moh23rd'
+          git config user.email 'mohrd9685@gmail.com'
+          git commit -m "Remove the unused What's New notice"
+          git push origin HEAD:main
