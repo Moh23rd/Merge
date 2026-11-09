@@ -131,113 +131,6 @@ body[data-screen="mines"] .app {
   line-height: 1.5;
 }
 
-.whats-new {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
-  margin-top: 16px;
-  padding: 11px 12px;
-  border: 1px solid color-mix(in srgb, var(--g2, #e3a92f) 24%, var(--line));
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--g2, #e3a92f) 8%, var(--panel));
-}
-
-.whats-new[hidden] { display: none; }
-
-.whats-new-mark {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 26px;
-  height: 26px;
-  margin-top: 1px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--g2, #e3a92f) 18%, transparent);
-  color: var(--ink);
-  font-size: 13px;
-  line-height: 1;
-}
-
-.whats-new-copy {
-  flex: 1;
-  min-width: 0;
-}
-
-.whats-new-label {
-  color: var(--ink);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  line-height: 1.25;
-  text-transform: uppercase;
-}
-
-.whats-new-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px 14px;
-  margin: 4px 0 0;
-  padding: 0;
-  list-style: none;
-  /* Darker than the page muted tone: this card's tint drops plain --muted
-     below the 4.5:1 contrast floor at 11.5px. */
-  color: color-mix(in srgb, var(--ink) 72%, var(--muted));
-  font-size: 11.5px;
-  line-height: 1.4;
-}
-
-.whats-new-list li {
-  position: relative;
-  padding-left: 9px;
-}
-
-.whats-new-list li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.55em;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--g2, #e3a92f);
-}
-
-.whats-new-close {
-  position: relative;
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.whats-new-close:hover { color: var(--ink); border-color: color-mix(in srgb, var(--ink) 24%, var(--line)); }
-.whats-new-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-
-/* The ring stays 28px; the touch target around it is a full 44px. */
-.whats-new-close::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-}
-
-@media (max-width: 420px) {
-  .whats-new { gap: 8px; padding: 10px; }
-  .whats-new-mark { display: none; }
-  .whats-new-list { font-size: 11px; }
-}
-
 .hub-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1721,8 +1614,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 
 @media (max-width: 720px) {
   .hub-intro { margin-top: clamp(38px, 8vh, 64px); }
-  .whats-new { margin-top: 14px; }
-  .whats-new-list { display: grid; gap: 2px; }
   .hub-grid { grid-template-columns: minmax(0, 1fr); }
   .game-card--wide { grid-column: auto; }
   .game-art { min-height: 142px; }
@@ -4095,7 +3986,6 @@ html[data-theme="dark"] .reset-confirm:hover {
 
 .overlay-card,
 .fruit-over-card,
-.whats-new,
 .install-fix { border-radius: 12px; }
 
 .result-share { border-radius: 11px; }
@@ -4886,55 +4776,15 @@ html[data-theme="dark"] .reset-confirm:hover {
   border-bottom-color: var(--ink);
 }
 
-/* Keep the two service notes in the same printed language as the shelf. */
-.whats-new,
+/* Keep the install notice in the same printed language as the shelf. */
 .install-fix {
   margin-top: 24px;
   padding: 13px 8px 0 0;
   border: 0;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid color-mix(in srgb, var(--warn, #b74a34) 42%, var(--line));
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-}
-
-.whats-new { gap: 9px; }
-
-.whats-new-mark {
-  width: 22px;
-  height: 22px;
-  margin-top: 0;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.whats-new-label {
-  font-family: var(--font-mono);
-  font-size: 8.5px;
-  letter-spacing: 0.1em;
-}
-
-.whats-new-list {
-  display: grid;
-  gap: 3px;
-  margin-top: 5px;
-  color: color-mix(in srgb, var(--ink) 70%, var(--muted));
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-.whats-new-list li::before { background: var(--muted); }
-
-.whats-new-close {
-  width: 28px;
-  height: 28px;
-  font-size: 16px;
-}
-
-.install-fix {
-  border-top-color: color-mix(in srgb, var(--warn, #b74a34) 42%, var(--line));
 }
 
 .install-fix-mark {

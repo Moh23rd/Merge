@@ -127,27 +127,6 @@
     toast: toast
   };
 
-  /* ---------- what's new ---------- */
-
-  // A compact, per-release note. The stored version is the one the reader has
-  // already dismissed, so the next release automatically brings a fresh note.
-  (function whatsNew() {
-    const panel = $('whats-new');
-    if (!panel) return;
-    const KEY = 'sixfold.whats-new.dismissed';
-    const version = panel.dataset.version;
-    if (!version) return;
-    let dismissed = null;
-    try { dismissed = localStorage.getItem(KEY); } catch (err) {}
-    if (dismissed === version) return;
-    panel.hidden = false;
-    const close = $('whats-new-close');
-    if (close) close.addEventListener('click', function () {
-      panel.hidden = true;
-      try { localStorage.setItem(KEY, version); } catch (err) {}
-    });
-  })();
-
   /* ---------- first-play coach ---------- */
   // Each coach card advances only when the player takes the action it asks
   // for. It is deliberately small so it can live in the existing status slot.

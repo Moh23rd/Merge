@@ -805,9 +805,8 @@ html.home-ready .home-six-caption {
 
 .home-game:hover .home-game-play::after { transform: translateX(2px); }
 
-/* ---------- release notes and install notice ---------- */
+/* ---------- install notice ---------- */
 
-.whats-new,
 .install-fix {
   margin-top: 20px;
   padding: 12px;
@@ -816,38 +815,6 @@ html.home-ready .home-six-caption {
   background: color-mix(in srgb, var(--card) 72%, var(--page));
   box-shadow: none;
 }
-
-.whats-new {
-  align-items: flex-start;
-  gap: 9px;
-}
-
-.whats-new-mark {
-  width: 22px;
-  height: 22px;
-  margin-top: 0;
-  background: var(--t256);
-  color: var(--home-accent-ink);
-  font-size: 10px;
-}
-
-.whats-new-label {
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.08em;
-}
-
-.whats-new-list {
-  display: grid;
-  gap: 2px;
-  margin-top: 5px;
-  color: var(--muted-strong);
-  font-size: 10.5px;
-  line-height: 1.4;
-}
-
-.whats-new-list li::before { background: var(--t64); }
-.whats-new-close { border-color: var(--home-rule); }
 
 .install-fix {
   border-color: color-mix(in srgb, var(--warn) 34%, var(--home-rule));
