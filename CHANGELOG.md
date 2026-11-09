@@ -1,37 +1,5 @@
 # Sixfold — Changelog
 
-**Version 2.0 · Silent update · 9 November 2026**
-
-A polish and motion pass, with one small secret in the cover.
-
-## Motion and touch
-
-- **Smoother game transitions.** Screen entrances, result cards and win overlays now use a longer spring curve instead of arriving all at once.
-- **Desktop motion.** On a mouse, cartridge cards lift, buttons respond, and the six-piece cover tilts gently with the pointer.
-- **Reduced motion stays quiet.** Every new transition has a still fallback for `prefers-reduced-motion`.
-
-## Fixes
-
-- **Fruit Merge colours.** Fruit now keeps its natural palette no matter which app accent is selected, so cherries stay red and leaves stay green.
-- **Opaque grapes.** The grape bunch has a solid body behind its separate circles, closing the transparent gaps that let the board show through.
-- **Header spacing.** On wide screens, the in-game title and description now sit clearly below the back button and cartridge label.
-- **PC layout.** The larger play-screen entrance and the new cover tilt respect fine-pointer and reduced-motion preferences.
-
-## The hidden word game
-
-- **A secret in the six-piece cover.** Tap the six numbered pieces in order, 01 through 06, to open a full five-letter word game.
-- **Standard rules.** Six guesses, green for the right spot, yellow for a letter elsewhere, gray when a letter is absent, and duplicate letters score only as often as they appear in the answer.
-- **Made to be replayed.** A random answer each round, a new-word action, saved progress, played/win/streak stats and a shareable result.
-- **Still hidden.** It is not on the game cards, and opening `#wordle` directly does not unlock it.
-
-## Under the hood
-
-- App version 2.0.
-- Offline cache moves to `sixfold-2.0.0`; asset URLs use `?v=2.0.0`.
-- New styles live in `polish.css`; the hidden game uses `wordle.js` and `wordle-words.js`.
-
----
-
 **Version 2.0 · Public release · 9 November 2026**
 
 Sixfold’s pocket-arcade release. The six games and their rules are unchanged; the collection around them has been rebuilt to look and feel like one small, considered arcade.
@@ -49,6 +17,19 @@ Sixfold’s pocket-arcade release. The six games and their rules are unchanged; 
 - Score cards and primary actions pick up the game’s own accent colour.
 - The new shell keeps the existing controls, rules, saves and keyboard paths intact.
 
+## Motion and touch
+
+- **Smoother game transitions.** Screen entrances, result cards and win overlays now use a longer spring curve instead of arriving all at once.
+- **Desktop motion.** On a mouse, cartridge cards lift, buttons respond, and the six-piece cover tilts gently with the pointer.
+- **Reduced motion stays quiet.** Every new transition has a still fallback for `prefers-reduced-motion`.
+
+## The hidden word game
+
+- **A secret in the six-piece cover.** Tap the six numbered pieces in order, 01 through 06, to open a full five-letter word game.
+- **Standard rules.** Six guesses, green for the right spot, yellow for a letter elsewhere, gray when a letter is absent, and duplicate letters score only as often as they appear in the answer.
+- **Made to be replayed.** A random answer each round, a new-word action, saved progress, played/win/streak stats and a shareable result.
+- **Still hidden.** It is not on the game cards, and opening `#wordle` directly does not unlock it.
+
 ## One Line
 
 - **100 shapes across four chapters**, with the shape map and saved stars carried forward from 1.0.4.
@@ -57,14 +38,18 @@ Sixfold’s pocket-arcade release. The six games and their rules are unchanged; 
 
 ## Fixes and polish
 
+- **Fruit Merge colours.** Fruit now keeps its natural palette no matter which app accent is selected, so cherries stay red and leaves stay green.
+- **Opaque grapes.** The grape bunch has a solid body behind its separate circles, closing the transparent gaps that let the board show through.
+- **Header spacing.** On wide screens, the in-game title and description now sit clearly below the back button and cartridge label.
+- **PC layout.** The larger play-screen entrance and the new cover tilt respect fine-pointer and reduced-motion preferences.
 - The page title, social metadata, install manifests, About panel, version label and collection share text now identify Sixfold 2.0.
-- The new What’s New card describes the 2.0 changes instead of repeating the 1.0.5 One Line note.
 - The README uses the new 2.0 card as its banner and now correctly documents 100 One Line shapes.
-- Offline cache moves to `sixfold-2.0.0`; asset URLs use `?v=2.0.0`.
 
 ## Under the hood
 
 - App version 2.0.
+- Offline cache moves to `sixfold-2.0.0`; asset URLs use `?v=2.0.0`.
+- New styles live in `polish.css`; the hidden game uses `wordle.js` and `wordle-words.js`.
 - Plain HTML, CSS and JavaScript; no build step.
 - Published at [moh23rd.github.io/Sixfold](https://moh23rd.github.io/Sixfold/).
 
