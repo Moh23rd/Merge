@@ -1,0 +1,24 @@
+name: Sixfold what's new
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the prepared patch
+        run: |
+          set -euo pipefail
+          gunzip -c .sixfold-whatsnew.patch.gz > /tmp/wn.patch
+          git apply --check /tmp/wn.patch
+          git apply /tmp/wn.patch
+          git rm -q .sixfold-whatsnew.patch.gz .github/workflows/whatsnew.yml
+          git config user.name "Sixfold release"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add the 1.0.3 what's new entries"
+          git push
