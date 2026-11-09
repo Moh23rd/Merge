@@ -1111,3 +1111,26 @@ html.home-ready .home-six-caption {
 
   .home-ticker-track { animation: none; transform: none; }
 }
+
+/* ---------- Android stretch overscroll ----------
+   Android 12+ stretches the content instead of rubber-banding it, but a fixed
+   shell that scrolls internally never reaches the platform edge effect. On
+   Android, overscroll.js takes over that edge gesture on the hub; iOS keeps its
+   native rubber band because none of this applies there. */
+html.has-stretch .hub {
+  overscroll-behavior-y: none;
+}
+
+html.has-stretch .hub-shell.is-dragging {
+  will-change: transform;
+}
+
+html.has-stretch .hub-shell.is-stretching {
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.32, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.has-stretch .hub { overscroll-behavior-y: contain; }
+  html.has-stretch .hub-shell.is-stretching { transition: none; }
+}

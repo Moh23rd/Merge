@@ -105,6 +105,21 @@
     copyShare(text);
   }
 
+  /* Share the generated Sixfold card when the browser can share files, and
+     fall back to the plain text/link share everywhere else. Keeping this in
+     one helper means all six games use the same card and the same fallback. */
+  function shareResult(title, text, data) {
+    if (!window.MergeShareCard || typeof File !== 'function' || !navigator.share || !navigator.canShare) {
+      share(title, text);
+      return;
+    }
+    window.MergeShareCard.share(data, title, text).then(function (shared) {
+      if (!shared) share(title, text);
+    }).catch(function () {
+      share(title, text);
+    });
+  }
+
   window.MergeShare = {
     share: share,
     url: shareUrl,
@@ -902,6 +917,7 @@
         if (window.MergeCoach) window.MergeCoach.complete('water');
         status('Level clear. Every colour has its own tube.');
         if (window.MergeHaptics) window.MergeHaptics.win();
+        if (window.MergeCelebrate) window.MergeCelebrate.play(winEl);
         if (nextBtn) nextBtn.focus({ preventScroll: true });
         scheduleAutoNext(nextBtn, nextLevel);
       } else if (!hasMove()) {
@@ -983,8 +999,15 @@
     const shareBtn = $('water-share');
     if (shareBtn) {
       shareBtn.addEventListener('click', function () {
-        share('Water Sort', 'I sorted Water Sort level ' + (level + 1) + ' of ' + LEVELS.length +
-          ' in ' + moves + (moves === 1 ? ' move' : ' moves') + '. Can you?');
+        shareResult('Water Sort', 'I sorted Water Sort level ' + (level + 1) + ' of ' + LEVELS.length +
+          ' in ' + moves + (moves === 1 ? ' move' : ' moves') + '. Can you?', {
+          game: 'Water Sort', number: '02', kind: 'SORTING',
+          title: 'Water Sort',
+          score: moves,
+          label: 'MOVES',
+          meta: ['Level ' + (level + 1) + ' of ' + LEVELS.length, 'Every colour sorted'],
+          accent: '#39a9a1'
+        });
       });
     }
 
@@ -1258,22 +1281,60 @@
       return { points: points, edges: candidate };
     }
 
+    /* One Line used to build every generated shape from the same ring, which
+       made later levels read as the same drawing turned to a new angle. These
+       five simple, non-crossing families vary the silhouette itself: circle,
+       ellipse, rounded diamond, eight-point star and hexagon. Node counts and
+       rotation move too, so even two shapes of the same family feel different. */
+    function baseLoop(index, rng) {
+      const styles = ['ring', 'ellipse', 'diamond', 'star', 'hexagon'];
+      const style = styles[index % styles.length];
+      const rotation = rng() * Math.PI * 2;
+      let count = 4 + Math.floor(rng() * 3);
+      if (style === 'diamond') count = 4;
+      if (style === 'star') count = 8;
+      if (style === 'hexagon') count = 6;
+
+      const nodes = [];
+      for (let i = 0; i < count; i += 1) {
+        const angle = rotation + (i * Math.PI * 2) / count;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        let x = 50;
+        let y = 50;
+        if (style === 'ellipse') {
+          x = 50 + c * (31 + rng() * 7);
+          y = 50 + s * (20 + rng() * 6);
+        } else if (style === 'diamond') {
+          x = 50 + 36 * Math.sign(c) * Math.pow(Math.abs(c), 0.62);
+          y = 50 + 31 * Math.sign(s) * Math.pow(Math.abs(s), 0.62);
+        } else if (style === 'star') {
+          const radius = i % 2 ? 17 + rng() * 3 : 37 + rng() * 3;
+          x = 50 + c * radius;
+          y = 50 + s * radius;
+        } else if (style === 'hexagon') {
+          x = 50 + c * (32 + rng() * 4);
+          y = 50 + s * (28 + rng() * 4);
+        } else {
+          const radius = 24 + rng() * 9;
+          x = 50 + c * radius;
+          y = 50 + s * radius;
+        }
+        nodes.push([clamp(x, 13, 87), clamp(y, 13, 87)]);
+      }
+
+      return {
+        nodes: nodes,
+        edges: nodes.map(function (_, i) { return [i, (i + 1) % count]; })
+      };
+    }
+
     function buildEvenBoard(index) {
       const rng = makeRng(0x9E3779B9 ^ (index * 2654435761));
       const target = clamp(4 + Math.round(index * 24 / 89 + (rng() - 0.5) * 3), 4, 30);
-      const count = 3 + Math.floor(rng() * 3);
-      const startAngle = rng() * Math.PI * 2;
-      const radius = 26 + rng() * 9;
-      let nodes = [];
-      let edges = [];
-
-      for (let i = 0; i < count; i += 1) {
-        const angle = startAngle + i * Math.PI * 2 / count + (rng() - 0.5) * 0.22;
-        nodes.push([50 + Math.cos(angle) * radius, 50 + Math.sin(angle) * radius]);
-      }
-      for (let i = 0; i < count; i += 1) {
-        edges.push([i, (i + 1) % count]);
-      }
+      const base = baseLoop(index, rng);
+      let nodes = base.nodes;
+      let edges = base.edges;
 
       let ears = 0;
       while (edges.length < target && ears < 9) {
@@ -1451,7 +1512,14 @@
         message = 'I’ve earned ' + summary.total + ' of ' + max + ' stars in One Line — ' +
           summary.solved + ' of ' + LEVELS.length + ' shapes solved. Can you beat it?';
       }
-      share('One Line', message);
+      shareResult('One Line', message, {
+        game: 'One Line', number: '03', kind: 'DRAWING',
+        title: 'Shape ' + (level + 1),
+        score: summary.total,
+        label: 'OF ' + max + ' STARS',
+        meta: [summary.solved + ' of ' + LEVELS.length + ' solved', 'One unbroken line'],
+        accent: '#e85f3b'
+      });
     }
 
     /* Walk the unused links with Hierholzer's algorithm. If the trail uses
@@ -1690,6 +1758,7 @@
       setStatus('One line. Every link used.');
       if (window.MergeCoach) window.MergeCoach.complete('oneline');
       if (window.MergeHaptics) window.MergeHaptics.win();
+      if (window.MergeCelebrate) window.MergeCelebrate.play(winEl);
       if (nextBtn) {
         nextBtn.focus({ preventScroll: true });
         if (level < LEVELS.length - 1) scheduleAutoNext(nextBtn, nextLevel);
@@ -2246,6 +2315,9 @@
         ? (mark ? mark + ' wins this round.' : 'A draw. Every square filled.')
         : (mark === 'X' ? 'You win. Three in a row.' : mark === 'O' ? 'Computer wins this round.' : 'A draw. Every square filled.'));
       render();
+      if (mark === 'X' && mode !== 'two' && window.MergeCelebrate) {
+        window.MergeCelebrate.play(resultCopy && resultCopy.closest('.play-win'));
+      }
       if (againBtn) againBtn.focus({ preventScroll: true });
       scheduleAutoNext(againBtn, newRound);
     }
@@ -2446,7 +2518,14 @@
             : winner === 'O'
               ? 'The ' + level + ' computer got me at Tic Tac Toe.'
               : 'I drew against the ' + level + ' computer at Tic Tac Toe.';
-        share('Tic Tac Toe', copy);
+        shareResult('Tic Tac Toe', copy, {
+          game: 'Tic Tac Toe', number: '05', kind: 'CLASSIC',
+          title: winner === 'X' ? 'You win' : winner === 'O' ? (mode === 'two' ? 'O wins' : 'Computer wins') : 'A draw',
+          score: mode === 'two' ? (twoStats.x + '–' + twoStats.o) : (stats.wins + '–' + stats.losses),
+          label: mode === 'two' ? 'X – O' : 'WINS – LOSSES',
+          meta: [level + ' computer', stats.draws + ' draws'],
+          accent: '#8bbd54'
+        });
       });
     }
 
@@ -2509,10 +2588,10 @@
     const RIGHT = W - 16;
     const BOTTOM = H - 10;
     const TOP = 22;
-    const DANGER = 82;
-    const GRAVITY = 980;
-    const DROP_LOCK = 0.6;
-    const DANGER_GRACE = 3;
+    const DANGER = 112;
+    const GRAVITY = 1200;
+    const DROP_LOCK = 0.4;
+    const DANGER_GRACE = 1.15;
     /* Suika scores the pair being consumed using triangular values:
        cherries pay 1, strawberries 3, and so on up to 66 for two watermelons. */
     const SCORES = [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66];
@@ -2589,7 +2668,7 @@
       /* Smaller fruit dominate the queue so an early run does not get buried
          under three large drops in a row. Large fruit still appear; they are
          simply rarer, as in a tuned Suika-style opening. */
-      const weights = [32, 27, 21, 13, 7];
+      const weights = [20, 22, 22, 19, 17];
       let roll = Math.random() * 100;
       for (let i = 0; i < weights.length; i += 1) {
         roll -= weights[i];
@@ -2782,6 +2861,11 @@
       pending.push({ tier: newTier, x: x, y: y, a: a, b: b });
       addMergeEffect(a, b, newTier, points);
       score += points;
+      if (newTier === FRUITS.length - 1) {
+        setStatus('Watermelon! You reached the top of the fruit chain.');
+        if (window.MergeHaptics) window.MergeHaptics.win();
+        if (window.MergeCelebrate) window.MergeCelebrate.play(document.querySelector('.fruit-stage'));
+      }
       if (finalClear) {
         setStatus('Two watermelons cleared — +' + points + '!');
       }
@@ -2870,7 +2954,7 @@
       nearTop = fruits.some(function (fruit) { return fruit.age > 0.8 && fruit.y - fruit.r < DANGER + 26; });
       fruits.forEach(function (fruit) {
         const speed = Math.hypot(fruit.vx, fruit.vy);
-        if (fruit.age > 0.85 && fruit.y - fruit.r < DANGER && speed < 130) {
+        if (fruit.age > 0.85 && fruit.y - fruit.r < DANGER && speed < 150) {
           fruit.dangerTime += delta;
         } else if (fruit.age > 0.2) {
           fruit.dangerTime = Math.max(0, fruit.dangerTime - delta * 1.6);
@@ -2945,6 +3029,27 @@
       inner.addColorStop(1, ui.card);
       roundedPath(LEFT + 4, TOP + 2, RIGHT - LEFT - 8, BOTTOM - TOP + 2, 15);
       ctx.fillStyle = inner;
+      ctx.fill();
+
+      // Glass: a broad soft sheen down each side, a bright rim and a thicker
+      // base lip. Kept as paint, not blur, so it stays cheap on phones.
+      const glass = ctx.createLinearGradient(LEFT, 0, RIGHT, 0);
+      glass.addColorStop(0, 'rgba(255, 255, 255, 0.26)');
+      glass.addColorStop(0.12, 'rgba(255, 255, 255, 0.07)');
+      glass.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+      glass.addColorStop(0.86, 'rgba(255, 255, 255, 0.05)');
+      glass.addColorStop(1, 'rgba(255, 255, 255, 0.2)');
+      roundedPath(LEFT + 4, TOP + 2, RIGHT - LEFT - 8, BOTTOM - TOP + 2, 15);
+      ctx.fillStyle = glass;
+      ctx.fill();
+
+      roundedPath(LEFT + 6, TOP + 4, RIGHT - LEFT - 12, BOTTOM - TOP - 2, 13);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+
+      roundedPath(LEFT + 18, BOTTOM - 6, RIGHT - LEFT - 36, 8, 4);
+      ctx.fillStyle = 'rgba(94, 76, 45, 0.07)';
       ctx.fill();
 
       if (nearTop) {
@@ -3046,11 +3151,13 @@
       } else {
         ctx.arc(0, 0, r, 0, Math.PI * 2);
       }
-      ctx.fillStyle = gradient;
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(57, 39, 24, 0.18)';
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
+      if (fruit.tier !== 2) {
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(57, 39, 24, 0.18)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
 
       if (fruit.tier === 1) {
         ctx.fillStyle = 'rgba(255, 235, 190, 0.7)';
@@ -3075,14 +3182,37 @@
       }
 
       if (fruit.tier === 2) {
-        ctx.fillStyle = 'rgba(255, 245, 255, 0.22)';
-        for (let i = 0; i < 7; i += 1) {
-          const angle = (Math.PI * 2 * i) / 7 - 0.4;
+        // A compact bunch: overlapping shaded grapes instead of one purple ball.
+        const grapes = [
+          [-0.30, -0.38], [0.02, -0.46], [0.32, -0.36],
+          [-0.46, -0.12], [-0.14, -0.14], [0.20, -0.12], [0.45, -0.08],
+          [-0.32, 0.20], [0.02, 0.24], [0.34, 0.18],
+          [-0.10, 0.46]
+        ];
+        grapes.forEach(function (grape, i) {
+          const gx = grape[0] * r;
+          const gy = grape[1] * r;
+          const gr = r * (0.225 + (i % 3) * 0.012);
+          const gg = ctx.createRadialGradient(gx - gr * 0.35, gy - gr * 0.42, gr * 0.08, gx, gy, gr);
+          gg.addColorStop(0, def.light);
+          gg.addColorStop(0.62, def.color);
+          gg.addColorStop(1, def.deep);
           ctx.beginPath();
-          ctx.arc(Math.cos(angle) * r * 0.42, Math.sin(angle) * r * 0.42, r * 0.17, 0, Math.PI * 2);
+          ctx.arc(gx, gy, gr, 0, Math.PI * 2);
+          ctx.fillStyle = gg;
           ctx.fill();
-        }
-        drawLeaf(r * 0.5, -r * 0.8, r, true);
+          ctx.strokeStyle = 'rgba(53, 30, 72, 0.2)';
+          ctx.lineWidth = 0.8;
+          ctx.stroke();
+        });
+        ctx.strokeStyle = '#5c7d3c';
+        ctx.lineWidth = Math.max(1.2, r * 0.06);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 0.55);
+        ctx.quadraticCurveTo(r * 0.08, -r * 0.92, r * 0.28, -r * 0.86);
+        ctx.stroke();
+        drawLeaf(r * 0.46, -r * 0.78, r, true);
       }
 
       if (fruit.tier === 3 || fruit.tier === 4) {
@@ -3120,43 +3250,90 @@
       }
 
       if (fruit.tier === 10) {
-        ctx.strokeStyle = 'rgba(21, 72, 38, 0.45)';
-        ctx.lineWidth = r * 0.06;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.99, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.strokeStyle = 'rgba(18, 61, 33, 0.58)';
+        ctx.lineWidth = r * 0.055;
         for (let i = -2; i <= 2; i += 1) {
           ctx.beginPath();
-          ctx.arc(i * r * 0.34, 0, r * 0.95, -0.62, 0.62);
+          ctx.arc(i * r * 0.34, 0, r * 0.95, -0.65, 0.65);
           ctx.stroke();
         }
-        drawLeaf(r * 0.52, -r * 0.76, r, true);
+        ctx.restore();
+        ctx.beginPath();
+        ctx.arc(0, 0, r * 0.985, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(18, 61, 33, 0.3)';
+        ctx.lineWidth = r * 0.07;
+        ctx.stroke();
+        ctx.strokeStyle = '#5c7d3c';
+        ctx.lineWidth = Math.max(1.6, r * 0.055);
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(r * 0.06, -r * 0.94);
+        ctx.quadraticCurveTo(r * 0.3, -r * 1.18, r * 0.02, -r * 1.28);
+        ctx.stroke();
+        drawLeaf(r * 0.42, -r * 1.02, r, true);
       }
 
       if (fruit.tier === 8) {
-        ctx.strokeStyle = 'rgba(250, 225, 120, 0.34)';
-        ctx.lineWidth = 1.3;
-        for (let i = -2; i <= 2; i += 1) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(0, 0, r * 0.77, r * 0.97, 0, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.strokeStyle = 'rgba(250, 225, 120, 0.4)';
+        ctx.lineWidth = 1.15;
+        for (let i = -5; i <= 5; i += 1) {
           ctx.beginPath();
-          ctx.moveTo(-r * 0.65, i * r * 0.24);
-          ctx.lineTo(r * 0.65, (i * r * 0.24) + r * 0.1);
+          ctx.moveTo(-r, i * r * 0.24 - r * 0.4);
+          ctx.lineTo(r, i * r * 0.24 + r * 0.4);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(-r, i * r * 0.24 + r * 0.4);
+          ctx.lineTo(r, i * r * 0.24 - r * 0.4);
           ctx.stroke();
         }
-        ctx.fillStyle = 'rgba(78, 123, 44, 0.88)';
-        for (let i = 0; i < 4; i += 1) {
+        ctx.restore();
+
+        // A proper five-leaf crown, wider than the old tuft.
+        ctx.fillStyle = 'rgba(71, 113, 41, 0.95)';
+        for (let i = 0; i < 5; i += 1) {
+          const lean = (i - 2) * r * 0.17;
           ctx.beginPath();
-          ctx.moveTo(0, -r * 0.85);
-          ctx.quadraticCurveTo((i - 1.5) * r * 0.2, -r * 1.2, (i - 1.5) * r * 0.34, -r * 0.88);
+          ctx.moveTo(lean * 0.4, -r * 0.78);
+          ctx.quadraticCurveTo(lean * 1.2, -r * 1.22, lean, -r * 1.04);
+          ctx.quadraticCurveTo(lean - r * 0.09, -r * 1.26, lean * 0.4, -r * 0.78);
           ctx.fill();
         }
       }
 
       if (fruit.tier === 0) {
+        // Two cherries sharing the one physics circle.
+        ctx.beginPath();
+        ctx.arc(-r * 0.44, r * 0.22, r * 0.56, 0, Math.PI * 2);
+        ctx.fillStyle = def.deep;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(57, 39, 24, 0.2)';
+        ctx.lineWidth = 1.1;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(-r * 0.6, r * 0.05, r * 0.16, r * 0.07, -0.6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.24)';
+        ctx.fill();
+
         ctx.strokeStyle = '#5c7d3c';
-        ctx.lineWidth = Math.max(1.4, r * 0.09);
+        ctx.lineWidth = Math.max(1.4, r * 0.085);
         ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(r * 0.12, -r * 0.72);
-        ctx.quadraticCurveTo(-r * 0.15, -r * 1.4, r * 0.48, -r * 1.32);
+        ctx.quadraticCurveTo(-r * 0.08, -r * 1.38, r * 0.48, -r * 1.3);
         ctx.stroke();
-        drawLeaf(r * 0.55, -r * 1.18, r * 0.8, true);
+        ctx.beginPath();
+        ctx.moveTo(-r * 0.42, -r * 0.12);
+        ctx.quadraticCurveTo(-r * 0.58, -r * 1.06, r * 0.46, -r * 1.3);
+        ctx.stroke();
+        drawLeaf(r * 0.55, -r * 1.16, r * 0.8, true);
       } else if (fruit.tier !== 2 && fruit.tier !== 3 && fruit.tier !== 4 && fruit.tier < 9) {
         ctx.strokeStyle = '#6f7f45';
         ctx.lineWidth = Math.max(1.3, r * 0.06);
@@ -3173,7 +3350,6 @@
       ctx.fillStyle = 'rgba(255,255,255,.38)';
       ctx.fill();
 
-      drawFace(r, fruit.tier);
       ctx.restore();
     }
 
@@ -3325,7 +3501,14 @@
     const shareBtn = $('fruit-share');
     if (shareBtn) {
       shareBtn.addEventListener('click', function () {
-        share('Fruit Merge', 'I scored ' + score + ' in Fruit Merge. My best is ' + best + '. Can you beat it?');
+        shareResult('Fruit Merge', 'I scored ' + score + ' in Fruit Merge. My best is ' + best + '. Can you beat it?', {
+          game: 'Fruit Merge', number: '04', kind: 'MERGING',
+          title: 'Run complete',
+          score: score,
+          label: 'POINTS',
+          meta: ['Best ' + best, 'Endless mode'],
+          accent: '#e3b94a'
+        });
       });
     }
 
@@ -3661,6 +3844,9 @@
         status('Mine hit. The field is revealed.');
       }
       render();
+      if (win && window.MergeCelebrate) {
+        window.MergeCelebrate.play(resultTitle && resultTitle.closest('.play-win'));
+      }
       if (againBtn) againBtn.focus({ preventScroll: true });
       scheduleAutoNext(againBtn, function () {
         reset('Fresh field. The first square is always safe.');
@@ -3876,7 +4062,14 @@
         const copy = won
           ? 'I cleared Minesweeper on ' + currentLevel().label + ' in ' + formatTime(elapsedTime()) + '.'
           : 'The ' + currentLevel().label + ' Minesweeper field got me after ' + formatTime(elapsedTime()) + '.';
-        share('Minesweeper', copy);
+        shareResult('Minesweeper', copy, {
+          game: 'Minesweeper', number: '06', kind: 'LOGIC',
+          title: won ? 'Field cleared' : 'Mine hit',
+          score: formatTime(elapsedTime()),
+          label: won ? 'TIME' : 'LASTED',
+          meta: [currentLevel().label, won ? 'Every safe square open' : 'The field was revealed'],
+          accent: '#5b8fd5'
+        });
       });
     }
 

@@ -487,6 +487,9 @@
         won = true;
         saveGame();
         haptics.win();
+        window.setTimeout(function () {
+          if (window.MergeCelebrate) window.MergeCelebrate.play(document.querySelector('.overlay-card'));
+        }, 180);
         syncBoardAccessibility('2048 reached. Score ' + score + '.');
         // The final tile can fill the board, in which case carrying on isn't
         // possible — offer a fresh round instead of a dead board.
@@ -862,74 +865,21 @@
       /* draw with the fallback face */
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1080;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('canvas unavailable');
-
-    const colors = shareColors();
-    const W = canvas.width;
-    ctx.fillStyle = colors.page;
-    ctx.fillRect(0, 0, W, W);
-    ctx.textBaseline = 'middle';
-
-    // Wordmark and one 2048 tile, so the picture is recognisably Merge.
-    ctx.textAlign = 'left';
-    ctx.fillStyle = colors.ink;
-    ctx.font = shareFont(700, 58);
-    ctx.fillText('MERGE', 96, 142);
-
-    const tileSize = 116;
-    const tileX = W - 96 - tileSize;
-    roundRect(ctx, tileX, 84, tileSize, tileSize, 24);
-    ctx.fillStyle = colors.tile;
-    ctx.fill();
-    ctx.textAlign = 'center';
-    ctx.fillStyle = colors.tileInk;
-    ctx.font = shareFont(700, 25);
-    ctx.fillText('2048', tileX + tileSize / 2, 84 + tileSize / 2 + 1);
-
-    // The card itself: title, score, board size and moves, best.
-    const cardX = 92;
-    const cardY = 286;
-    const cardW = W - 184;
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.22)';
-    ctx.shadowBlur = 44;
-    ctx.shadowOffsetY = 22;
-    roundRect(ctx, cardX, cardY, cardW, 524, 56);
-    ctx.fillStyle = colors.panel;
-    ctx.fill();
-    ctx.restore();
-
-    ctx.textAlign = 'center';
-    ctx.fillStyle = colors.ink;
-    ctx.font = shareFont(700, 46);
-    ctx.fillText(data.title, W / 2, 366);
-
-    ctx.font = shareFont(700, 168);
-    ctx.fillText(String(data.score), W / 2, 500);
-
-    ctx.fillStyle = colors.muted;
-    ctx.font = shareFont(500, 31);
-    ctx.fillText(data.size + ' × ' + data.size + ' • ' + data.moves + (data.moves === 1 ? ' move' : ' moves'), W / 2, 624);
-
-    ctx.font = shareFont(500, 27);
-    ctx.fillText('Best ' + data.best, W / 2, 678);
-
-    const blob = await new Promise(function (resolve, reject) {
-      canvas.toBlob(function (image) {
-        if (image) resolve(image);
-        else reject(new Error('image unavailable'));
-      }, 'image/png');
+    if (!window.MergeShareCard) throw new Error('share card unavailable');
+    return window.MergeShareCard.file({
+      game: 'Merge',
+      number: '01',
+      kind: 'NUMBERS',
+      title: data.title,
+      score: data.score,
+      label: 'POINTS',
+      meta: [
+        data.size + ' × ' + data.size,
+        data.moves + (data.moves === 1 ? ' move' : ' moves'),
+        'Best ' + data.best
+      ],
+      accent: '#e85f3b'
     });
-
-    if (typeof File === 'function') {
-      return new File([blob], 'sixfold-merge-result.png', { type: 'image/png' });
-    }
-    blob.name = 'sixfold-merge-result.png';
-    return blob;
   }
 
   function hideResultPreview() {

@@ -1,4 +1,9 @@
-/* Vibration feedback only — no audio. */
+/* Vibration feedback only — no audio.
+
+   The web Vibration API is a simple on/off motor, so "premium" here means
+   restraint: very short pulses, a little space between them, and a stronger
+   pattern only when the moment deserves it. Long buzzes read as a phone call;
+   the whole set below stays under 150ms. */
 (function () {
   'use strict';
 
@@ -11,12 +16,39 @@
     /* storage blocked — vibration stays on */
   }
 
+  const api = typeof navigator.vibrate === 'function';
+  // Two pulses closer than this blur into one muddy buzz. Coalescing them also
+  // stops a rapid Fruit Merge chain from machine-gunning the motor.
+  const MIN_GAP = 32;
+  let lastPulse = 0;
+
+  const PATTERN = {
+    tap: [8],
+    mergeLow: [10],
+    mergeMid: [11, 16, 9],
+    mergeHigh: [12, 18, 10, 18, 12],
+    win: [11, 30, 12, 30, 14, 30, 22],
+    over: [24, 46, 15]
+  };
+
   function supported() {
-    return typeof navigator.vibrate === 'function';
+    return api;
   }
 
-  function buzz(pattern) {
-    if (!enabled || !supported()) return false;
+  function cancel() {
+    if (!api) return;
+    try {
+      navigator.vibrate(0);
+    } catch (err) {
+      /* ignore */
+    }
+  }
+
+  function buzz(pattern, force) {
+    if (!enabled || !api) return false;
+    const now = performance.now();
+    if (!force && now - lastPulse < MIN_GAP) return false;
+    lastPulse = now;
     try {
       return navigator.vibrate(pattern);
     } catch (err) {
@@ -25,19 +57,43 @@
     }
   }
 
+  // Opening a cartridge is a light physical tick, so the hub feels like it has
+  // buttons rather than links.
+  if (api) {
+    document.addEventListener('pointerdown', function (event) {
+      if (event.pointerType !== 'touch') return;
+      const target = event.target;
+      const card = target && target.closest ? target.closest('[data-game]') : null;
+      if (card) buzz(PATTERN.tap);
+    }, { passive: true });
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') cancel();
+  });
+  window.addEventListener('pagehide', cancel);
+
   window.MergeHaptics = {
     supported: supported,
+    cancel: cancel,
+
+    tap: function () {
+      buzz(PATTERN.tap);
+    },
 
     merge: function (value) {
-      buzz(value >= 256 ? 28 : 14);
+      const size = Number(value) || 0;
+      if (size >= 256) buzz(PATTERN.mergeHigh);
+      else if (size >= 64) buzz(PATTERN.mergeMid);
+      else buzz(PATTERN.mergeLow);
     },
 
     win: function () {
-      buzz([20, 45, 20, 45, 90]);
+      buzz(PATTERN.win);
     },
 
     over: function () {
-      buzz([45, 60, 95]);
+      buzz(PATTERN.over);
     },
 
     isEnabled: function () {
@@ -45,22 +101,27 @@
     },
 
     toggle: function () {
-      enabled = !enabled;
-      try {
-        localStorage.setItem(STORE, enabled ? 'on' : 'off');
-      } catch (err) {
-        /* ignore */
-      }
       if (enabled) {
-        buzz(14);
-      } else if (supported()) {
+        enabled = false;
         try {
-          navigator.vibrate(0);
+          localStorage.setItem(STORE, 'off');
         } catch (err) {
           /* ignore */
         }
+        cancel();
+        return false;
       }
-      return enabled;
+
+      enabled = true;
+      try {
+        localStorage.setItem(STORE, 'on');
+      } catch (err) {
+        /* ignore */
+      }
+      // A crisp confirmation on the switch itself, even if the last pulse was
+      // a moment ago.
+      buzz(PATTERN.tap, true);
+      return true;
     }
   };
 })();
