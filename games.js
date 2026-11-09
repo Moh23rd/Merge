@@ -53,8 +53,8 @@
 
   /* ---------- sharing ---------- */
 
-  const SHARE_TITLE = 'Sixfold — Puzzles';
-  const SHARE_TEXT = 'Sixfold: six calm puzzle games you can play offline — Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper. No accounts, no ads.';
+  const SHARE_TITLE = 'Sixfold — Six games. No filler.';
+  const SHARE_TEXT = 'Sixfold: six games, no filler — an offline pocket arcade of Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper. No accounts, no ads.';
   let toastTimer = 0;
 
   function shareUrl() {
@@ -405,7 +405,7 @@
   }
 
   function updateDocumentTitle() {
-    document.title = current === 'hub' ? 'Sixfold — Puzzles' : (GAME_NAMES[current] || 'Sixfold') + ' — Sixfold';
+    document.title = current === 'hub' ? 'Sixfold — Six games. No filler.' : (GAME_NAMES[current] || 'Sixfold') + ' — Sixfold';
   }
 
   function openGame(game) {
@@ -469,6 +469,15 @@
   if (hubShare) {
     hubShare.addEventListener('click', function () {
       share(SHARE_TITLE, SHARE_TEXT);
+    });
+  }
+
+  const surpriseBtn = $('home-surprise');
+  if (surpriseBtn) {
+    surpriseBtn.addEventListener('click', function () {
+      if (!cards.length) return;
+      const pick = cards[Math.floor(Math.random() * cards.length)];
+      if (pick && pick.dataset.game) openGame(pick.dataset.game);
     });
   }
   backButtons.forEach(function (button) {
@@ -1061,6 +1070,8 @@
     const shareBtn = $('one-line-share');
     const shareStarsBtn = $('one-line-share-stars');
     const starTotalEl = $('one-line-star-total');
+    const starMeter = $('one-line-star-meter');
+    const starMeterFill = $('one-line-star-meter-fill');
     const LEVEL_KEY = 'merge-games.oneline.level.v2';
     const CHAPTERS = ['Easy', 'Medium', 'Hard', 'Expert'];
 
@@ -1798,7 +1809,17 @@
 
     function renderLevelGrid() {
       if (!levelGrid) return;
-      if (starTotalEl) starTotalEl.textContent = starSummary().total + ' of ' + (LEVELS.length * 3) + ' stars';
+      if (starTotalEl) {
+        const total = starSummary().total;
+        const max = LEVELS.length * 3;
+        starTotalEl.textContent = total + ' of ' + max + ' stars';
+        if (starMeter) {
+          starMeter.setAttribute('aria-valuenow', String(total));
+          starMeter.setAttribute('aria-valuetext', total + ' of ' + max + ' stars');
+          starMeter.classList.toggle('has-stars', total > 0);
+        }
+        if (starMeterFill) starMeterFill.style.width = (total / max * 100) + '%';
+      }
       levelGrid.innerHTML = '';
       LEVELS.forEach(function (board, index) {
         const stars = starMap[String(index)] || 0;

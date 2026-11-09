@@ -18,20 +18,13 @@ body[data-screen="mines"] .app {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background:
-    radial-gradient(58% 44% at 12% 2%, color-mix(in srgb, var(--t8) 17%, transparent), transparent 72%),
-    radial-gradient(52% 46% at 96% 98%, color-mix(in srgb, var(--t32) 11%, transparent), transparent 72%),
-    var(--page);
+  /* One flat page colour, exactly the colour written to theme-color. */
+  background: var(--page);
   color: var(--ink);
   -webkit-overflow-scrolling: touch;
 }
 
-html[data-theme="dark"] .hub {
-  background:
-    radial-gradient(58% 44% at 12% 2%, color-mix(in srgb, var(--t8) 9%, transparent), transparent 72%),
-    radial-gradient(52% 46% at 96% 98%, color-mix(in srgb, var(--t32) 7%, transparent), transparent 72%),
-    var(--page);
-}
+/* The dark home stays on the same flat page colour as the phone chrome. */
 
 .hub-shell {
   width: min(100%, 960px);
@@ -292,19 +285,13 @@ html[data-theme="dark"] .hub {
   justify-content: center;
   min-height: 164px;
   border-radius: 15px;
-  background-color: color-mix(in srgb, var(--page) 46%, var(--panel));
-  background-image:
-    radial-gradient(120% 85% at 50% -18%, rgba(255, 255, 255, 0.34), transparent 62%),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 12px);
+  background: color-mix(in srgb, var(--panel) 30%, var(--page));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 6%, transparent);
   overflow: hidden;
 }
 
 html[data-theme="dark"] .game-art {
-  background-color: color-mix(in srgb, var(--page) 72%, var(--panel));
-  background-image:
-    radial-gradient(120% 85% at 50% -18%, rgba(255, 255, 255, 0.055), transparent 62%),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 12px);
+  background: color-mix(in srgb, var(--panel) 30%, var(--page));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.055);
 }
 
@@ -863,6 +850,26 @@ html[data-theme="dark"] .play-screen { background: var(--page); }
 .result-share:hover { background: var(--card); }
 .result-share:active { transform: scale(0.94); }
 .result-share:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* One Line shares a star total, not just a score, so the result card gives
+   the action a visible word wherever there is room. */
+.result-share--labeled {
+  width: auto;
+  min-width: 34px;
+  padding: 0 10px 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 11px;
+}
+
+.result-share--labeled .result-share-label {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
 
 .fruit-over-actions {
   display: flex;
@@ -4448,6 +4455,13 @@ html[data-theme="dark"] .reset-confirm:hover {
   border-bottom: 1px solid var(--line);
 }
 
+.level-share-summary {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
 .level-share-copy {
   margin: 0;
   color: var(--muted);
@@ -4455,6 +4469,29 @@ html[data-theme="dark"] .reset-confirm:hover {
   font-weight: 700;
   line-height: 1.25;
   font-variant-numeric: tabular-nums;
+}
+
+.level-share-meter {
+  width: min(100%, 160px);
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.level-share-meter span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--g1, #e85f3b);
+  transition: width 260ms ease;
+}
+
+.level-share-meter.has-stars span { min-width: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .level-share-meter span { transition: none; }
 }
 
 .level-share-btn {
@@ -4487,4 +4524,496 @@ html[data-theme="dark"] .reset-confirm:hover {
   .one-line-hint svg { width: 12px; height: 12px; }
   .level-share-row { margin-top: 10px; padding-bottom: 10px; gap: 8px; }
   .level-share-btn { min-height: 36px; padding: 0 11px; font-size: 10.5px; }
+}
+
+@media (max-width: 380px) {
+  .result-share--labeled {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0;
+    gap: 0;
+    border-radius: 50%;
+  }
+  .result-share--labeled .result-share-label { display: none; }
+}
+
+/* ==========================================================================
+   Beta home — the pocket puzzle annual
+   A flat, printed-shelf cover for the six games. The page itself stays one
+   colour, so the browser and phone chrome always match --page exactly.
+   ========================================================================== */
+
+:root {
+  --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
+}
+
+.hub-intro {
+  display: block;
+  margin-top: clamp(32px, 6vh, 54px);
+  padding-top: clamp(14px, 2.2vh, 20px);
+  border-top: 1px solid var(--line);
+}
+
+.hub-cover-copy { min-width: 0; }
+
+.hub-issue {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 9px;
+  margin: 0 0 clamp(18px, 3.4vh, 26px);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.hub-issue span + span::before {
+  content: "/";
+  margin-right: 9px;
+  color: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.hub h1 {
+  max-width: none;
+  font-size: clamp(42px, 10.2vw, 76px);
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  text-wrap: balance;
+}
+
+.hub-sub {
+  max-width: 34ch;
+  margin: 15px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.hub-cover-art {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: clamp(22px, 4vh, 30px);
+}
+
+.hub-plate {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--page) 62%, var(--panel));
+  box-shadow: none;
+}
+
+.hub-plate-cell {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  height: 38px;
+  border-radius: 6px;
+  color: #3b3833;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.plate-1 { background: var(--t2); }
+.plate-2 { background: var(--t8); }
+.plate-3 { background: var(--t16); }
+.plate-4 { background: var(--t32); }
+.plate-5 { background: var(--t64); }
+.plate-6 { background: var(--t128); }
+
+.hub-plate-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.hub-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: clamp(30px, 5.4vh, 48px);
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--line);
+}
+
+.hub-section-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.hub-section-head > span {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.hub-grid {
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.game-card {
+  padding: 9px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: none;
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--ink) 26%, var(--line));
+  background: color-mix(in srgb, var(--card) 88%, var(--page));
+  box-shadow: none;
+}
+
+.game-art {
+  min-height: 126px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 30%, var(--page));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.game-card--wide .game-art { min-height: 158px; }
+
+.game-top {
+  justify-content: flex-start;
+  gap: 7px;
+}
+
+.game-index {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.game-copy {
+  gap: 4px;
+  padding: 11px 4px 2px;
+}
+
+.game-title {
+  font-size: clamp(22px, 5.4vw, 28px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+.game-desc {
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.game-foot {
+  padding-top: 9px;
+  font-size: 9px;
+  letter-spacing: 0.01em;
+}
+
+.game-play {
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.hub-foot {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: clamp(30px, 5vh, 48px);
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.hub-foot span { white-space: nowrap; }
+.hub-foot span:nth-child(2) { text-align: center; }
+.hub-foot span:last-child { text-align: right; }
+
+@media (min-width: 760px) {
+  .hub-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 238px;
+    align-items: end;
+    gap: clamp(28px, 5vw, 56px);
+  }
+
+  .hub-cover-art { margin-top: 0; }
+
+  .hub-plate {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+    padding: 5px;
+    border-radius: 12px;
+  }
+
+  .hub-plate-cell {
+    height: 64px;
+    font-size: 10px;
+  }
+
+  .hub h1 { font-size: clamp(52px, 7.6vw, 76px); }
+  .game-card--wide .game-art { min-height: 220px; }
+  .game-card--wide .game-title { font-size: clamp(28px, 3.2vw, 36px); }
+}
+
+@media (max-width: 360px) {
+  .hub h1 { font-size: 41px; }
+  .hub-issue { font-size: 8px; }
+  .hub-plate-cell { height: 34px; font-size: 8.5px; }
+  .hub-grid { gap: 10px; }
+  .game-card { padding: 8px; border-radius: 12px; }
+  .game-art { min-height: 112px; }
+  .game-card--wide .game-art { min-height: 140px; }
+  .game-copy { padding: 9px 3px 2px; }
+  .game-title { font-size: 20px; }
+  .game-desc { font-size: 11.2px; }
+  .game-foot { padding-top: 7px; font-size: 8.5px; }
+  .mini-merge { width: 92px; gap: 6px; }
+  .mini-oneline { width: 94px; height: 94px; }
+  .mini-water { transform: scale(0.82); transform-origin: bottom; }
+  .mini-fruit-cluster { transform: scale(0.78); }
+  .mini-ttt { width: 92px; height: 92px; gap: 4px; }
+  .mini-mines { width: 94px; height: 94px; gap: 4px; }
+  .hub-foot { font-size: 7.5px; letter-spacing: 0.04em; }
+}
+
+@media (max-width: 380px) {
+  .hub-grid { grid-template-columns: 1fr; }
+}
+
+/* Phone and small tablet: four compact covers in a 2×2 shelf, with Merge and
+   Minesweeper as wider horizontal features. This keeps the collection from
+   becoming a long stack of six identical posters. */
+@media (min-width: 381px) and (max-width: 759px) {
+  .hub-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .game-card--wide {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    align-items: stretch;
+    gap: 13px;
+  }
+
+  .game-card--wide .game-art {
+    width: 100%;
+    height: 100%;
+    min-height: 186px;
+  }
+
+  .game-card--wide .game-copy {
+    justify-content: center;
+    padding: 4px 6px 4px 0;
+  }
+
+  .game-card--wide .game-title { font-size: clamp(23px, 5.8vw, 26px); }
+  .game-card--wide .game-desc { font-size: 12px; }
+}
+
+.hub-plate-cell {
+  box-shadow: inset 0 0 0 1px rgba(59, 56, 51, 0.12);
+}
+
+/* A printed contents line, not another filled button. */
+.game-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 0 2px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.game-play::after {
+  content: "↗";
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.game-card:hover .game-play {
+  border-bottom-color: var(--ink);
+}
+
+/* Keep the two service notes in the same printed language as the shelf. */
+.whats-new,
+.install-fix {
+  margin-top: 24px;
+  padding: 13px 8px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.whats-new { gap: 9px; }
+
+.whats-new-mark {
+  width: 22px;
+  height: 22px;
+  margin-top: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.whats-new-label {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+}
+
+.whats-new-list {
+  display: grid;
+  gap: 3px;
+  margin-top: 5px;
+  color: color-mix(in srgb, var(--ink) 70%, var(--muted));
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.whats-new-list li::before { background: var(--muted); }
+
+.whats-new-close {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+}
+
+.install-fix {
+  border-top-color: color-mix(in srgb, var(--warn, #b74a34) 42%, var(--line));
+}
+
+.install-fix-mark {
+  width: 22px;
+  height: 22px;
+  margin-top: 0;
+}
+
+
+/* ---------- cartridge identity inside every game ---------- */
+
+.app { --cart: var(--t16); --cart-ink: var(--home-accent-ink, #211d18); }
+#water { --cart: var(--g4, #39a9a1); --cart-ink: var(--home-accent-ink, #211d18); }
+#oneline { --cart: var(--g1, #e85f3b); --cart-ink: var(--home-accent-ink, #211d18); }
+#fruit { --cart: var(--g2, #e3a92f); --cart-ink: var(--home-accent-ink, #211d18); }
+#ttt { --cart: var(--g3, #8bbd54); --cart-ink: var(--home-accent-ink, #211d18); }
+#mines { --cart: var(--g5, #5b8fd5); --cart-ink: var(--home-accent-ink, #211d18); }
+
+.play-cart-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.play-cart-row .games-home { flex: none; }
+
+.title-block .play-cart-row { margin-bottom: 5px; }
+
+.play-cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 25px;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--cart-ink) 14%, transparent);
+  border-radius: 7px;
+  background: var(--cart);
+  box-shadow: inset 0 -2px 0 rgba(33, 29, 24, 0.16);
+  color: var(--cart-ink);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.play-cart-num {
+  opacity: 0.62;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A strip of the same colour runs through each score card. */
+.app .score,
+.play-screen .play-stat {
+  box-shadow: var(--card-shadow), inset 0 3px 0 var(--cart);
+}
+
+/* Primary actions become the game's cartridge colour. */
+.app #new-game,
+.play-screen .play-btn--solid {
+  background: var(--cart);
+  color: var(--cart-ink);
+  box-shadow: 0 8px 18px -10px rgba(33, 29, 24, 0.6), inset 0 -2px 0 rgba(33, 29, 24, 0.16);
+}
+
+.app #new-game:hover,
+.play-screen .play-btn--solid:hover {
+  background: color-mix(in srgb, var(--cart) 90%, #211d18);
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .play-cart-row { gap: 6px; }
+  .play-cart {
+    min-height: 22px;
+    padding-inline: 7px;
+    gap: 5px;
+    font-size: 7px;
+  }
 }
