@@ -399,6 +399,8 @@
   const sizeBtn = document.getElementById('merge-size');
   const helpSheet = document.getElementById('help');
   const helpBtn = document.getElementById('how-to');
+  const aboutSheet = document.getElementById('about');
+  const aboutBtn = document.getElementById('hub-about');
   const resetSheet = document.getElementById('reset-sheet');
   const resetTitleEl = document.getElementById('reset-title');
   const resetCopyEl = document.getElementById('reset-copy');
@@ -440,6 +442,7 @@
   wireSheet(appearanceSheet, appearanceBtn);
   wireSheet(sizeSheet, sizeBtn);
   wireSheet(helpSheet, helpBtn);
+  wireSheet(aboutSheet, aboutBtn);
 
   if (resetSheet) {
     resetSheet.querySelectorAll('[data-close]').forEach(function (el) {
@@ -475,6 +478,7 @@
     if (appearanceSheet && !appearanceSheet.hidden) return appearanceSheet;
     if (sizeSheet && !sizeSheet.hidden) return sizeSheet;
     if (helpSheet && !helpSheet.hidden) return helpSheet;
+    if (aboutSheet && !aboutSheet.hidden) return aboutSheet;
     if (resetSheet && !resetSheet.hidden) return resetSheet;
     return null;
   }
@@ -487,7 +491,7 @@
     });
   }
 
-  if (appearanceSheet || helpSheet || resetSheet) {
+  if (appearanceSheet || helpSheet || aboutSheet || resetSheet) {
     document.addEventListener('keydown', function (e) {
       const sheet = activeSheet();
       if (!sheet) return;

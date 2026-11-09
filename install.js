@@ -1,12 +1,16 @@
 (() => {
   'use strict';
 
+  const FIX_DISMISSED_KEY = 'merge2048.installFixDismissed';
+  const INSTALLED_KEY = 'merge2048.installed';
+
   const block = document.getElementById('install-block');
   const btn = document.getElementById('install-app');
   const copy = document.getElementById('install-copy');
   const fix = document.getElementById('install-fix');
   const fixBtn = document.getElementById('install-fix-install');
   const fixNote = document.getElementById('install-fix-note');
+  const fixClose = document.getElementById('install-fix-close');
   if (!block || !btn || !copy) return;
 
   const displayMode = window.matchMedia('(display-mode: standalone)');
@@ -25,6 +29,28 @@
     chromeMajor >= 154 && chromeMajor < 157;
   let prompt = null;
 
+  function readFlag(key) {
+    try {
+      return localStorage.getItem(key) === '1';
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function writeFlag(key) {
+    try {
+      localStorage.setItem(key, '1');
+    } catch (err) {
+      /* private mode or storage disabled */
+    }
+  }
+
+  // A dismissal is permanent for this device. The notice is a one-off
+  // recovery prompt, not a permanent badge, and a home-screen install also
+  // retires it for good.
+  let fixDismissed = readFlag(FIX_DISMISSED_KEY);
+  let wasInstalled = readFlag(INSTALLED_KEY);
+
   function installed() {
     return displayMode.matches || navigator.standalone === true;
   }
@@ -40,7 +66,10 @@
   }
 
   function sync() {
-    if (installed()) {
+    const nowInstalled = installed();
+    if (nowInstalled) {
+      wasInstalled = true;
+      writeFlag(INSTALLED_KEY);
       hide();
       hideFix();
       return;
@@ -49,7 +78,7 @@
     prompt = window.__mergeInstallPrompt || null;
     const canPrompt = Boolean(prompt);
 
-    if (needsChromeInstallFix && fix) {
+    if (needsChromeInstallFix && fix && !fixDismissed && !wasInstalled) {
       fix.hidden = false;
       if (fixBtn) fixBtn.hidden = !canPrompt;
       if (fixNote) {
@@ -104,9 +133,19 @@
   btn.addEventListener('click', installFromPrompt);
   if (fixBtn) fixBtn.addEventListener('click', installFromPrompt);
 
+  if (fixClose) {
+    fixClose.addEventListener('click', function () {
+      fixDismissed = true;
+      writeFlag(FIX_DISMISSED_KEY);
+      hideFix();
+    });
+  }
+
   window.addEventListener('merge:install-available', sync);
   window.addEventListener('appinstalled', function () {
     window.__mergeInstallPrompt = null;
+    wasInstalled = true;
+    writeFlag(INSTALLED_KEY);
     hide();
     hideFix();
   });

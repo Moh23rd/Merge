@@ -4064,3 +4064,105 @@ html[data-theme="dark"] .reset-confirm:hover {
 @media (orientation: portrait) and (max-width: 340px) {
   .fruit-stage { width: min(100%, 390px, 52cqh); }
 }
+
+/* ==========================================================================
+   v1.10 — sheets and settings panels share the footer control geometry
+   The footer actions are 11px and the icon tools 12px, so the sheets and
+   result dialogs use those same corners instead of a second, larger radius.
+   ========================================================================== */
+
+.sheet-card { border-radius: 12px 12px 0 0; }
+
+@media (orientation: landscape) {
+  .sheet-card { border-radius: 12px; }
+}
+
+.sheet-done { border-radius: 11px; }
+.seg { border-radius: 12px; }
+.seg button { border-radius: 8px; }
+
+.sheet-card .btn,
+.sheet-card .install-btn,
+.sheet-card .contact-link,
+.reset-confirm { border-radius: 11px; }
+
+.overlay-card,
+.fruit-over-card,
+.whats-new,
+.install-fix { border-radius: 12px; }
+
+.result-share { border-radius: 11px; }
+
+/* The hub's quiet About link keeps the collection's footer typography and a
+   full-height tap target without reading as another game control. */
+.hub-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 4px;
+}
+
+.hub-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: color 150ms ease;
+}
+
+.hub-link:hover { color: var(--ink); }
+.hub-link:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+.hub-meta .hub-version { margin: 0; }
+
+/* The install notice can be dismissed for good, so it never becomes a
+   permanent badge on a phone that has already been updated or installed. */
+.install-fix {
+  position: relative;
+  padding-right: 42px;
+}
+
+.install-fix-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.install-fix-close::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 12px;
+}
+
+.install-fix-close:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.install-fix-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
