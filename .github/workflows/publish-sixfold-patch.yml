@@ -1,0 +1,35 @@
+name: Publish Sixfold patch
+
+on:
+  workflow_dispatch:
+    inputs:
+      patch_b64:
+        description: Gzipped release patch, base64 encoded
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply release patch
+        env:
+          PATCH_B64: ${{ inputs.patch_b64 }}
+        run: |
+          printf '%s' "$PATCH_B64" | base64 -d | gunzip > sixfold-release.patch
+          git apply --3way sixfold-release.patch
+      - name: Commit and push
+        run: |
+          git config user.name "Sixfold release"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html games.css install.js sw.js README.md CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "Polish controls and add GitHub install recovery"
+          git push origin HEAD:main
