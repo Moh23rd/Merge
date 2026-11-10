@@ -115,6 +115,25 @@ sub(
     ),
     'could not add the beta style'
 )
+sub(
+    r'</body>',
+    lambda m: (
+        '<script>\n'
+        '  (function () {\n'
+        "    var suffix = ' · beta';\n"
+        '    function mark() {\n'
+        '      if (document.title.indexOf(suffix) === -1) document.title += suffix;\n'
+        '    }\n'
+        "    var title = document.querySelector('title');\n"
+        "    if (title && 'MutationObserver' in window) {\n"
+        '      new MutationObserver(mark).observe(title, { childList: true });\n'
+        '    }\n'
+        '    mark();\n'
+        '  })();\n'
+        '</script>\n</body>'
+    ),
+    'could not keep the beta title suffix'
+)
 
 with open(path, 'w', encoding='utf-8') as handle:
     handle.write(page)

@@ -67,7 +67,7 @@ The script copies the current working tree — uncommitted changes included — 
 - `<meta name="robots" content="noindex, nofollow">` and a ` · beta` title suffix;
 - service-worker registration removed, so a preview never caches itself and can never overwrite the 3.0 offline shell.
 
-The preview runs from its own folder and origin, so the published site keeps serving 3.0 untouched. Shipping a change stays a separate, explicit step; a beta never gets a tag, a GitHub release or a version bump.
+The preview is served on its own port from `beta-build/`, so the published site keeps serving 3.0 untouched. Do not serve a beta from a path on the live origin: the 3.0 service worker's scope covers the whole site and would cache the preview as the app shell. Shipping a change stays a separate, explicit step; a beta never gets a tag, a GitHub release or a version bump.
 
 ## Project structure
 
