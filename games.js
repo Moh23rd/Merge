@@ -312,11 +312,10 @@
   let lastGame = 'merge';
   const games = {};
 
-  /* Every finished round offers a short pause before the next one starts.
-     Three seconds is enough to read a loss and keeps the arcade moving; a
-     clear is a shorter beat, so the next level arrives within two seconds. */
+  /* Every finished round offers the same short pause before the next one
+     starts. Three seconds is enough to read the card, win or loss, without
+     making the arcade feel slow. */
   const AUTO_NEXT_DELAY = 3000;
-  const AUTO_NEXT_WIN_DELAY = 2000;
   let autoNextTimer = 0;
   let autoNextButton = null;
 
@@ -1009,7 +1008,7 @@
         }
         if (nextBtn) {
           nextBtn.focus({ preventScroll: true });
-          scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
+          scheduleAutoNext(nextBtn, nextLevel);
         }
       } else if (!hasMove()) {
         status('No moves left. Undo or start a fresh board.', 0);
@@ -1142,7 +1141,7 @@
       title: title,
       activate: function () {
         render();
-        if (solved) scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
+        if (solved) scheduleAutoNext(nextBtn, nextLevel);
         else cancelAutoNext();
       },
       deactivate: function () {
@@ -1855,7 +1854,7 @@
       if (nextBtn) {
         nextBtn.focus({ preventScroll: true });
         if (level < LEVELS.length - 1) {
-          scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
+          scheduleAutoNext(nextBtn, nextLevel);
         }
       }
     }
@@ -2204,7 +2203,7 @@
       activate: function () {
         render();
         if (solved && level < LEVELS.length - 1) {
-          scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
+          scheduleAutoNext(nextBtn, nextLevel);
         } else cancelAutoNext();
         setStatus(path.length ? 'Line paused at the glowing dot. Continue from there.' : introMessage());
       },
@@ -2424,7 +2423,7 @@
         window.MergeCelebrate.clear(winCard);
       }
       if (againBtn) againBtn.focus({ preventScroll: true });
-      scheduleAutoNext(againBtn, newRound, playerWin ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
+      scheduleAutoNext(againBtn, newRound);
     }
 
     function finishDraw() {
@@ -2642,8 +2641,7 @@
       activate: function () {
         render();
         if (over) {
-          const playerWin = Boolean(winner) && (mode === 'two' || winner === 'X');
-          scheduleAutoNext(againBtn, newRound, playerWin ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
+          scheduleAutoNext(againBtn, newRound);
         } else if (mode === 'computer' && turn === 'O') scheduleAI();
         else cancelAutoNext();
       },
@@ -3971,7 +3969,7 @@
       if (againBtn) againBtn.focus({ preventScroll: true });
       scheduleAutoNext(againBtn, function () {
         reset('Fresh field. The first square is always safe.');
-      }, win ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
+      });
     }
 
     function checkWin() {
@@ -4202,7 +4200,7 @@
         if (over) {
           scheduleAutoNext(againBtn, function () {
             reset('Fresh field. The first square is always safe.');
-          }, won ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
+          });
         } else {
           cancelAutoNext();
           if (started) startTimer();
