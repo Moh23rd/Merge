@@ -850,7 +850,25 @@
       </div>
       <p class="sheet-label">Colours</p>
       <div class="palettes" id="palettes"></div>
-      <p class="sheet-note">Each game has its own reset in its bottom tool row.</p>
+      <p class="sheet-label">This device</p>
+      <p class="sheet-note">Erase every game, score, streak, saved shape and appearance choice. Nothing outside Sixfold is touched.</p>
+      <button class="btn wipe-open" id="wipe-open" type="button">Erase all data</button>
+      <p class="sheet-note">Each game also has its own reset in its bottom tool row.</p>
+    </div>
+  </div>
+
+  <div class="sheet" id="wipe-sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-card sheet-card--confirm" role="dialog" aria-modal="true" aria-labelledby="wipe-title" aria-describedby="wipe-copy">
+      <div class="sheet-head">
+        <h2 id="wipe-title">Erase everything?</h2>
+        <button class="sheet-done" data-close type="button">Cancel</button>
+      </div>
+      <p class="sheet-sub" id="wipe-copy">Every board, best score, streak, saved shape and appearance choice on this device will be removed.</p>
+      <p class="sheet-note">Sixfold returns to a fresh install. This cannot be undone. Nothing outside Sixfold is affected.</p>
+      <div class="reset-actions">
+        <button class="btn reset-confirm" id="wipe-confirm" type="button">Yes, erase everything</button>
+      </div>
     </div>
   </div>
 
@@ -971,8 +989,7 @@
   <script src="game.js?v=2.0.0"></script>
   <script src="install.js?v=2.0.0"></script>
   <script src="games.js?v=2.0.0"></script>
-  <script src="wordle-words.js?v=2.0.0"></script>
-  <script src="wordle.js?v=2.0.0"></script>
+  <script src="wordle-loader.js?v=2.0.0"></script>
   <script>
     (function () {
       var splash = document.getElementById('boot-splash');

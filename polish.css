@@ -468,6 +468,79 @@ html[data-theme="dark"] #wordle {
    but vanished, so they keep a little more presence there. */
 html[data-theme="dark"] .level-cell.is-locked { opacity: 0.62; }
 
+/* ---------- universal erase + result dialogs on small phones ---------- */
+
+/* The quiet door to the full wipe. Red enough to read as destructive, not so
+   red that it competes with the game colours above it. */
+.sheet-card .wipe-open {
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid color-mix(in srgb, #b74a34 42%, transparent);
+  background: transparent;
+  color: #a6402c;
+}
+
+.sheet-card .wipe-open:hover {
+  background: color-mix(in srgb, #b74a34 8%, transparent);
+}
+
+html[data-theme="dark"] .sheet-card .wipe-open {
+  color: #e78f78;
+  border-color: color-mix(in srgb, #e78f78 42%, transparent);
+}
+
+html[data-theme="dark"] .sheet-card .wipe-open:hover {
+  background: color-mix(in srgb, #e78f78 10%, transparent);
+}
+
+/* The Wordle result card lives inside the board, so at 320px it has very
+   little width to work with. Tighten the card, keep the title readable and
+   give both actions a thumb-sized height instead of the footer's 28px icon. */
+@media (max-width: 430px) {
+  .wordle-result { padding: 8px; }
+  .wordle-result-card { padding: 13px 12px 12px; }
+  .wordle-result-card h2 { font-size: clamp(19px, 6vw, 25px); }
+  .wordle-result-card > p:not(.game-tag):not(.wordle-result-stats) { font-size: 11px; }
+  .wordle-result-actions { gap: 6px; margin-top: 10px; }
+  .wordle-result-actions .play-btn { min-height: 42px; padding-inline: 8px; font-size: 10.5px; }
+  .wordle-result-actions .result-share {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .play-win .play-btn { min-height: 42px; }
+  .play-win .result-share {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .overlay-actions .btn { min-height: 42px; }
+  .fruit-over-card .play-btn { min-height: 42px; }
+
+  /* The fruit board is only ~205px wide at 320, which squeezed the run-over
+     card to 160px and stacked its heading over three lines. On phones the
+     overlay takes the whole screen instead, and its share action matches the
+     other result dialogs. */
+  .fruit-over {
+    position: fixed;
+    inset: 0;
+    padding: 16px;
+    z-index: 240;
+  }
+  .fruit-over-card .result-share {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+  }
+}
+
 /* Narrow phones: keep the promise row together and give card metadata room. */
 @media (max-width: 430px) {
   .home-promises {

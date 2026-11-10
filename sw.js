@@ -1,5 +1,5 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-const VERSION = 'sixfold-2.0.3';
+const VERSION = 'sixfold-2.0.4';
 // Keep these matching index.html. A new cache version refreshes the shell even
 // when the asset URLs themselves do not change.
 const ASSET = '2.0.0';
@@ -20,6 +20,9 @@ const SHELL = [
   './home.css?v=' + GAMES,
   './polish.css?v=' + GAMES,
   './games.js?v=' + GAMES,
+  './wordle-loader.js?v=' + GAMES,
+  // The hidden word game is loaded on demand, but it still belongs in the
+  // offline shell so unlocking it works with no connection.
   './wordle-words.js?v=' + GAMES,
   './wordle.js?v=' + GAMES,
   './icons/icon-180.png',

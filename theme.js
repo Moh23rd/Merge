@@ -411,6 +411,9 @@
   const aboutSheet = document.getElementById('about');
   const aboutBtn = document.getElementById('hub-about');
   const resetSheet = document.getElementById('reset-sheet');
+  const wipeSheet = document.getElementById('wipe-sheet');
+  const wipeBtn = document.getElementById('wipe-open');
+  const wipeConfirmBtn = document.getElementById('wipe-confirm');
   const resetTitleEl = document.getElementById('reset-title');
   const resetCopyEl = document.getElementById('reset-copy');
   const resetConfirmBtn = document.getElementById('reset-confirm');
@@ -453,6 +456,49 @@
   wireSheet(helpSheet, helpBtn);
   wireSheet(aboutSheet, aboutBtn);
 
+  // Erasing everything is deliberately two separate taps: the quiet button in
+  // Look & feel opens a warning sheet, and only its red button clears data.
+  function wipeEverything() {
+    [window.localStorage, window.sessionStorage].forEach(function (store) {
+      try {
+        Object.keys(store).forEach(function (key) {
+          if (/^(merge2048\.|merge-games\.|sixfold\.)/.test(key)) store.removeItem(key);
+        });
+      } catch (err) {
+        /* storage blocked — reload still returns a clean page */
+      }
+    });
+    try {
+      document.cookie = 'merge2048_theme=; Max-Age=0; path=/';
+      document.cookie = 'merge2048_theme=; Max-Age=0; path=/Sixfold';
+    } catch (err) {
+      /* cookies blocked */
+    }
+    window.setTimeout(function () {
+      window.location.replace(window.location.pathname + window.location.search);
+    }, 140);
+  }
+
+  if (wipeSheet) {
+    wipeSheet.querySelectorAll('[data-close], .sheet-done').forEach(function (el) {
+      el.addEventListener('click', function () { closeSheet(wipeSheet); });
+    });
+  }
+  if (wipeBtn && wipeSheet) {
+    wipeBtn.addEventListener('click', function () {
+      closeSheet(appearanceSheet);
+      window.setTimeout(function () { openSheet(wipeSheet, wipeBtn); }, 340);
+    });
+  }
+  if (wipeConfirmBtn) {
+    wipeConfirmBtn.addEventListener('click', function () {
+      if (wipeConfirmBtn.disabled) return;
+      wipeConfirmBtn.disabled = true;
+      wipeConfirmBtn.textContent = 'Erasing…';
+      wipeEverything();
+    });
+  }
+
   if (resetSheet) {
     resetSheet.querySelectorAll('[data-close]').forEach(function (el) {
       el.addEventListener('click', function () {
@@ -490,6 +536,7 @@
     if (sizeSheet && !sizeSheet.hidden) return sizeSheet;
     if (helpSheet && !helpSheet.hidden) return helpSheet;
     if (aboutSheet && !aboutSheet.hidden) return aboutSheet;
+    if (wipeSheet && !wipeSheet.hidden) return wipeSheet;
     if (resetSheet && !resetSheet.hidden) return resetSheet;
     return null;
   }

@@ -57,16 +57,9 @@
     }
   }
 
-  // Opening a cartridge is a light physical tick, so the hub feels like it has
-  // buttons rather than links.
-  if (api) {
-    document.addEventListener('pointerdown', function (event) {
-      if (event.pointerType !== 'touch') return;
-      const target = event.target;
-      const card = target && target.closest ? target.closest('[data-game]') : null;
-      if (card) buzz(PATTERN.tap);
-    }, { passive: true });
-  }
+  // The home screen stays silent. Browsing cards and scrolling the hub used to
+  // fire a tick on every touch, which read as a rattle rather than feedback;
+  // vibration now belongs only to moves made inside a game.
 
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'hidden') cancel();
