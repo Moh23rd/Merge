@@ -1,12 +1,11 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-// Post-3.0.0 polish: the restored What's New banner and the 3-second win
-// timing must reach clients that already hold the sixfold-3.0.0 shell, so
-// this script change refreshes the cache.
-const VERSION = 'sixfold-3.0.0';
+// 3.0.1: the shell is rebuilt so the three-second result timing and the
+// restored What's New note reach clients that already hold an older cache.
+const VERSION = 'sixfold-3.0.1';
 // Keep these matching index.html. A new cache version refreshes the shell even
 // when the asset URLs themselves do not change.
-const ASSET = '3.0.0';
-const GAMES = '3.0.0';
+const ASSET = '3.0.1';
+const GAMES = '3.0.1';
 
 const SHELL = [
   './',
