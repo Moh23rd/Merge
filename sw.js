@@ -1,4 +1,6 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
+// Post-3.0.0 refresh: the restored What's New banner must reach clients that
+// already hold the sixfold-3.0.0 shell, so this script change refreshes the cache.
 const VERSION = 'sixfold-3.0.0';
 // Keep these matching index.html. A new cache version refreshes the shell even
 // when the asset URLs themselves do not change.
