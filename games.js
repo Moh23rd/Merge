@@ -979,9 +979,10 @@
         if (window.MergeCoach) window.MergeCoach.complete('water');
         status('Level clear. Every colour has its own tube.');
         if (window.MergeHaptics) window.MergeHaptics.win();
-        if (window.MergeCelebrate) window.MergeCelebrate.play(winEl);
+        if (window.MergeCelebrate) {
+          window.MergeCelebrate.win(winEl, { stamp: 'LEVEL CLEAR' });
+        }
         if (nextBtn) nextBtn.focus({ preventScroll: true });
-        scheduleAutoNext(nextBtn, nextLevel);
       } else if (!hasMove()) {
         status('No moves left. Undo or start a fresh board.', 0);
       } else {
@@ -1820,11 +1821,10 @@
       setStatus('One line. Every link used.');
       if (window.MergeCoach) window.MergeCoach.complete('oneline');
       if (window.MergeHaptics) window.MergeHaptics.win();
-      if (window.MergeCelebrate) window.MergeCelebrate.play(winEl);
-      if (nextBtn) {
-        nextBtn.focus({ preventScroll: true });
-        if (level < LEVELS.length - 1) scheduleAutoNext(nextBtn, nextLevel);
+      if (window.MergeCelebrate) {
+        window.MergeCelebrate.win(winEl, { stamp: earned === 3 ? 'PERFECT LINE' : 'ONE LINE' });
       }
+      if (nextBtn) nextBtn.focus({ preventScroll: true });
     }
 
     function addNode(index) {
@@ -2377,11 +2377,20 @@
         ? (mark ? mark + ' wins this round.' : 'A draw. Every square filled.')
         : (mark === 'X' ? 'You win. Three in a row.' : mark === 'O' ? 'Computer wins this round.' : 'A draw. Every square filled.'));
       render();
-      if (mark === 'X' && mode !== 'two' && window.MergeCelebrate) {
-        window.MergeCelebrate.play(resultCopy && resultCopy.closest('.play-win'));
+      const playerWin = Boolean(mark) && (mode === 'two' || mark === 'X');
+      const winCard = resultCopy && resultCopy.closest('.play-win');
+      if (playerWin) {
+        if (window.MergeHaptics) window.MergeHaptics.win();
+        if (window.MergeCelebrate) {
+          window.MergeCelebrate.win(winCard, {
+            stamp: mode === 'two' ? mark + ' WINS' : 'THREE IN A ROW'
+          });
+        }
+      } else if (window.MergeCelebrate) {
+        window.MergeCelebrate.clear(winCard);
       }
       if (againBtn) againBtn.focus({ preventScroll: true });
-      scheduleAutoNext(againBtn, newRound);
+      if (!playerWin) scheduleAutoNext(againBtn, newRound);
     }
 
     function finishDraw() {
@@ -3914,13 +3923,17 @@
         status('Mine hit. The field is revealed.');
       }
       render();
-      if (win && window.MergeCelebrate) {
-        window.MergeCelebrate.play(resultTitle && resultTitle.closest('.play-win'));
+      const winResultCard = resultTitle && resultTitle.closest('.play-win');
+      if (window.MergeCelebrate) {
+        if (win) window.MergeCelebrate.win(winResultCard, { stamp: 'CLEARED' });
+        else window.MergeCelebrate.clear(winResultCard);
       }
       if (againBtn) againBtn.focus({ preventScroll: true });
-      scheduleAutoNext(againBtn, function () {
-        reset('Fresh field. The first square is always safe.');
-      });
+      if (!win) {
+        scheduleAutoNext(againBtn, function () {
+          reset('Fresh field. The first square is always safe.');
+        });
+      }
     }
 
     function checkWin() {

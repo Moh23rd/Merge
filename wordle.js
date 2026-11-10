@@ -355,7 +355,7 @@
       if (window.MergeHaptics && window.MergeHaptics.win) window.MergeHaptics.win();
       if (window.MergeCelebrate) {
         window.setTimeout(function () {
-          window.MergeCelebrate.play(resultEl.querySelector('.wordle-result-card'));
+          window.MergeCelebrate.win(resultEl.querySelector('.wordle-result-card'));
         }, 120);
       }
     }
@@ -363,6 +363,8 @@
 
   function showResult(won) {
     const tries = state.guesses.length;
+    const resultCard = resultEl.querySelector('.wordle-result-card');
+    if (!won && window.MergeCelebrate) window.MergeCelebrate.clear(resultCard);
     resultEl.hidden = false;
     resultEl.dataset.state = won ? 'won' : 'lost';
     resultTitle.textContent = won ? (tries === 1 ? 'One guess.' : 'Solved in ' + tries + '.') : 'Not this time.';

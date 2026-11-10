@@ -1,6 +1,8 @@
 /* A short six-colour flourish for a win. Deliberately small: a handful of
    paper-coloured chips lifting off the result card and settling, not a
-   full-screen takeover. Motion is skipped entirely for reduced-motion users. */
+   full-screen takeover. A win also gets one stamped seal in the game's own
+   colour, and the automatic countdown is stopped so the result can be read.
+   Motion is skipped entirely for reduced-motion users. */
 (function () {
   'use strict';
 
@@ -11,9 +13,55 @@
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
+  function asTarget(anchor) {
+    return anchor && anchor.getBoundingClientRect ? anchor : null;
+  }
+
+  function accentFor(target) {
+    const styles = window.getComputedStyle(target);
+    return (styles.getPropertyValue('--game-accent') ||
+      styles.getPropertyValue('--cart') ||
+      styles.getPropertyValue('--t64') ||
+      '#e85f3b').trim();
+  }
+
+  /* Remove the win dressing when a card is reused for a loss or a new round. */
+  function clear(anchor) {
+    const target = asTarget(anchor);
+    if (!target) return;
+    target.classList.remove('has-win', 'is-victory');
+    target.style.removeProperty('--win-accent');
+    const stamp = target.querySelector('.win-stamp');
+    if (stamp) stamp.remove();
+  }
+
+  function win(anchor, options) {
+    const target = asTarget(anchor);
+    if (!target) return null;
+    const opts = options || {};
+    const accent = opts.accent || accentFor(target);
+
+    target.classList.add('has-win');
+    if (accent) target.style.setProperty('--win-accent', accent);
+
+    const oldStamp = target.querySelector('.win-stamp');
+    if (oldStamp) oldStamp.remove();
+    if (opts.stamp) {
+      const stamp = document.createElement('span');
+      stamp.className = 'win-stamp';
+      stamp.setAttribute('aria-hidden', 'true');
+      stamp.textContent = opts.stamp;
+      target.insertBefore(stamp, target.firstChild);
+    }
+
+    if (window.MergeAutoNext) window.MergeAutoNext.cancel();
+    play(target);
+    return target;
+  }
+
   function play(anchor) {
     if (reduced()) return;
-    const target = anchor && anchor.getBoundingClientRect ? anchor : null;
+    const target = asTarget(anchor);
     if (!target) return;
 
     const rect = target.getBoundingClientRect();
@@ -55,5 +103,5 @@
     window.setTimeout(function () { layer.remove(); }, 1000);
   }
 
-  window.MergeCelebrate = { play: play };
+  window.MergeCelebrate = { play: play, win: win, clear: clear };
 })();

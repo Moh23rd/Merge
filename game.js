@@ -488,7 +488,9 @@
         saveGame();
         haptics.win();
         window.setTimeout(function () {
-          if (window.MergeCelebrate) window.MergeCelebrate.play(document.querySelector('.overlay-card'));
+          if (window.MergeCelebrate) {
+            window.MergeCelebrate.win(document.querySelector('.overlay-card'), { stamp: '2048' });
+          }
         }, 180);
         syncBoardAccessibility('2048 reached. Score ' + score + '.');
         // The final tile can fill the board, in which case carrying on isn't
@@ -778,6 +780,9 @@
   }
 
   function showResultCard(snapshot, reopen, finished) {
+    if (!snapshot.win && window.MergeCelebrate) {
+      window.MergeCelebrate.clear(document.querySelector('.overlay-card'));
+    }
     let label = 'Back to game';
     if (!reopen) {
       label = snapshot.win && !finished ? 'Keep going' : 'Try again';
@@ -1108,6 +1113,7 @@
   }
 
   function newGame() {
+    if (window.MergeCelebrate) window.MergeCelebrate.clear(document.querySelector('.overlay-card'));
     resetBoard();
   }
 

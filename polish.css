@@ -568,3 +568,197 @@ html[data-theme="dark"] .sheet-card .wipe-open:hover {
     font-size: 7.5px;
   }
 }
+
+/* ==========================================================================
+   Winning moment — a result should feel earned, not like a status line.
+   The four compact game results become one paper card with a stamped seal
+   in the game's own colour. Merge and Wordle keep their own cards and get
+   the same accent and paper chips. No sound, no long takeover.
+   ========================================================================== */
+
+.win-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto 8px;
+  padding: 3px 8px 2px;
+  border: 1.5px solid color-mix(in srgb, var(--win-accent, var(--ink)) 62%, transparent);
+  border-radius: 5px;
+  color: color-mix(in srgb, var(--win-accent, var(--ink)) 72%, var(--ink));
+  background: color-mix(in srgb, var(--win-accent, var(--ink)) 8%, var(--sheet-bg, var(--card)));
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  transform: rotate(-1.5deg);
+  animation: winStampIn 360ms cubic-bezier(0.22, 1, 0.36, 1) 70ms both;
+}
+
+@keyframes winStampIn {
+  from { opacity: 0; transform: translateY(-4px) rotate(-4deg) scale(0.9); }
+  to { opacity: 1; transform: rotate(-1.5deg) scale(1); }
+}
+
+.overlay-card.has-win,
+.wordle-result-card.has-win {
+  border-color: color-mix(in srgb, var(--win-accent, var(--t64)) 38%, transparent);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ink) 9%, transparent),
+    0 22px 44px -30px var(--win-accent, rgba(0, 0, 0, 0.4));
+}
+
+.overlay-card > .win-stamp {
+  display: flex;
+  margin: 0 auto 9px;
+}
+
+/* The four compact results leave the 44px slot and become the moment. The
+   grid lets the stamp, the sentence and the two actions line up without
+   adding another wrapper element. */
+.play-feedback .play-win:not([hidden]) {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: min(88vw, 360px);
+  height: auto;
+  min-height: 0;
+  max-height: calc(100dvh - 32px);
+  transform: translate(-50%, -50%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "stamp stamp"
+    "body body"
+    "next share";
+  align-items: center;
+  gap: 10px 8px;
+  padding: 20px 18px 16px;
+  z-index: 250;
+  border: 1px solid color-mix(in srgb, var(--win-accent, var(--ink)) 34%, transparent);
+  border-radius: 20px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--win-accent, var(--t64)) 10%, transparent), transparent 48%),
+    var(--sheet-bg, var(--card));
+  box-shadow:
+    0 0 0 100vmax color-mix(in srgb, var(--page) 66%, transparent),
+    0 30px 60px -34px rgba(0, 0, 0, 0.62);
+  text-align: center;
+  animation: winCardIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.play-feedback .play-win > .win-stamp {
+  grid-area: stamp;
+  justify-self: center;
+  margin: 0 0 2px;
+}
+
+.play-feedback .play-win p {
+  grid-area: body;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  overflow: visible;
+  color: var(--muted-strong);
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: center;
+  white-space: normal;
+}
+
+.play-feedback .play-win p strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(20px, 5.8vw, 24px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+}
+
+.play-feedback .play-win .one-line-stars {
+  display: block;
+  margin: 6px 0 0;
+  color: #b38425;
+  font-size: 19px;
+  letter-spacing: 4px;
+  line-height: 1;
+}
+
+.play-feedback .play-win .play-btn {
+  grid-area: next;
+  width: 100%;
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.play-feedback .play-win .result-share {
+  grid-area: share;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: auto;
+  min-width: 94px;
+  height: 46px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.play-feedback .play-win .result-share svg { width: 16px; height: 16px; }
+.play-feedback .play-win .result-share-label { display: inline; }
+
+.play-feedback .play-win.has-win::before {
+  inset: 0 0 auto 0;
+  width: auto;
+  height: 4px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--win-accent, var(--t64)) 25%, transparent),
+    var(--win-accent, var(--t64)),
+    color-mix(in srgb, var(--win-accent, var(--t64)) 25%, transparent));
+  background-size: 200% 100%;
+  animation: winAccentSweep 900ms ease-out both;
+}
+
+@keyframes winAccentSweep {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+@keyframes winCardIn {
+  0% { opacity: 0; transform: translate(-50%, -47%) scale(0.96); }
+  55% { opacity: 1; transform: translate(-50%, -50%) scale(1.012); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+html[data-theme="dark"] .play-feedback .play-win .one-line-stars { color: #e0b455; }
+
+@media (prefers-reduced-motion: reduce) {
+  .play-feedback .play-win:not([hidden]),
+  .play-feedback .play-win.is-victory,
+  .win-stamp,
+  .play-feedback .play-win.has-win::before {
+    animation: none;
+  }
+}
+
+/* A finished entrance animation must not leave a transform on the shell:
+   a transformed ancestor becomes the containing block for the fixed win
+   card and shifts it off-centre. */
+.play-screen:not([hidden]) .play-shell {
+  animation-fill-mode: none;
+}
+
+.play-screen:has(.play-win:not([hidden])) .play-shell {
+  animation: none;
+  transform: none;
+}
