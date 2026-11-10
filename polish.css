@@ -387,3 +387,31 @@ html[data-theme="dark"] #wordle {
   }
   .home-six-piece.is-six-hit { animation: none; }
 }
+
+/* Narrow phones: keep the promise row together and give card metadata room. */
+@media (max-width: 430px) {
+  .home-promises {
+    font-size: 7.5px;
+    gap: 3px 4px;
+  }
+
+  .home-promises span + span::before {
+    content: none;
+    margin: 0;
+  }
+
+  .home-promises span:not(:last-child)::after {
+    content: "·";
+    margin-left: 4px;
+    color: var(--home-rule);
+  }
+
+  .home-game-meta {
+    font-size: 7.5px;
+    gap: 4px;
+  }
+
+  .home-game-play {
+    font-size: 7.5px;
+  }
+}

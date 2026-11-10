@@ -1,7 +1,7 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-const VERSION = 'sixfold-2.0.0';
-// Bump alongside the ?v= numbers in index.html; the new URLs make the browser
-// fetch fresh files even when an older cache is still installed.
+const VERSION = 'sixfold-2.0.1';
+// Keep these matching index.html. A new cache version refreshes the shell even
+// when the asset URLs themselves do not change.
 const ASSET = '2.0.0';
 const GAMES = '2.0.0';
 
@@ -35,7 +35,16 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(VERSION)
-      .then((cache) => cache.addAll(SHELL))
+      .then((cache) =>
+        Promise.all(
+          SHELL.map((url) =>
+            fetch(url, { cache: 'reload' }).then((response) => {
+              if (!response.ok) throw new Error('Failed to cache ' + url);
+              return cache.put(url, response);
+            })
+          )
+        )
+      )
       .then(() => self.skipWaiting())
   );
 });
