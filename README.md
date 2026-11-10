@@ -51,6 +51,24 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000`. Opening `index.html` directly still plays, but offline caching and installation stay off.
 
+## Beta previews
+
+Beta builds are previews, never releases. They do not change the app version, the offline cache name, tags or the published 3.0 release, and nothing in `beta-build/` is committed or deployed.
+
+```sh
+./beta.sh            # build and serve at http://localhost:4173
+./beta.sh --build    # build only, into beta-build/
+./beta.sh --port 5000
+```
+
+The script copies the current working tree — uncommitted changes included — into a gitignored `beta-build/` folder and marks that copy so it cannot be mistaken for the live app:
+
+- a small **beta** tag beside the version on the hub, carrying the commit and build time in its tooltip;
+- `<meta name="robots" content="noindex, nofollow">` and a ` · beta` title suffix;
+- service-worker registration removed, so a preview never caches itself and can never overwrite the 3.0 offline shell.
+
+The preview runs from its own folder and origin, so the published site keeps serving 3.0 untouched. Shipping a change stays a separate, explicit step; a beta never gets a tag, a GitHub release or a version bump.
+
 ## Project structure
 
 ```
