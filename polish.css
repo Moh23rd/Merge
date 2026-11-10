@@ -457,6 +457,17 @@ html[data-theme="dark"] #wordle {
   .fruit-hint { display: none; }
 }
 
+/* Sheets on a phone: the theme and board-size segments were 35px tall and the
+   shape map's share action 36px, both short for a thumb. */
+@media (max-width: 430px) {
+  .seg button { min-height: 42px; }
+  .level-share-btn { min-height: 42px; }
+}
+
+/* Locked shapes fade to 45% so they recede. On the dark sheet the numbers all
+   but vanished, so they keep a little more presence there. */
+html[data-theme="dark"] .level-cell.is-locked { opacity: 0.62; }
+
 /* Narrow phones: keep the promise row together and give card metadata room. */
 @media (max-width: 430px) {
   .home-promises {
