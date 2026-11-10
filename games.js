@@ -292,8 +292,10 @@
   const games = {};
 
   /* Every finished round offers a short pause before the next one starts.
-     Five seconds is enough to read the result and still keeps the games moving. */
-  const AUTO_NEXT_DELAY = 5000;
+     Three seconds is enough to read a loss and keeps the arcade moving; a
+     clear is a shorter beat, so the next level arrives within two seconds. */
+  const AUTO_NEXT_DELAY = 3000;
+  const AUTO_NEXT_WIN_DELAY = 2000;
   let autoNextTimer = 0;
   let autoNextButton = null;
 
@@ -310,7 +312,7 @@
     }
   }
 
-  function scheduleAutoNext(button, action) {
+  function scheduleAutoNext(button, action, delay) {
     cancelAutoNext();
     if (!button) return;
     autoNextButton = button;
@@ -318,10 +320,13 @@
       button.dataset.autoNextBase = button.textContent.trim();
     }
     const screen = document.body.dataset.screen;
-    let remaining = Math.ceil(AUTO_NEXT_DELAY / 1000);
+    const total = Math.max(800, Number(delay) || AUTO_NEXT_DELAY);
+    const end = Date.now() + total;
 
     function paint() {
-      button.textContent = 'Next ' + remaining + 's';
+      const remaining = Math.max(1, Math.ceil((end - Date.now()) / 1000));
+      const label = 'Next ' + remaining + 's';
+      if (button.textContent !== label) button.textContent = label;
     }
 
     paint();
@@ -335,18 +340,17 @@
         cancelAutoNext();
         return;
       }
-      remaining -= 1;
-      if (remaining <= 0) {
+      if (Date.now() >= end) {
         const nextAction = action;
         cancelAutoNext();
         nextAction();
         return;
       }
       paint();
-      autoNextTimer = window.setTimeout(tick, 1000);
+      autoNextTimer = window.setTimeout(tick, 200);
     }
 
-    autoNextTimer = window.setTimeout(tick, 1000);
+    autoNextTimer = window.setTimeout(tick, 200);
   }
 
   window.MergeAutoNext = {
@@ -982,7 +986,10 @@
         if (window.MergeCelebrate) {
           window.MergeCelebrate.win(winEl, { stamp: 'LEVEL CLEAR' });
         }
-        if (nextBtn) nextBtn.focus({ preventScroll: true });
+        if (nextBtn) {
+          nextBtn.focus({ preventScroll: true });
+          scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
+        }
       } else if (!hasMove()) {
         status('No moves left. Undo or start a fresh board.', 0);
       } else {
@@ -1114,7 +1121,7 @@
       title: title,
       activate: function () {
         render();
-        if (solved) scheduleAutoNext(nextBtn, nextLevel);
+        if (solved) scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
         else cancelAutoNext();
       },
       deactivate: function () {
@@ -1824,7 +1831,12 @@
       if (window.MergeCelebrate) {
         window.MergeCelebrate.win(winEl, { stamp: earned === 3 ? 'PERFECT LINE' : 'ONE LINE' });
       }
-      if (nextBtn) nextBtn.focus({ preventScroll: true });
+      if (nextBtn) {
+        nextBtn.focus({ preventScroll: true });
+        if (level < LEVELS.length - 1) {
+          scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
+        }
+      }
     }
 
     function addNode(index) {
@@ -2170,8 +2182,9 @@
       title: title,
       activate: function () {
         render();
-        if (solved && level < LEVELS.length - 1) scheduleAutoNext(nextBtn, nextLevel);
-        else cancelAutoNext();
+        if (solved && level < LEVELS.length - 1) {
+          scheduleAutoNext(nextBtn, nextLevel, AUTO_NEXT_WIN_DELAY);
+        } else cancelAutoNext();
         setStatus(path.length ? 'Line paused at the glowing dot. Continue from there.' : introMessage());
       },
       deactivate: function () {
@@ -2390,7 +2403,7 @@
         window.MergeCelebrate.clear(winCard);
       }
       if (againBtn) againBtn.focus({ preventScroll: true });
-      if (!playerWin) scheduleAutoNext(againBtn, newRound);
+      scheduleAutoNext(againBtn, newRound, playerWin ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
     }
 
     function finishDraw() {
@@ -2607,8 +2620,10 @@
       title: title,
       activate: function () {
         render();
-        if (over) scheduleAutoNext(againBtn, newRound);
-        else if (mode === 'computer' && turn === 'O') scheduleAI();
+        if (over) {
+          const playerWin = Boolean(winner) && (mode === 'two' || winner === 'X');
+          scheduleAutoNext(againBtn, newRound, playerWin ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
+        } else if (mode === 'computer' && turn === 'O') scheduleAI();
         else cancelAutoNext();
       },
       deactivate: function () {
@@ -2783,6 +2798,7 @@
       warningShown = false;
       drag = null;
       if (overlay) overlay.hidden = true;
+      if (window.MergeCelebrate) window.MergeCelebrate.clear(document.querySelector('.fruit-stage'));
       if (finalScore) finalScore.textContent = '0';
       if (finalBest) finalBest.textContent = String(best);
       updateHud();
@@ -2936,7 +2952,9 @@
       if (newTier === FRUITS.length - 1) {
         setStatus('Watermelon! You reached the top of the fruit chain.');
         if (window.MergeHaptics) window.MergeHaptics.win();
-        if (window.MergeCelebrate) window.MergeCelebrate.play(document.querySelector('.fruit-stage'));
+        if (window.MergeCelebrate) {
+          window.MergeCelebrate.win(document.querySelector('.fruit-stage'), { stamp: 'WATERMELON' });
+        }
       }
       if (finalClear) {
         setStatus('Two watermelons cleared — +' + points + '!');
@@ -3057,6 +3075,7 @@
       setStatus('The pile reached the top. Start a fresh run.');
       if (statusEl) statusEl.hidden = true;
       if (window.MergeHaptics) window.MergeHaptics.over();
+      if (window.MergeCelebrate) window.MergeCelebrate.clear(document.querySelector('.fruit-stage'));
       render(0);
       if (againBtn) againBtn.focus({ preventScroll: true });
       scheduleAutoNext(againBtn, beginNewRun);
@@ -3929,11 +3948,9 @@
         else window.MergeCelebrate.clear(winResultCard);
       }
       if (againBtn) againBtn.focus({ preventScroll: true });
-      if (!win) {
-        scheduleAutoNext(againBtn, function () {
-          reset('Fresh field. The first square is always safe.');
-        });
-      }
+      scheduleAutoNext(againBtn, function () {
+        reset('Fresh field. The first square is always safe.');
+      }, win ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
     }
 
     function checkWin() {
@@ -4164,7 +4181,7 @@
         if (over) {
           scheduleAutoNext(againBtn, function () {
             reset('Fresh field. The first square is always safe.');
-          });
+          }, won ? AUTO_NEXT_WIN_DELAY : AUTO_NEXT_DELAY);
         } else {
           cancelAutoNext();
           if (started) startTimer();

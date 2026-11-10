@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Sixfold 2.0 — desktop motion, Fruit Merge polish and the hidden word game.
+   Sixfold shell polish — motion, result cards and the hidden word game.
    This file sits after the three original stylesheets so the release fixes can
    stay together without disturbing the 2.0 layout rules.
    ========================================================================== */
@@ -352,7 +352,7 @@ html[data-theme="dark"] #wordle {
 }
 
 .wordle-result-actions .play-btn { flex: 1; min-height: 38px; padding-inline: 10px; font-size: 11px; }
-.wordle-result-actions .result-share { width: auto; min-width: 34px; height: 36px; padding: 0 9px; border-radius: 9px; }
+.wordle-result-actions .result-share { width: 38px; min-width: 38px; height: 38px; padding: 0; border-radius: 11px; }
 
 /* Short portrait phones trade tile size for the keyboard, never information. */
 @media (orientation: portrait) and (max-height: 680px) {
@@ -508,7 +508,7 @@ html[data-theme="dark"] .sheet-card .wipe-open:hover {
     min-width: 40px;
     height: 40px;
     padding: 0;
-    border-radius: 50%;
+    border-radius: 11px;
   }
 
   .play-win .play-btn { min-height: 42px; }
@@ -517,8 +517,17 @@ html[data-theme="dark"] .sheet-card .wipe-open:hover {
     min-width: 40px;
     height: 40px;
     padding: 0;
-    border-radius: 50%;
+    border-radius: 11px;
   }
+  .result-share--labeled {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+    gap: 0;
+    border-radius: 11px;
+  }
+  .result-share--labeled .result-share-label { display: none; }
   .overlay-actions .btn { min-height: 42px; }
   .fruit-over-card .play-btn { min-height: 42px; }
 
@@ -537,7 +546,7 @@ html[data-theme="dark"] .sheet-card .wipe-open:hover {
     min-width: 40px;
     height: 40px;
     padding: 0;
-    border-radius: 50%;
+    border-radius: 11px;
   }
 }
 
@@ -600,6 +609,18 @@ html[data-theme="dark"] .sheet-card .wipe-open:hover {
 @keyframes winStampIn {
   from { opacity: 0; transform: translateY(-4px) rotate(-4deg) scale(0.9); }
   to { opacity: 1; transform: rotate(-1.5deg) scale(1); }
+}
+
+/* The fruit board has no result card when the chain tops out, so its seal
+   sits over the stage and leaves with the next run. */
+.fruit-stage > .win-stamp {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  margin: 0 auto;
+  pointer-events: none;
 }
 
 .overlay-card.has-win,
@@ -706,16 +727,27 @@ html[data-theme="dark"] .sheet-card .wipe-open:hover {
   gap: 6px;
   width: auto;
   min-width: 94px;
-  height: 46px;
+  height: 42px;
   padding: 0 12px;
-  border-radius: 12px;
+  border-radius: 11px;
   background: transparent;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
 .play-feedback .play-win .result-share svg { width: 16px; height: 16px; }
 .play-feedback .play-win .result-share-label { display: inline; }
+
+@media (max-width: 430px) {
+  .play-feedback .play-win .result-share {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    padding: 0;
+  }
+  .play-feedback .play-win .result-share .result-share-label { display: none; }
+}
 
 .play-feedback .play-win.has-win::before {
   inset: 0 0 auto 0;

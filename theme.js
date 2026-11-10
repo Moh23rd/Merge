@@ -163,7 +163,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=1.0';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=3.0.0';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
@@ -459,6 +459,9 @@
   // Erasing everything is deliberately two separate taps: the quiet button in
   // Look & feel opens a warning sheet, and only its red button clears data.
   function wipeEverything() {
+    // Merge keeps its board in memory and rewrites it on pagehide. Suspend that
+    // write before clearing the keys, or the old board returns after the reload.
+    if (window.MergeGame && window.MergeGame.suspendSaving) window.MergeGame.suspendSaving();
     [window.localStorage, window.sessionStorage].forEach(function (store) {
       try {
         Object.keys(store).forEach(function (key) {
