@@ -1,5 +1,5 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-const VERSION = 'sixfold-2.0.1';
+const VERSION = 'sixfold-2.0.2';
 // Keep these matching index.html. A new cache version refreshes the shell even
 // when the asset URLs themselves do not change.
 const ASSET = '2.0.0';

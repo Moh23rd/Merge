@@ -388,6 +388,75 @@ html[data-theme="dark"] #wordle {
   .home-six-piece.is-six-hit { animation: none; }
 }
 
+/* ==========================================================================
+   Inner-game audit — desktop Wordle keys, the 320px Minesweeper toolbar and
+   the short-phone Wordle board. Scoped so phones keep their published layout.
+   ========================================================================== */
+
+/* On a laptop the five-letter keyboard was still 360px wide with 42px keys,
+   so it read as a phone control. Give it a desk-sized row without touching
+   the phone rules above. */
+@media (min-width: 721px) and (min-height: 700px) {
+  .wordle-main { gap: 14px; }
+  .wordle-board-wrap { width: min(100%, 340px, 40dvh); }
+  .wordle-keyboard { width: min(100%, 500px); gap: 7px; }
+  .wordle-key-row { gap: 6px; }
+  .wordle-key {
+    height: clamp(46px, 5.6dvh, 54px);
+    border-radius: 9px;
+    font-size: clamp(14px, 1.85dvh, 17px);
+  }
+  .wordle-key--wide { font-size: clamp(11.5px, 1.5dvh, 13.5px); }
+  .wordle-status { font-size: 12px; }
+}
+
+/* Middle-height phones keep a taller board and only trim the keyboard. */
+@media (orientation: portrait) and (min-height: 621px) and (max-height: 680px) {
+  .wordle-board-wrap { width: min(100%, 300px, 35dvh); }
+  .wordle-key { height: 33px; }
+  .wordle-main { gap: 4px; }
+  .wordle-keyboard { gap: 4px; }
+}
+
+/* 568px-tall phones: six board rows, the status line, three key rows and the
+   footer could not all fit, so the footer was pushed below the screen. */
+@media (orientation: portrait) and (max-height: 620px) {
+  .wordle-board-wrap { width: min(100%, 300px, 32dvh); }
+  .wordle-main { gap: 3px; }
+  .wordle-keyboard { gap: 3px; }
+  .wordle-key { height: 32px; }
+  .wordle-status { min-height: 12px; font-size: 10px; }
+}
+
+/* The narrowest phones: the Minesweeper toolbar ran past the right edge and
+   the flag toggle sat half off-screen. The short word plus eight-pixel button
+   padding brings it back inside the 320px frame, and the small segmented
+   controls regain a proper tap height. */
+@media (max-width: 380px) {
+  .mines-toolbar { gap: 6px; }
+  .mines-difficulty button { min-height: 34px; padding-inline: 4px; }
+  .mines-flag-toggle { min-height: 34px; padding-inline: 8px; }
+  /* The full label needs 46px more than a 320px screen has. The glyph plus
+     "Flag" keeps the control inside the frame; the hidden words still give
+     screen readers the full "Flag mode" name. */
+  .mines-flag-toggle { font-size: 0; }
+  .mines-flag-toggle > span { font-size: 13px; }
+  .mines-flag-toggle::after {
+    content: "Flag";
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+  }
+  .ttt-difficulty button { min-height: 34px; }
+  .play-chip { min-height: 30px; }
+}
+
+/* At 320px the fruit HUD has room for the next fruit or the drag hint, not
+   both; the status line and coach already teach the drag. */
+@media (max-width: 340px) {
+  .fruit-hint { display: none; }
+}
+
 /* Narrow phones: keep the promise row together and give card metadata room. */
 @media (max-width: 430px) {
   .home-promises {
