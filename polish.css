@@ -235,6 +235,38 @@ html[data-theme="dark"] #wordle {
 
 .wordle-status { min-height: 17px; }
 
+.wordle-native-input {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0.01;
+  background: transparent;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  caret-color: transparent;
+  font-size: 16px;
+  line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+  cursor: text;
+  touch-action: manipulation;
+}
+
+/* On touch devices the system keyboard is the primary way in. The in-page
+   keyboard stays available on pointer-driven layouts, where it is a useful
+   fallback and has a real Enter key. */
+@media (pointer: coarse) {
+  #wordle .wordle-native-input { display: block; }
+  #wordle .wordle-keyboard { display: none; }
+}
+
 .wordle-keyboard {
   display: grid;
   gap: clamp(4px, 0.8dvh, 6px);

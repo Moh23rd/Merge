@@ -18,7 +18,9 @@
   const resultStats = $('wordle-result-stats');
   const resultNew = $('wordle-result-new');
   const resultShare = $('wordle-result-share');
-  const newBtn = $('wordle-new');
+  const nativeInput = $('wordle-native-input');
+  const nativeKeyboard = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  const noteEl = document.querySelector('#wordle .play-note');
   const playedEl = $('wordle-played');
   const streakEl = $('wordle-streak');
   const titleEl = $('wordle-title');
@@ -33,7 +35,7 @@
   const KEY_ROWS = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    ['Enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace']
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace', 'Enter']
   ];
   const STATE_RANK = { absent: 1, present: 2, correct: 3 };
   const EMPTY_STATS = { played: 0, wins: 0, streak: 0, max: 0, dist: [0, 0, 0, 0, 0, 0] };
@@ -270,12 +272,20 @@
     statusEl.textContent = message;
   }
 
+  function idleMessage() {
+    return nativeKeyboard
+      ? 'Tap the board, then type a five-letter word.'
+      : 'Six tries. Five letters. Find the word.';
+  }
+
   function flashStatus(message) {
     window.clearTimeout(messageTimer);
     setStatus(message);
     messageTimer = window.setTimeout(function () {
       if (state.status === 'playing' && !busy) {
-        setStatus('Type a five-letter word, then press Enter.');
+        setStatus(nativeKeyboard
+          ? 'Tap the board and type a five-letter word.'
+          : 'Type a five-letter word, then press Enter.');
       }
     }, 2200);
   }
@@ -319,6 +329,7 @@
 
     state.guesses.push(guess);
     input = '';
+    if (nativeInput) nativeInput.value = '';
     busy = true;
     saveState();
     render(state.guesses.length - 1);
@@ -376,8 +387,16 @@
       resultStats.textContent = stats.played + ' played · ' + rate + '% won · streak ' + stats.streak + ' · best ' + stats.max;
     }
     if (resultShare) resultShare.hidden = false;
-    if (resultNew && document.body.dataset.screen === 'wordle') {
-      resultNew.focus({ preventScroll: true });
+    if (nativeInput) {
+      nativeInput.value = '';
+      nativeInput.blur();
+    }
+    if (document.body.dataset.screen === 'wordle') {
+      try {
+        resultEl.focus({ preventScroll: true });
+      } catch (err) {
+        resultEl.focus();
+      }
     }
   }
 
@@ -392,12 +411,13 @@
     state = freshState();
     input = '';
     busy = false;
+    if (nativeInput) nativeInput.value = '';
     hideResult();
     saveState();
     render();
     updateKeyboard();
     updateStats();
-    setStatus('Six tries. Five letters. Find the word.');
+    setStatus(idleMessage());
     try { boardEl.focus({ preventScroll: true }); } catch (err) {}
   }
 
@@ -427,6 +447,7 @@
     if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
     if (document.documentElement.classList.contains('sheet-open')) return;
     const target = event.target;
+    if (target === nativeInput) return;
     if (target && target.closest && target.closest('input, textarea, select')) return;
     if (event.key === 'Enter') {
       if (target && target.closest && target.closest('a')) return;
@@ -452,7 +473,7 @@
       hideResult();
       render();
       updateKeyboard();
-      setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : 'Six tries. Five letters. Find the word.');
+      setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : idleMessage());
     } else {
       render();
       updateKeyboard();
@@ -461,6 +482,7 @@
   }
 
   function deactivate() {
+    if (nativeInput) nativeInput.blur();
     saveState();
   }
 
@@ -473,6 +495,7 @@
     state = freshState();
     input = '';
     busy = false;
+    if (nativeInput) nativeInput.value = '';
     hideResult();
     saveStats();
     saveState();
@@ -495,11 +518,43 @@
   });
   resultNew.addEventListener('click', newGame);
   resultShare.addEventListener('click', shareResult);
-  newBtn.addEventListener('click', newGame);
   document.addEventListener('keydown', onKeyDown);
 
+  if (nativeInput) {
+    nativeInput.addEventListener('focus', function () {
+      nativeInput.value = input;
+      try {
+        nativeInput.setSelectionRange(input.length, input.length);
+      } catch (err) {}
+    });
+    nativeInput.addEventListener('keydown', function (event) {
+      if (event.isComposing) return;
+      if (event.key === 'Enter' || event.keyCode === 13) {
+        event.preventDefault();
+        submitGuess();
+      }
+    });
+    nativeInput.addEventListener('input', function () {
+      if (state.status !== 'playing' || busy) {
+        nativeInput.value = input;
+        return;
+      }
+      const typed = nativeInput.value.replace(/[^a-zA-Z]/g, '').toLowerCase().slice(0, COLS);
+      if (nativeInput.value !== typed) nativeInput.value = typed;
+      input = typed;
+      setStatus('');
+      render();
+    });
+  }
+
+  if (noteEl) {
+    noteEl.textContent = nativeKeyboard
+      ? 'Tap the board to type with your keyboard.'
+      : 'Type on your keyboard or tap the keys below.';
+  }
+
   if (state.status !== 'playing') showResult(state.status === 'won');
-  else setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : 'Six tries. Five letters. Find the word.');
+  else setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : idleMessage());
 
   window.SixfoldWordle = {
     title: titleEl,

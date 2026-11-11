@@ -822,7 +822,8 @@
         <main class="play-main wordle-main">
           <div class="wordle-board-wrap">
             <div class="wordle-board" id="wordle-board" role="grid" aria-label="Wordle board, 0 of 6 guesses used" aria-rowcount="6" aria-colcount="5" tabindex="0"></div>
-            <div class="wordle-result" id="wordle-result" hidden role="dialog" aria-labelledby="wordle-result-title">
+            <input class="wordle-native-input" id="wordle-native-input" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="enter" tabindex="-1" aria-label="Wordle guess input" aria-describedby="wordle-status" />
+            <div class="wordle-result" id="wordle-result" hidden role="dialog" aria-labelledby="wordle-result-title" tabindex="-1">
               <div class="wordle-result-card">
                 <p class="game-tag">Round complete</p>
                 <h2 id="wordle-result-title">Solved.</h2>
@@ -839,10 +840,7 @@
           <div class="wordle-keyboard" id="wordle-keyboard" role="group" aria-label="Letter keyboard"></div>
         </main>
         <footer class="play-foot">
-          <div class="play-actions">
-            <button class="play-btn play-btn--solid" id="wordle-new" type="button">New word</button>
-          </div>
-          <span class="play-note">Type on your keyboard or tap the letters.</span>
+          <span class="play-note">Tap the board to type, or use the on-screen keys.</span>
         </footer>
       </div>
     </div>
