@@ -2,9 +2,6 @@
 // 3.0: the shell is rebuilt so the three-second result timing and the
 // restored What's New note reach clients that already hold an older cache.
 const VERSION = 'sixfold-3.0.0';
-// Cache Storage is shared by every app on the origin. Only remove Sixfold's
-// own older caches, never another project's offline data.
-const CACHE_PREFIX = 'sixfold-';
 // Keep these matching index.html. A new cache version refreshes the shell even
 // when the asset URLs themselves do not change.
 const ASSET = '3.0.0';
@@ -61,13 +58,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key.startsWith(CACHE_PREFIX) && key !== VERSION)
-            .map((key) => caches.delete(key))
-        )
-      )
+      .then((keys) => Promise.all(keys.filter((key) => key !== VERSION).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -89,13 +80,11 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches
-              .open(VERSION)
-              .then((cache) => cache.put(request, copy))
-              .catch(() => {});
-          }
+          const copy = response.clone();
+          caches
+            .open(VERSION)
+            .then((cache) => cache.put(request, copy))
+            .catch(() => {});
           return response;
         })
         .catch(() => caches.match(request))
@@ -108,10 +97,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Only cache a successful HTML page. A failed navigation (including
-          // GitHub Pages' 404 page) must never replace the offline app shell.
-          if (response.ok &&
-              (response.headers.get('Content-Type') || '').indexOf('text/html') !== -1) {
+          // Only cache a real HTML page. A non-page navigation must never
+          // replace the offline app shell.
+          if ((response.headers.get('Content-Type') || '').indexOf('text/html') !== -1) {
             const copy = response.clone();
             caches
               .open(VERSION)
