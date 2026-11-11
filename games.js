@@ -380,6 +380,7 @@
   };
 
   function setScreen(screen) {
+    const previous = current;
     if (current !== screen) cancelAutoNext();
     if (current !== screen && games[current] && games[current].deactivate) {
       games[current].deactivate();
@@ -396,6 +397,13 @@
     if (isMerge) app.removeAttribute('aria-hidden');
     else app.setAttribute('aria-hidden', 'true');
     body.dataset.screen = screen;
+
+    if (screen === 'hub' && previous && previous !== 'hub') {
+      hub.classList.remove('is-returning');
+      void hub.offsetWidth;
+      hub.classList.add('is-returning');
+      window.setTimeout(function () { hub.classList.remove('is-returning'); }, 520);
+    }
 
     if (isMerge) {
       window.dispatchEvent(new Event('resize'));
@@ -446,6 +454,88 @@
 
   // The word game is absent from the collection cards and the initial hash
   // route. The six-piece cover opens it, after which it behaves like the rest.
+  const WORDLE_FOUND_KEY = 'sixfold.wordle.found.v1';
+  const hiddenReveal = $('hidden-reveal');
+  const hiddenRevealSkip = $('hidden-reveal-skip');
+  let wordleFound = false;
+  let hiddenRevealOpen = false;
+  let hiddenRevealTimer = 0;
+  let hiddenRevealCloseTimer = 0;
+
+  function calmMotion() {
+    return Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  function wordleWasFound() {
+    if (wordleFound) return true;
+    try {
+      return localStorage.getItem(WORDLE_FOUND_KEY) === '1';
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function markWordleFound() {
+    wordleFound = true;
+    try { localStorage.setItem(WORDLE_FOUND_KEY, '1'); } catch (err) {}
+  }
+
+  function closeHiddenReveal() {
+    if (!hiddenRevealOpen || !hiddenReveal) return;
+    hiddenRevealOpen = false;
+    window.clearTimeout(hiddenRevealTimer);
+    hiddenReveal.classList.remove('is-open');
+    hiddenReveal.classList.add('is-closing');
+    if (hub) hub.removeAttribute('inert');
+    document.documentElement.classList.remove('hidden-reveal-open');
+    window.clearTimeout(hiddenRevealCloseTimer);
+    hiddenRevealCloseTimer = window.setTimeout(function () {
+      hiddenReveal.hidden = true;
+      hiddenReveal.setAttribute('aria-hidden', 'true');
+      hiddenReveal.classList.remove('is-closing');
+      openWordle();
+    }, calmMotion() ? 40 : 300);
+  }
+
+  function showHiddenReveal() {
+    if (current !== 'hub') return;
+    if (!hiddenReveal || wordleWasFound()) {
+      window.setTimeout(openWordle, 120);
+      return;
+    }
+
+    markWordleFound();
+    hiddenRevealOpen = true;
+    hiddenReveal.hidden = false;
+    hiddenReveal.setAttribute('aria-hidden', 'false');
+    if (hub) hub.setAttribute('inert', '');
+    document.documentElement.classList.add('hidden-reveal-open');
+    hiddenReveal.classList.remove('is-open', 'is-closing');
+    void hiddenReveal.offsetWidth;
+    hiddenReveal.classList.add('is-open');
+    if (window.MergeHaptics && window.MergeHaptics.tap) window.MergeHaptics.tap();
+    window.clearTimeout(hiddenRevealTimer);
+    hiddenRevealTimer = window.setTimeout(closeHiddenReveal, calmMotion() ? 1300 : 2400);
+    window.setTimeout(function () {
+      try { if (hiddenRevealSkip) hiddenRevealSkip.focus({ preventScroll: true }); } catch (err) {}
+    }, 90);
+  }
+
+  if (hiddenReveal) {
+    hiddenReveal.addEventListener('click', function (event) {
+      if (event.target === hiddenReveal || (event.target.closest && event.target.closest('[data-hidden-reveal-skip]'))) {
+        closeHiddenReveal();
+      }
+    });
+    if (hiddenRevealSkip) hiddenRevealSkip.addEventListener('click', closeHiddenReveal);
+    document.addEventListener('keydown', function (event) {
+      if (hiddenRevealOpen && event.key === 'Escape') {
+        event.preventDefault();
+        closeHiddenReveal();
+      }
+    });
+  }
+
   function openWordle() {
     lastGame = 'wordle';
     setScreen('wordle');
@@ -524,30 +614,54 @@
      hidden until it is actually found. */
   const sixPieces = $$('.home-six-piece');
   let sixStep = 0;
+  let sixTouch = null;
+  let sixTouchAt = 0;
   function clearSixPress() {
     sixPieces.forEach(function (piece) { piece.classList.remove('is-six-hit'); });
   }
+  function handleSixPress(index) {
+    const piece = sixPieces[index];
+    if (!piece) return;
+    if (index !== sixStep) {
+      sixStep = index === 0 ? 1 : 0;
+      clearSixPress();
+      if (index === 0) {
+        piece.classList.remove('is-six-hit');
+        void piece.offsetWidth;
+        piece.classList.add('is-six-hit');
+      }
+      return;
+    }
+    sixStep += 1;
+    piece.classList.remove('is-six-hit');
+    void piece.offsetWidth;
+    piece.classList.add('is-six-hit');
+    if (sixStep === sixPieces.length) {
+      sixStep = 0;
+      window.setTimeout(showHiddenReveal, 140);
+    }
+  }
   sixPieces.forEach(function (piece, index) {
     piece.addEventListener('click', function () {
-      if (index !== sixStep) {
-        sixStep = index === 0 ? 1 : 0;
-        clearSixPress();
-        if (index === 0) {
-          piece.classList.remove('is-six-hit');
-          void piece.offsetWidth;
-          piece.classList.add('is-six-hit');
-        }
-        return;
-      }
-      sixStep += 1;
-      piece.classList.remove('is-six-hit');
-      void piece.offsetWidth;
-      piece.classList.add('is-six-hit');
-      if (sixStep === sixPieces.length) {
-        sixStep = 0;
-        window.setTimeout(openWordle, 120);
-      }
+      // A real tap fires touchend first; ignore its synthetic click.
+      if (Date.now() - sixTouchAt < 600) return;
+      handleSixPress(index);
     });
+    piece.addEventListener('touchstart', function (event) {
+      const touch = event.changedTouches && event.changedTouches[0];
+      sixTouch = touch ? { x: touch.clientX, y: touch.clientY, id: touch.identifier } : null;
+    }, { passive: true });
+    piece.addEventListener('touchend', function (event) {
+      const touch = event.changedTouches && event.changedTouches[0];
+      const start = sixTouch;
+      sixTouch = null;
+      if (!touch || !start || touch.identifier !== start.id) return;
+      // Do not turn a vertical scroll into a secret-key tap.
+      if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 12) return;
+      sixTouchAt = Date.now();
+      if (event.cancelable) event.preventDefault();
+      handleSixPress(index);
+    }, { passive: false });
   });
 
   /* A small pointer tilt on the cover gives desktop mice the same sense of

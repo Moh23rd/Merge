@@ -78,6 +78,7 @@
        rail and then lifts, so an installed app never sees the mark jump. */
     #boot-splash {
       --boot-ink: #3b3833;
+      --boot-muted: rgba(59, 56, 51, 0.58);
       --boot-track: rgba(59, 56, 51, 0.14);
       position: fixed;
       inset: 0;
@@ -85,17 +86,56 @@
       display: grid;
       place-items: center;
       background: var(--boot-bg, #f6f1e8);
-      transition: opacity 380ms cubic-bezier(0.4, 0, 0.2, 1), visibility 380ms;
+      transition: opacity 420ms cubic-bezier(0.4, 0, 0.2, 1), visibility 420ms;
       animation: bootFallback 240ms linear 4s forwards;
     }
     html[data-theme="dark"] #boot-splash {
       --boot-ink: #f1eae0;
+      --boot-muted: rgba(241, 234, 224, 0.58);
       --boot-track: rgba(241, 234, 224, 0.18);
     }
     .boot-stage {
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .boot-kicker,
+    .boot-foot {
+      position: absolute;
+      left: 50%;
+      z-index: 1;
+      width: max-content;
+      max-width: calc(100% - 36px);
+      margin: 0;
+      transform: translateX(-50%);
+      color: var(--boot-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      line-height: 1;
+      text-align: center;
+      text-transform: uppercase;
+      white-space: nowrap;
+      opacity: 0;
+      animation: bootFade 360ms ease 40ms both;
+    }
+    .boot-kicker { top: max(22px, calc(env(safe-area-inset-top, 0px) + 20px)); }
+    .boot-kicker::before {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      margin-right: 7px;
+      border-radius: 1px;
+      background: #e85f3b;
+      transform: rotate(45deg) translateY(-1px);
+    }
+    .boot-foot {
+      bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 18px));
+      animation-delay: 220ms;
+      animation-duration: 440ms;
     }
     .boot-mark {
       position: relative;
@@ -112,13 +152,15 @@
       height: 24%;
       border-radius: 18%;
       background: #f3ecdf;
+      opacity: 0;
+      animation: bootPiece 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .boot-mark span:nth-child(1) { left: 10.5%; top: 24.25%; }
-    .boot-mark span:nth-child(2) { left: 38%; top: 24.25%; background: #ee9563; }
-    .boot-mark span:nth-child(3) { left: 65.5%; top: 24.25%; background: #e7c364; }
-    .boot-mark span:nth-child(4) { left: 10.5%; top: 51.75%; background: #efb07a; }
-    .boot-mark span:nth-child(5) { left: 38%; top: 51.75%; background: #ec7c55; }
-    .boot-mark span:nth-child(6) { left: 65.5%; top: 51.75%; background: #e85f3b; }
+    .boot-mark span:nth-child(1) { left: 10.5%; top: 24.25%; --bx: -14px; --by: -12px; --br: -8deg; animation-delay: 40ms; }
+    .boot-mark span:nth-child(2) { left: 38%; top: 24.25%; background: #ee9563; --bx: 2px; --by: -16px; --br: 5deg; animation-delay: 70ms; }
+    .boot-mark span:nth-child(3) { left: 65.5%; top: 24.25%; background: #e7c364; --bx: 16px; --by: -10px; --br: 8deg; animation-delay: 100ms; }
+    .boot-mark span:nth-child(4) { left: 10.5%; top: 51.75%; background: #efb07a; --bx: -16px; --by: 9px; --br: 6deg; animation-delay: 130ms; }
+    .boot-mark span:nth-child(5) { left: 38%; top: 51.75%; background: #ec7c55; --bx: 1px; --by: 15px; --br: -4deg; animation-delay: 160ms; }
+    .boot-mark span:nth-child(6) { left: 65.5%; top: 51.75%; background: #e85f3b; --bx: 15px; --by: 11px; --br: -7deg; animation-delay: 190ms; }
     .boot-word {
       margin: clamp(20px, 3.2vh, 30px) 0 0;
       margin-right: -0.22em;
@@ -129,29 +171,57 @@
       line-height: 1;
       letter-spacing: 0.22em;
       text-transform: uppercase;
+      opacity: 0;
+      animation: bootWordIn 380ms cubic-bezier(0.22, 1, 0.36, 1) 150ms both;
     }
     .boot-track {
-      width: clamp(76px, 20vw, 96px);
-      height: 2.5px;
+      display: flex;
+      gap: 3px;
+      width: clamp(96px, 24vw, 116px);
+      height: 3px;
       margin-top: clamp(16px, 2.6vh, 24px);
-      overflow: hidden;
+      overflow: visible;
       border-radius: 999px;
-      background: var(--boot-track);
+      background: transparent;
     }
     .boot-track span {
       display: block;
-      width: 100%;
+      flex: 1;
       height: 100%;
-      border-radius: inherit;
-      background: #e85f3b;
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1px rgba(59, 56, 51, 0.08);
+      transform: scaleX(0);
       transform-origin: left center;
-      animation: bootProgress 440ms cubic-bezier(0.22, 0.61, 0.36, 1) 40ms both;
+      animation: bootRail 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
+    .boot-track span:nth-child(1) { background: #f3ecdf; animation-delay: 180ms; }
+    .boot-track span:nth-child(2) { background: #ee9563; animation-delay: 220ms; }
+    .boot-track span:nth-child(3) { background: #e7c364; animation-delay: 260ms; }
+    .boot-track span:nth-child(4) { background: #efb07a; animation-delay: 300ms; }
+    .boot-track span:nth-child(5) { background: #ec7c55; animation-delay: 340ms; }
+    .boot-track span:nth-child(6) { background: #e85f3b; animation-delay: 380ms; }
     html.app-ready #boot-splash { opacity: 0; visibility: hidden; pointer-events: none; }
-    @keyframes bootProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    html.app-ready .boot-stage { transform: translateY(-7px) scale(1.012); }
+    @keyframes bootPiece {
+      0% { opacity: 0; transform: translate(var(--bx, 0), var(--by, 0)) scale(0.72) rotate(var(--br, 0deg)); }
+      70% { opacity: 1; transform: translate(0, 0) scale(1.035) rotate(0); }
+      100% { opacity: 1; transform: none; }
+    }
+    @keyframes bootWordIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes bootFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes bootRail { from { transform: scaleX(0); } to { transform: scaleX(1); } }
     @keyframes bootFallback { to { opacity: 0; visibility: hidden; pointer-events: none; } }
     @media (prefers-reduced-motion: reduce) {
-      .boot-track span { animation: none; }
+      .boot-kicker,
+      .boot-foot,
+      .boot-word,
+      .boot-mark span { opacity: 1; animation: none; }
+      .boot-track span { transform: none; animation: none; }
+      .boot-stage { transition: none; }
+      html.app-ready .boot-stage { transform: none; }
       #boot-splash { transition-duration: 0.01ms; animation: none; }
     }
   </style>
@@ -197,11 +267,12 @@
   <link rel="stylesheet" href="styles.css?v=3.0.0" />
   <link rel="stylesheet" href="games.css?v=3.0.0-w6" />
   <link rel="stylesheet" href="home.css?v=3.0.0" />
-  <link rel="stylesheet" href="polish.css?v=3.0.0-w6" />
+  <link rel="stylesheet" href="polish.css?v=3.0.0-w8" />
   <link rel="stylesheet" href="sudoku.css?v=3.0.0-w8" />
 </head>
 <body data-screen="hub">
   <div class="boot-splash" id="boot-splash" aria-hidden="true">
+    <p class="boot-kicker">The pocket arcade</p>
     <div class="boot-stage">
       <div class="boot-mark">
         <span></span>
@@ -212,7 +283,32 @@
         <span></span>
       </div>
       <p class="boot-word">Sixfold</p>
-      <div class="boot-track"><span></span></div>
+      <div class="boot-track">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <p class="boot-foot">Six games. No filler.</p>
+  </div>
+
+  <div class="hidden-reveal" id="hidden-reveal" role="dialog" aria-modal="true" aria-labelledby="hidden-reveal-title" aria-describedby="hidden-reveal-copy" aria-hidden="true" hidden>
+    <div class="hidden-reveal-scrim" data-hidden-reveal-skip></div>
+    <div class="hidden-reveal-card">
+      <div class="hidden-reveal-head">
+        <span class="hidden-reveal-kicker">Sixfold / hidden game</span>
+        <span class="hidden-reveal-pips" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+      <div class="hidden-reveal-tiles" aria-hidden="true">
+        <span>F</span>
+        <span>O</span>
+        <span>U</span>
+        <span>N</span>
+        <span class="is-key">D</span>
+      </div>
+      <p class="hidden-reveal-eyebrow">You found it</p>
+      <h2 id="hidden-reveal-title">The cover opened.</h2>
+      <p id="hidden-reveal-copy">A five-letter game was hiding in the six-piece fold.</p>
+      <button class="hidden-reveal-skip" id="hidden-reveal-skip" type="button">Play Wordle <span aria-hidden="true">→</span></button>
+      <p class="hidden-reveal-foot"><span>05 letters</span><span>06 tries</span><span>No. 07</span></p>
     </div>
   </div>
 
@@ -983,11 +1079,11 @@
   <script src="celebrate.js?v=3.0.0"></script>
   <script src="sharecard.js?v=3.0.0"></script>
   <script src="theme.js?v=3.0.0"></script>
-  <script src="game.js?v=3.0.0-w3"></script>
+  <script src="game.js?v=3.0.0-w4"></script>
   <script src="install.js?v=3.0.0"></script>
-  <script src="sudoku.js?v=3.0.0-w3"></script>
-  <script src="games.js?v=3.0.0-w8"></script>
-  <script src="wordle-loader.js?v=3.0.0-w3"></script>
+  <script src="sudoku.js?v=3.0.0-w4"></script>
+  <script src="games.js?v=3.0.0-w10"></script>
+  <script src="wordle-loader.js?v=3.0.0-w4"></script>
   <script>
     (function () {
       var splash = document.getElementById('boot-splash');
@@ -1002,8 +1098,8 @@
       } catch (err) {}
       // An installed app keeps the full launch composition. A browser visit
       // gets the same frame without the extra second in front of the hub.
-      var minimum = calm ? 0 : (standalone ? 460 : 80);
-      var fade = calm ? 60 : (standalone ? 540 : 400);
+      var minimum = calm ? 0 : (standalone ? 900 : 780);
+      var fade = calm ? 60 : (standalone ? 520 : 500);
       function lift() {
         if (gone) return;
         gone = true;
@@ -1011,9 +1107,12 @@
         var wait = Math.max(0, minimum - (Date.now() - started));
         window.setTimeout(function () {
           document.documentElement.classList.add('app-ready');
-          document.documentElement.classList.add('home-ready');
+          // Start the hub choreography only after the launch layer is gone.
+          // Otherwise the six-piece build finishes behind the splash and the
+          // cover looks static when it is finally revealed.
           window.setTimeout(function () {
             if (splash.parentNode) splash.parentNode.removeChild(splash);
+            document.documentElement.classList.add('home-ready');
           }, fade);
         }, wait);
       }

@@ -367,6 +367,11 @@
     const resultCard = resultEl.querySelector('.wordle-result-card');
     if (!won && window.MergeCelebrate) window.MergeCelebrate.clear(resultCard);
     resultEl.hidden = false;
+    // The result card is reused after a new round. Reflow once so its reveal
+    // animation plays every time instead of only on the first finish.
+    resultEl.classList.remove('is-revealed');
+    void resultEl.offsetWidth;
+    resultEl.classList.add('is-revealed');
     resultEl.dataset.state = won ? 'won' : 'lost';
     resultTitle.textContent = won ? (tries === 1 ? 'One guess.' : 'Solved in ' + tries + '.') : 'Not this time.';
     resultCopy.textContent = won
@@ -384,6 +389,7 @@
 
   function hideResult() {
     resultEl.hidden = true;
+    resultEl.classList.remove('is-revealed');
     resultEl.removeAttribute('data-state');
   }
 

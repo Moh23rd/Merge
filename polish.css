@@ -823,3 +823,367 @@ html[data-theme="dark"] .sheet-card .wipe-open:hover {
   animation: none;
   transform: none;
 }
+
+/* ==========================================================================
+   Motion pass — the launch, the return, the hidden card and the word game.
+   These build on the existing paper/ink language; nothing here changes layout.
+   ========================================================================== */
+
+/* The collection cards follow the six-piece build instead of appearing all at
+   once underneath the launch screen. */
+@keyframes homeCardIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.995); }
+  70% { opacity: 1; transform: translateY(-2px) scale(1); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html.home-ready .home-grid .home-game {
+    animation: homeCardIn 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  html.home-ready .home-grid .home-game:nth-child(1) { animation-delay: 140ms; }
+  html.home-ready .home-grid .home-game:nth-child(2) { animation-delay: 190ms; }
+  html.home-ready .home-grid .home-game:nth-child(3) { animation-delay: 240ms; }
+  html.home-ready .home-grid .home-game:nth-child(4) { animation-delay: 290ms; }
+  html.home-ready .home-grid .home-game:nth-child(5) { animation-delay: 340ms; }
+  html.home-ready .home-grid .home-game:nth-child(6) { animation-delay: 390ms; }
+}
+
+.hub.is-returning .hub-shell {
+  animation: hubReturn 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes hubReturn {
+  from { opacity: 0.55; transform: translateY(10px) scale(0.994); }
+  to { opacity: 1; transform: none; }
+}
+
+/* The hidden game gets a more theatrical arrival than the public cards: a
+   brief blur-and-lift before the board settles, still under 600ms. */
+#wordle:not([hidden]) .wordle-shell {
+  animation: wordleArrive 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes wordleArrive {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(3px); }
+  68% { opacity: 1; transform: translateY(-1px) scale(1.004); filter: blur(0); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+/* A result is a new beat even when the card was already in the DOM. The
+   class is reset by wordle.js on every show, so the animation really replays. */
+.wordle-result.is-revealed {
+  animation: wordleVeilIn 220ms ease-out both;
+}
+
+.wordle-result.is-revealed .wordle-result-card {
+  animation: wordleResultIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes wordleVeilIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes wordleResultIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  70% { opacity: 1; transform: translateY(-1px) scale(1.006); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- hidden-game discovery card ---------- */
+
+html.hidden-reveal-open,
+html.hidden-reveal-open body {
+  overflow: hidden;
+}
+
+.hidden-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  opacity: 0;
+  transition: opacity 260ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hidden-reveal[hidden] { display: none; }
+.hidden-reveal.is-open { opacity: 1; }
+.hidden-reveal.is-closing { opacity: 0; pointer-events: none; }
+
+.hidden-reveal-scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--page) 70%, transparent);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+}
+
+.hidden-reveal-card {
+  position: relative;
+  width: min(100%, 390px);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 22px 22px 18px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 22px;
+  background: var(--sheet-bg, var(--card));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ink) 9%, transparent),
+    0 32px 64px -34px rgba(0, 0, 0, 0.55);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(14px) scale(0.96) rotate(-0.4deg);
+}
+
+.hidden-reveal-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  border-radius: 22px 22px 0 0;
+  background: linear-gradient(90deg, #f3ecdf, #ee9563, #e7c364, #efb07a, #ec7c55, #e85f3b);
+}
+
+.hidden-reveal.is-open .hidden-reveal-card {
+  animation: hiddenRevealIn 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hidden-reveal.is-closing .hidden-reveal-card {
+  animation: hiddenRevealOut 240ms ease-in both;
+}
+
+@keyframes hiddenRevealIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.95) rotate(-0.6deg); }
+  68% { opacity: 1; transform: translateY(-2px) scale(1.012) rotate(0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hiddenRevealOut {
+  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+.hidden-reveal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 2px;
+}
+
+.hidden-reveal-kicker,
+.hidden-reveal-foot {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.hidden-reveal-kicker { text-align: left; }
+
+.hidden-reveal-pips {
+  display: inline-flex;
+  gap: 3px;
+  flex: none;
+}
+
+.hidden-reveal-pips i {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--g1);
+}
+
+.hidden-reveal-pips i:nth-child(2) { background: var(--t8); }
+.hidden-reveal-pips i:nth-child(3) { background: var(--g2); }
+.hidden-reveal-pips i:nth-child(4) { background: var(--g3); }
+.hidden-reveal-pips i:nth-child(5) { background: var(--g4); }
+.hidden-reveal-pips i:nth-child(6) { background: var(--g5); }
+
+.hidden-reveal-tiles {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin: 22px 0 17px;
+}
+
+.hidden-reveal-tile,
+.hidden-reveal-tiles span {
+  display: grid;
+  place-items: center;
+  width: clamp(38px, 12vw, 48px);
+  aspect-ratio: 1;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--ink) 10%, transparent);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(20px, 6vw, 25px);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hidden-reveal-tiles span.is-key {
+  border-color: color-mix(in srgb, var(--g6, #9a6bb5) 70%, var(--ink));
+  background: var(--g6, #9a6bb5);
+  color: #fffdf8;
+  transform: rotate(3deg);
+}
+
+.hidden-reveal-tiles span {
+  opacity: 0;
+  transform: translateY(10px) rotate(-4deg) scale(0.82);
+  animation: hiddenTileIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hidden-reveal-tiles span:nth-child(1) { animation-delay: 120ms; }
+.hidden-reveal-tiles span:nth-child(2) { animation-delay: 175ms; }
+.hidden-reveal-tiles span:nth-child(3) { animation-delay: 230ms; }
+.hidden-reveal-tiles span:nth-child(4) { animation-delay: 285ms; }
+
+.hidden-reveal-tiles span.is-key {
+  animation-name: hiddenTileIn, hiddenKeyIn;
+  animation-duration: 420ms, 900ms;
+  animation-delay: 340ms, 560ms;
+}
+
+@keyframes hiddenTileIn {
+  from { opacity: 0; transform: translateY(10px) rotate(-4deg) scale(0.82); }
+  70% { opacity: 1; transform: translateY(-2px) rotate(1deg) scale(1.04); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hiddenKeyIn {
+  0%, 100% { box-shadow: inset 0 -3px 0 color-mix(in srgb, var(--ink) 10%, transparent); }
+  45% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--g6, #9a6bb5) 18%, transparent), inset 0 -3px 0 color-mix(in srgb, var(--ink) 10%, transparent); }
+}
+
+.hidden-reveal-eyebrow {
+  margin: 0 0 4px;
+  color: var(--g6, #9a6bb5);
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.hidden-reveal h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(27px, 7.5vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+.hidden-reveal-copy {
+  max-width: 28ch;
+  margin: 9px auto 0;
+  color: var(--muted-strong);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.hidden-reveal-skip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--ink);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 32%, transparent);
+  color: var(--page);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.hidden-reveal-skip span { font-size: 17px; line-height: 0.7; }
+.hidden-reveal-skip:active { transform: translateY(1px) scale(0.99); }
+.hidden-reveal-skip:focus-visible { outline: 2px solid var(--g6, #9a6bb5); outline-offset: 3px; }
+
+.hidden-reveal-foot {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 13px 0 0;
+  font-size: 7.5px;
+}
+
+.hidden-reveal-foot span + span::before {
+  content: "·";
+  margin-right: 10px;
+  color: var(--home-rule);
+}
+
+@media (max-width: 380px) {
+  .hidden-reveal-card { padding: 20px 14px 15px; border-radius: 18px; }
+  .hidden-reveal-card::before { border-radius: 18px 18px 0 0; }
+  .hidden-reveal-tiles { gap: 6px; margin: 18px 0 15px; }
+  .hidden-reveal h2 { font-size: 27px; }
+  .hidden-reveal-copy { font-size: 11px; }
+}
+
+@media (max-height: 520px) {
+  .hidden-reveal-card { max-width: 450px; padding: 16px 18px 13px; }
+  .hidden-reveal-tiles { margin: 12px 0 10px; }
+  .hidden-reveal-tiles span { width: 34px; font-size: 18px; }
+  .hidden-reveal h2 { font-size: 24px; }
+  .hidden-reveal-copy { margin-top: 5px; font-size: 10.5px; }
+  .hidden-reveal-skip { min-height: 40px; margin-top: 10px; }
+  .hidden-reveal-foot { margin-top: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.home-ready .home-grid .home-game,
+  .hub.is-returning .hub-shell,
+  #wordle:not([hidden]) .wordle-shell,
+  .wordle-result.is-revealed,
+  .wordle-result.is-revealed .wordle-result-card,
+  .hidden-reveal-card,
+  .hidden-reveal-tiles span {
+    animation: none;
+  }
+  .hidden-reveal,
+  .hidden-reveal-tiles span { transition: none; }
+  .hidden-reveal-card,
+  .hidden-reveal-tiles span { opacity: 1; transform: none; }
+  .hidden-reveal-tiles span.is-key { transform: rotate(3deg); }
+  .hidden-reveal.is-open .hidden-reveal-card { opacity: 1; transform: none; }
+}
+
+/* Touch targets must stay clickable even when the pointer is a finger rather
+   than a mouse. The six pieces are intentionally not game buttons, so Safari
+   needs the explicit touch affordance. */
+.home-six-piece {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* The cover now starts its build after the launch layer is removed. Keep the
+   cascade brisk so the hub is alive as soon as the splash clears. */
+html.home-ready .six-1 { animation-delay: 80ms; }
+html.home-ready .six-2 { animation-delay: 130ms; }
+html.home-ready .six-3 { animation-delay: 180ms; }
+html.home-ready .six-4 { animation-delay: 230ms; }
+html.home-ready .six-5 { animation-delay: 280ms; }
+html.home-ready .six-6 { animation-delay: 330ms; }
+html.home-ready .home-six-caption { animation-delay: 360ms; }

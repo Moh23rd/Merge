@@ -10,7 +10,7 @@
   function ensureWordle() {
     if (loading || window.SixfoldWordle) return;
     loading = true;
-    const files = ['wordle-words.js?v=3.0.0-w3', 'wordle.js?v=3.0.0-w3'];
+    const files = ['wordle-words.js?v=3.0.0-w4', 'wordle.js?v=3.0.0-w4'];
     files.reduce(function (chain, src) {
       return chain.then(function () {
         return new Promise(function (resolve, reject) {

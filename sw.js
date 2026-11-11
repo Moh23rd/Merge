@@ -1,15 +1,16 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
 // 3.0: the shell is rebuilt so the three-second result timing and the
 // restored What's New note reach clients that already hold an older cache.
-const VERSION = 'sixfold-3.0.7';
+const VERSION = 'sixfold-3.0.9';
 // Keep these matching index.html. A new cache version refreshes the shell even
 // when the asset URLs themselves do not change. The game code has its own
 // query suffix, so it must be listed separately or offline play would look for
 // files that were never cached.
 const ASSET = '3.0.0';
-const GAME_CODE = '3.0.0-w3';
+const GAME_CODE = '3.0.0-w4';
 const GAMES_CSS = '3.0.0-w6';
-const GAMES_JS = '3.0.0-w8';
+const POLISH_CSS = '3.0.0-w8';
+const GAMES_JS = '3.0.0-w10';
 const SUDOKU_CSS = '3.0.0-w8';
 
 const SHELL = [
@@ -25,7 +26,7 @@ const SHELL = [
   './install.js?v=' + ASSET,
   './games.css?v=' + GAMES_CSS,
   './home.css?v=' + ASSET,
-  './polish.css?v=' + GAMES_CSS,
+  './polish.css?v=' + POLISH_CSS,
   './sudoku.css?v=' + SUDOKU_CSS,
   './sudoku.js?v=' + GAME_CODE,
   './games.js?v=' + GAMES_JS,
