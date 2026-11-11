@@ -6,16 +6,16 @@ Sixfold is a small, installable pocket arcade: six satisfying puzzle games in on
 
 **[Play Sixfold →](https://moh23rd.github.io/Sixfold/)**
 
-**Merge** · **Water Sort** · **One Line** · **Fruit Merge** · **Tic Tac Toe** · **Minesweeper**
+**Merge** · **Sudoku** · **Tic Tac Toe** · **Minesweeper** · **Water Sort** · **Fruit Merge**
 
 ## The games
 
 - **Merge** — classic 2048. Slide the tiles, match equal numbers, reach 2048 and keep going. Also plays on a 3 × 3 or 5 × 5 board.
-- **Water Sort** — pour colour until every tube holds one colour. Eight fixed levels, easy to hard.
-- **One Line** — draw every link exactly once across 100 shapes in four chapters. Every shape starts from any dot, and clean solves earn up to three stars.
-- **Fruit Merge** — a Suika-style drop-and-merge board with the canonical eleven-fruit chain and triangular pair scoring.
+- **Sudoku** — a standard 9 × 9 grid in Easy, Medium, Hard and Expert. Every puzzle has exactly one solution, with notes, undo, erase, hints, a timer and best times saved on the device.
 - **Tic Tac Toe** — X goes first. Play another person or take on one of three computer levels, including a Perfect opponent that cannot be beaten, only drawn.
 - **Minesweeper** — Beginner 9 × 9, Intermediate 16 × 16 and Expert 30 × 16, with a safe first tap, flags and chording.
+- **Water Sort** — pour colour until every tube holds one colour. Eight fixed levels, easy to hard.
+- **Fruit Merge** — a Suika-style drop-and-merge board with the canonical eleven-fruit chain and triangular pair scoring.
 
 Every game saves its own board, best score and progress on the device, so closing the tab never loses a round.
 
@@ -39,7 +39,7 @@ The app works offline after the first visit. If Chrome says it is installed but 
 
 No accounts, ads, analytics or third-party scripts. Boards, scores and appearance choices stay in local storage on the device. The light/dark choice is also kept in a first-party cookie so an installed app can pick matching launch chrome. The phone controls the bottom system bar, so that bar keeps the colour it was given at install time.
 
-**Erase all data** in Look & feel removes every board, score, streak, saved shape and appearance choice. Each game also has its own reset in its bottom tool row.
+**Erase all data** in Look & feel removes every board, score, streak, saved puzzle and appearance choice. Each game also has its own reset in its bottom tool row.
 
 ## Running locally
 
@@ -78,7 +78,9 @@ home.css                   hub layout, six-piece intro and cartridge cards
 games.css                  in-game screens and controls
 polish.css                 motion, result cards and Wordle styles
 game.js                    Merge (2048)
-games.js                   Water Sort, One Line, Fruit Merge, Tic Tac Toe, Minesweeper
+games.js                   Water Sort, Sudoku adapter, Fruit Merge, Tic Tac Toe, Minesweeper
+sudoku.js                  Sudoku generator, solver, controls and saved progress
+sudoku.css                 Sudoku board, pad, result and difficulty styles
 wordle.js                  the hidden five-letter game and its saved stats
 wordle-words.js            offline answer and accepted-guess lists
 theme.js                   palettes, light/dark, focus and appearance controls
@@ -98,7 +100,7 @@ Release notes and version history live in [GitHub Releases](https://github.com/M
 
 ## Rules references
 
-The games were checked against their original rules: Gabriele Cirulli’s 2048, Nintendo’s Suika Game (fruit chain and pair scoring), the standard Minesweeper field sizes and first-click convention, classic water-sort rules, Euler-trail puzzles for One Line, and standard tic-tac-toe with a minimax opponent.
+The games were checked against their original rules: Gabriele Cirulli’s 2048, Nintendo’s Suika Game (fruit chain and pair scoring), the standard Minesweeper field sizes and first-click convention, classic water-sort rules, standard Sudoku with unique solutions, and standard tic-tac-toe with a minimax opponent.
 
 ## Credits and licence
 

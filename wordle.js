@@ -18,9 +18,7 @@
   const resultStats = $('wordle-result-stats');
   const resultNew = $('wordle-result-new');
   const resultShare = $('wordle-result-share');
-  const nativeInput = $('wordle-native-input');
-  const nativeKeyboard = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-  const noteEl = document.querySelector('#wordle .play-note');
+  const newBtn = $('wordle-new');
   const playedEl = $('wordle-played');
   const streakEl = $('wordle-streak');
   const titleEl = $('wordle-title');
@@ -35,7 +33,7 @@
   const KEY_ROWS = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-    ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace', 'Enter']
+    ['Backspace', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Enter']
   ];
   const STATE_RANK = { absent: 1, present: 2, correct: 3 };
   const EMPTY_STATS = { played: 0, wins: 0, streak: 0, max: 0, dist: [0, 0, 0, 0, 0, 0] };
@@ -234,7 +232,8 @@
           key.classList.add('wordle-key--wide');
           key.setAttribute('aria-label', 'Backspace');
         } else if (letter === 'Enter') {
-          key.classList.add('wordle-key--wide');
+          key.classList.add('wordle-key--wide', 'wordle-key--enter');
+          key.setAttribute('aria-label', 'Enter');
         } else {
           key.setAttribute('aria-label', letter.toUpperCase());
         }
@@ -257,7 +256,7 @@
       }
     });
     Object.keys(keyEls).forEach(function (letter) {
-      if (letter === 'Enter' || letter === 'Backspace') return;
+      if (letter === 'Backspace' || letter === 'Enter') return;
       if (best[letter]) keyEls[letter].dataset.state = best[letter];
       else keyEls[letter].removeAttribute('data-state');
     });
@@ -272,20 +271,12 @@
     statusEl.textContent = message;
   }
 
-  function idleMessage() {
-    return nativeKeyboard
-      ? 'Tap the board, then type a five-letter word.'
-      : 'Six tries. Five letters. Find the word.';
-  }
-
   function flashStatus(message) {
     window.clearTimeout(messageTimer);
     setStatus(message);
     messageTimer = window.setTimeout(function () {
       if (state.status === 'playing' && !busy) {
-        setStatus(nativeKeyboard
-          ? 'Tap the board and type a five-letter word.'
-          : 'Type a five-letter word, then press Enter.');
+        setStatus('Type a five-letter word, then press Enter.');
       }
     }, 2200);
   }
@@ -329,7 +320,6 @@
 
     state.guesses.push(guess);
     input = '';
-    if (nativeInput) nativeInput.value = '';
     busy = true;
     saveState();
     render(state.guesses.length - 1);
@@ -387,16 +377,8 @@
       resultStats.textContent = stats.played + ' played · ' + rate + '% won · streak ' + stats.streak + ' · best ' + stats.max;
     }
     if (resultShare) resultShare.hidden = false;
-    if (nativeInput) {
-      nativeInput.value = '';
-      nativeInput.blur();
-    }
-    if (document.body.dataset.screen === 'wordle') {
-      try {
-        resultEl.focus({ preventScroll: true });
-      } catch (err) {
-        resultEl.focus();
-      }
+    if (resultNew && document.body.dataset.screen === 'wordle') {
+      resultNew.focus({ preventScroll: true });
     }
   }
 
@@ -411,13 +393,12 @@
     state = freshState();
     input = '';
     busy = false;
-    if (nativeInput) nativeInput.value = '';
     hideResult();
     saveState();
     render();
     updateKeyboard();
     updateStats();
-    setStatus(idleMessage());
+    setStatus('Six tries. Five letters. Find the word.');
     try { boardEl.focus({ preventScroll: true }); } catch (err) {}
   }
 
@@ -429,7 +410,19 @@
     }).join('\n');
     const score = state.status === 'won' ? String(state.guesses.length) : 'X';
     const text = 'Sixfold — Wordle ' + score + '/6\n\n' + pattern;
-    if (window.MergeShare && window.MergeShare.share) {
+    const win = state.status === 'won';
+    const streak = stats.streak ? stats.streak + '-day streak' : 'No streak yet';
+    // Keep the emoji grid in the shared text, but give Wordle the same image
+    // card as every other finished game when file sharing is available.
+    if (window.MergeShare && window.MergeShare.result) {
+      window.MergeShare.result('Sixfold — Wordle', text, {
+        game: 'Wordle', number: '??', kind: 'WORDS',
+        title: win ? 'Solved' : 'Out of guesses',
+        score: score + '/6', label: 'GUESSES',
+        meta: ['The word was ' + state.answer.toUpperCase(), streak],
+        accent: '#9a6bb5'
+      });
+    } else if (window.MergeShare && window.MergeShare.share) {
       window.MergeShare.share('Sixfold — Wordle', text);
     } else if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).catch(function () {});
@@ -445,9 +438,9 @@
   function onKeyDown(event) {
     if (document.body.dataset.screen !== 'wordle') return;
     if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.repeat) return;
     if (document.documentElement.classList.contains('sheet-open')) return;
     const target = event.target;
-    if (target === nativeInput) return;
     if (target && target.closest && target.closest('input, textarea, select')) return;
     if (event.key === 'Enter') {
       if (target && target.closest && target.closest('a')) return;
@@ -473,7 +466,7 @@
       hideResult();
       render();
       updateKeyboard();
-      setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : idleMessage());
+      setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : 'Six tries. Five letters. Find the word.');
     } else {
       render();
       updateKeyboard();
@@ -482,7 +475,6 @@
   }
 
   function deactivate() {
-    if (nativeInput) nativeInput.blur();
     saveState();
   }
 
@@ -495,7 +487,6 @@
     state = freshState();
     input = '';
     busy = false;
-    if (nativeInput) nativeInput.value = '';
     hideResult();
     saveStats();
     saveState();
@@ -518,43 +509,11 @@
   });
   resultNew.addEventListener('click', newGame);
   resultShare.addEventListener('click', shareResult);
+  if (newBtn) newBtn.addEventListener('click', newGame);
   document.addEventListener('keydown', onKeyDown);
 
-  if (nativeInput) {
-    nativeInput.addEventListener('focus', function () {
-      nativeInput.value = input;
-      try {
-        nativeInput.setSelectionRange(input.length, input.length);
-      } catch (err) {}
-    });
-    nativeInput.addEventListener('keydown', function (event) {
-      if (event.isComposing) return;
-      if (event.key === 'Enter' || event.keyCode === 13) {
-        event.preventDefault();
-        submitGuess();
-      }
-    });
-    nativeInput.addEventListener('input', function () {
-      if (state.status !== 'playing' || busy) {
-        nativeInput.value = input;
-        return;
-      }
-      const typed = nativeInput.value.replace(/[^a-zA-Z]/g, '').toLowerCase().slice(0, COLS);
-      if (nativeInput.value !== typed) nativeInput.value = typed;
-      input = typed;
-      setStatus('');
-      render();
-    });
-  }
-
-  if (noteEl) {
-    noteEl.textContent = nativeKeyboard
-      ? 'Tap the board to type with your keyboard.'
-      : 'Type on your keyboard or tap the keys below.';
-  }
-
   if (state.status !== 'playing') showResult(state.status === 'won');
-  else setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : idleMessage());
+  else setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : 'Six tries. Five letters. Find the word.');
 
   window.SixfoldWordle = {
     title: titleEl,

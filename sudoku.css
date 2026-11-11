@@ -1,0 +1,511 @@
+/* ---------- sudoku ---------- */
+
+#sudoku {
+  --cart: var(--g1, #e85f3b);
+  --cart-ink: var(--home-accent-ink, #211d18);
+}
+
+.sudoku-main {
+  justify-content: center;
+  gap: clamp(6px, 1.1dvh, 11px);
+  overflow: hidden;
+}
+
+.sudoku-wrap {
+  position: relative;
+  width: min(100%, 340px, 48dvh);
+  aspect-ratio: 1;
+  flex: none;
+}
+
+.sudoku-board {
+  display: grid;
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.sudoku-row {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  min-height: 0;
+}
+
+.sudoku-row:nth-child(3n) .sudoku-cell {
+  border-bottom-width: 2px;
+  border-bottom-color: var(--ink);
+}
+
+.sudoku-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(15px, 3.4dvh, 26px);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 130ms ease, color 130ms ease, box-shadow 130ms ease;
+}
+
+.sudoku-cell.is-edge-right {
+  border-right-width: 2px;
+  border-right-color: var(--ink);
+}
+
+.sudoku-cell.is-given {
+  font-weight: 800;
+}
+
+.sudoku-cell.is-entry {
+  color: var(--cart);
+  font-weight: 800;
+}
+
+.sudoku-cell.is-peer {
+  background: color-mix(in srgb, var(--cart) 7%, transparent);
+}
+
+.sudoku-cell.is-same {
+  background: color-mix(in srgb, var(--cart) 15%, transparent);
+}
+
+.sudoku-cell.is-selected {
+  z-index: 1;
+  background: color-mix(in srgb, var(--cart) 24%, var(--card));
+  box-shadow: inset 0 0 0 2px var(--cart);
+}
+
+.sudoku-cell.is-conflict {
+  background: color-mix(in srgb, #b83828 13%, transparent);
+  color: #b83828;
+}
+
+.sudoku-cell.is-hint {
+  animation: sudokuHint 900ms ease;
+}
+
+.sudoku-cell:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -3px;
+}
+
+.sudoku-notes {
+  position: absolute;
+  inset: 1px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: clamp(6.5px, 1.2dvh, 9.5px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sudoku-notes i {
+  display: grid;
+  place-items: center;
+  font-style: normal;
+}
+
+@keyframes sudokuHint {
+  0%, 100% { box-shadow: inset 0 0 0 2px var(--cart); }
+  40% { box-shadow: inset 0 0 0 3px var(--cart), 0 0 0 4px color-mix(in srgb, var(--cart) 30%, transparent); }
+}
+
+.sudoku-pad {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: clamp(3px, 0.65vw, 6px);
+  width: min(100%, 360px);
+  flex: none;
+}
+
+.sudoku-pad-key {
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: clamp(34px, 5dvh, 46px);
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--ink) 9%, transparent);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 1.9dvh, 17px);
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.sudoku-pad-key small {
+  min-height: 8px;
+  color: var(--muted);
+  font-size: clamp(7px, 1dvh, 8.5px);
+  font-weight: 700;
+}
+
+.sudoku-pad-key:hover { background: color-mix(in srgb, var(--panel) 72%, var(--card)); }
+.sudoku-pad-key:active { transform: translateY(1px) scale(0.97); }
+.sudoku-pad-key:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.sudoku-pad-key:disabled { opacity: 0.35; cursor: default; }
+
+.sudoku-tools {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(4px, 0.8vw, 7px);
+  width: min(100%, 360px);
+  flex: none;
+}
+
+.sudoku-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(32px, 4.6dvh, 42px);
+  padding: 0 4px;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--ink);
+  font: inherit;
+  font-size: clamp(9.5px, 1.35dvh, 12px);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.sudoku-tool:hover { background: color-mix(in srgb, var(--panel) 72%, var(--card)); }
+.sudoku-tool:active { transform: translateY(1px) scale(0.98); }
+.sudoku-tool:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.sudoku-tool[aria-pressed="true"] {
+  border-color: var(--cart);
+  background: color-mix(in srgb, var(--cart) 18%, var(--panel));
+  color: var(--cart);
+}
+
+.sudoku-status { min-height: 17px; }
+
+/* ---------- result ---------- */
+
+.sudoku-result {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--page) 76%, transparent);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  z-index: 2;
+}
+
+.sudoku-result[hidden] { display: none; }
+
+.sudoku-result-card {
+  width: 100%;
+  padding: 15px 14px 13px;
+  border: 1px solid color-mix(in srgb, var(--ink) 13%, transparent);
+  border-radius: 14px;
+  background: var(--sheet-bg, var(--card));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--ink) 9%, transparent), 0 24px 42px -30px rgba(0, 0, 0, 0.5);
+  animation: sixfoldCardIn 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sudoku-result-card h2 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: clamp(21px, 3.2dvh, 27px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.sudoku-result-card > p:not(.game-tag):not(.sudoku-result-stats) {
+  margin: 7px 0 0;
+  color: var(--muted-strong);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.sudoku-result-stats {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
+.sudoku-result-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.sudoku-result-actions .play-btn { flex: 1; min-height: 38px; padding-inline: 10px; font-size: 11px; }
+.sudoku-result-actions .result-share { width: 38px; min-width: 38px; height: 38px; padding: 0; border-radius: 11px; }
+
+/* ---------- difficulty sheet ---------- */
+
+.sudoku-level-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.sudoku-level-option {
+  display: flex;
+  min-height: 62px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--ink) 13%, transparent);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sudoku-level-option strong { font-size: 13px; font-weight: 800; }
+.sudoku-level-option span { color: var(--muted); font-size: 10px; }
+.sudoku-level-option:hover { border-color: var(--ink); }
+.sudoku-level-option:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.sudoku-level-option.is-active {
+  border-color: var(--cart);
+  box-shadow: inset 0 0 0 1px var(--cart);
+  background: color-mix(in srgb, var(--cart) 10%, var(--card));
+}
+
+/* ---------- hub art ---------- */
+
+.mini-sudoku {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  width: 98px;
+  height: 98px;
+  padding: 3px;
+  border: 2px solid currentColor;
+  border-radius: 8px;
+  background: var(--home-stage);
+}
+
+.mini-sudoku i {
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mini-sudoku i:nth-child(1),
+.mini-sudoku i:nth-child(5),
+.mini-sudoku i:nth-child(9) {
+  background: var(--g1, #e85f3b);
+  color: var(--home-accent-ink, #211d18);
+}
+
+/* ---------- responsive ---------- */
+
+@media (orientation: portrait) and (max-height: 680px) {
+  .sudoku-wrap { width: min(100%, 286px, 40dvh); }
+  .sudoku-main { gap: 4px; }
+  .sudoku-pad-key { min-height: 32px; }
+  .sudoku-tool { min-height: 31px; }
+}
+
+@media (max-width: 380px) {
+  .sudoku-wrap { width: min(100%, 278px, 42dvh); }
+  .sudoku-pad { gap: 3px; }
+  .sudoku-tools { gap: 4px; }
+  .sudoku-tool { font-size: 9.5px; }
+  .sudoku-status { font-size: 10.5px; }
+}
+
+@media (min-width: 721px) and (min-height: 700px) {
+  .sudoku-main { gap: 14px; }
+  .sudoku-wrap { width: min(100%, 430px, 54dvh); }
+  .sudoku-cell { font-size: clamp(20px, 3.2dvh, 30px); }
+  .sudoku-pad,
+  .sudoku-tools { width: min(100%, 430px); }
+  .sudoku-pad-key { min-height: 48px; }
+  .sudoku-tool { min-height: 44px; font-size: 12px; }
+  .sudoku-status { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sudoku-cell,
+  .sudoku-cell.is-hint,
+  .sudoku-pad-key,
+  .sudoku-tool,
+  .sudoku-result-card {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Landscape gives the grid and the keypad their own columns. The board can
+   then use the full height instead of stacking a small grid above a wide pad
+   and leaving a dead band across the middle. */
+@media (orientation: landscape) {
+  .sudoku-shell {
+    width: min(100%, 1240px);
+    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+    gap: 10px 28px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 20px);
+  }
+
+  .sudoku-shell .play-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(210px, 20vw, 280px);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "board pad"
+      "status tools";
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    gap: 12px 20px;
+    width: 100%;
+    max-width: 920px;
+  }
+
+  .sudoku-shell .board-stage {
+    grid-area: board;
+    width: min(100%, 560px, calc(100dvh - 152px));
+    display: flex;
+    justify-content: center;
+    align-self: center;
+    /* The shared stage uses size containment for games that measure in cqh.
+       In this grid that collapses the board to zero height, so opt out. */
+    container-type: normal;
+  }
+
+  .sudoku-shell .sudoku-wrap { width: 100%; }
+
+  .sudoku-shell .play-feedback {
+    grid-area: status;
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+    min-height: 17px;
+    align-self: start;
+  }
+
+  .sudoku-shell .sudoku-pad {
+    grid-area: pad;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: clamp(210px, 20vw, 280px);
+    align-self: end;
+  }
+
+  .sudoku-shell .sudoku-tools {
+    grid-area: tools;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: clamp(210px, 20vw, 280px);
+    align-self: start;
+  }
+
+  .sudoku-shell .sudoku-pad-key {
+    min-height: clamp(46px, 6.8dvh, 58px);
+    font-size: clamp(14px, 2dvh, 18px);
+  }
+
+  .sudoku-shell .sudoku-tool { min-height: 44px; font-size: 12px; }
+}
+
+/* Laptop landscape: a narrower info rail leaves more width for the enlarged
+   board and pad. */
+@media (orientation: landscape) and (max-width: 1100px) {
+  .sudoku-shell {
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 10px 20px;
+  }
+}
+
+/* Short landscape phones keep the two-column idea, with smaller side controls
+   so the grid stays useful on a 375px-tall viewport. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .sudoku-shell {
+    grid-template-columns: minmax(190px, 30vw) minmax(0, 1fr);
+    gap: 6px 14px;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
+  }
+
+  .sudoku-shell .play-main {
+    grid-template-columns: minmax(0, 1fr) clamp(160px, 21vw, 190px);
+    gap: 8px 12px;
+  }
+
+  .sudoku-shell .board-stage {
+    width: min(100%, 260px, calc(100dvh - 130px));
+  }
+
+  .sudoku-shell .sudoku-pad,
+  .sudoku-shell .sudoku-tools { width: clamp(160px, 21vw, 190px); }
+
+  .sudoku-shell .sudoku-pad-key { min-height: 34px; }
+  .sudoku-shell .sudoku-tool { min-height: 30px; font-size: 9px; }
+}
+
+/* The smallest landscape screens need a narrower rail so the board and pad
+   still fit side by side. */
+@media (orientation: landscape) and (max-height: 420px) and (max-width: 620px) {
+  .sudoku-shell {
+    grid-template-columns: minmax(0, 150px) minmax(0, 1fr);
+    gap: 6px 10px;
+  }
+
+  .sudoku-shell .play-main {
+    grid-template-columns: minmax(0, 1fr) 128px;
+    gap: 6px 8px;
+  }
+
+  .sudoku-shell .board-stage {
+    width: min(100%, 190px, calc(100dvh - 125px));
+  }
+
+  .sudoku-shell .sudoku-pad,
+  .sudoku-shell .sudoku-tools { width: 128px; }
+
+  .sudoku-shell .sudoku-pad-key { min-height: 26px; font-size: 11px; }
+  .sudoku-shell .sudoku-tool { min-height: 26px; font-size: 8px; }
+}
+
+/* 320×568 portrait: keep the board large and trim the footer chrome so the
+   final row stays inside the viewport. */
+@media (orientation: portrait) and (max-height: 600px) {
+  .sudoku-shell { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); }
+  .sudoku-shell .play-intro .sub { display: none; }
+  .sudoku-wrap { width: min(100%, 278px, 40dvh); }
+  .sudoku-shell .play-foot { min-height: 32px; }
+  .sudoku-shell .play-foot .play-btn { min-height: 32px; }
+}

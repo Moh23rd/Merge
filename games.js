@@ -1,4 +1,4 @@
-/* The game collection shell. Merge keeps its own screen; the other four games
+/* The game collection shell. Merge keeps its own screen; the other games
    are self-contained, offline-first modules on the same page. */
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
   const hub = $('hub');
   const screens = {
     water: $('water'),
-    oneline: $('oneline'),
+    sudoku: $('sudoku'),
     fruit: $('fruit'),
     ttt: $('ttt'),
     mines: $('mines'),
@@ -18,7 +18,7 @@
   };
   const cards = $$('[data-game]');
   const backButtons = $$('[data-back]');
-  if (!app || !hub || !screens.water || !screens.oneline || !screens.fruit || !screens.ttt || !screens.mines || !screens.wordle) return;
+  if (!app || !hub || !screens.water || !screens.sudoku || !screens.fruit || !screens.ttt || !screens.mines || !screens.wordle) return;
 
   function load(key, fallback) {
     try {
@@ -55,7 +55,7 @@
   /* ---------- sharing ---------- */
 
   const SHARE_TITLE = 'Sixfold — Six games. No filler.';
-  const SHARE_TEXT = 'Sixfold: six games, no filler — an offline pocket arcade of Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper. No accounts, no ads.';
+  const SHARE_TEXT = 'Sixfold: six games, no filler — an offline pocket arcade of Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort and Fruit Merge. No accounts, no ads.';
   let toastTimer = 0;
 
   function shareUrl() {
@@ -123,6 +123,7 @@
 
   window.MergeShare = {
     share: share,
+    result: shareResult,
     url: shareUrl,
     toast: toast
   };
@@ -163,10 +164,10 @@
       { event: 'pour', text: 'Now tap a second tube to pour it.' },
       { event: 'pour', text: 'Nice. Keep pouring until each tube holds one colour.', test: function (d) { return d.moves >= 2; } }
     ],
-    oneline: [
-      { event: 'start', text: 'Tap any dot to begin the line.' },
-      { event: 'link', text: 'Drag or tap a connected dot.' },
-      { event: 'link', text: 'Keep tracing. Each link can only be used once.', test: function (d) { return d.links >= 3; } }
+    sudoku: [
+      { event: 'select', text: 'Tap a cell, then a number from the pad.' },
+      { event: 'place', text: 'Every row, column and 3 × 3 box needs 1–9 once.', test: function (d) { return d.placed >= 1; } },
+      { event: 'place', text: 'Use Notes for candidates and Hint when you are stuck.', test: function (d) { return d.placed >= 3; } }
     ],
     fruit: [
       { event: 'aim', text: 'Drag across the board to aim the fruit.' },
@@ -410,11 +411,11 @@
 
   const GAME_NAMES = {
     merge: 'Merge',
-    water: 'Water Sort',
-    oneline: 'One Line',
-    fruit: 'Fruit Merge',
+    sudoku: 'Sudoku',
     ttt: 'Tic Tac Toe',
     mines: 'Minesweeper',
+    water: 'Water Sort',
+    fruit: 'Fruit Merge',
     wordle: 'Wordle'
   };
   const VALID_GAMES = Object.keys(GAME_NAMES);
@@ -596,14 +597,15 @@
         'Sort every colour, one tube each. If no move remains, undo or start a fresh board.'
       ]
     },
-    oneline: {
-      title: 'How to play One Line',
+    sudoku: {
+      title: 'How to play Sudoku',
       steps: [
-        'Start on any dot. Every link can be used exactly once.',
-        'Revisit dots, never links. Lift and continue from the glowing end.',
-        'Later shapes have two ringed open ends — start on one of them.',
-        'Finish without undo, restart or a hint to earn three stars. Shapes opens the full map.',
-        'Stuck? Hint (or H) pulses the next dot. A hint caps that shape at two stars.'
+        'Fill the 9 × 9 grid so every row, column and 3 × 3 box contains 1–9 exactly once.',
+        'Tap a cell, then a number from the pad. Given clues are locked and cannot be erased.',
+        'Notes records small candidate numbers in a cell. Erase clears the selected cell.',
+        'Undo takes back one move. Hint reveals one correct number and counts as a hint.',
+        'Every puzzle has exactly one solution. Complete the grid to stop the clock and save a best time.',
+        'Easy, Medium, Hard and Expert each keep their own best time on this device.'
       ]
     },
     fruit: {
@@ -645,7 +647,7 @@
         'Green means the letter is in the right spot. Yellow means it is in the word but in another spot. Gray means it is not in the word.',
         'Duplicate letters score only as many times as they appear in the answer.',
         'Type on a keyboard or tap the keys, then press Enter to submit.',
-        'After a win or a loss, New word starts a fresh round.'
+        'After a win or a loss, New game starts a fresh round.'
       ]
     }
   };
@@ -653,7 +655,7 @@
   const RESET_COPY = {
     merge: 'This clears the current Merge board, all best scores and the tip history. Your look and board size stay as they are.',
     water: 'This clears Water Sort progress and starts again at level 1. Your other games are untouched.',
-    oneline: 'This clears One Line progress, every star and all unlocked shapes, and starts again at shape 1. Your other games are untouched.',
+    sudoku: 'This clears your Sudoku progress, saved puzzle, best times and stats, and starts a fresh Easy puzzle. Your other games are untouched.',
     fruit: 'This clears your Fruit Merge best score and starts a fresh run. Your other games are untouched.',
     ttt: 'This clears your Tic Tac Toe records for both computer and two-player games and starts a new round. Your other games are untouched.',
     mines: 'This clears your Minesweeper field choice and starts a new Beginner field. Your other games are untouched.',
@@ -907,14 +909,27 @@
 
         const glass = document.createElement('span');
         glass.className = 'water-glass';
-        tube.forEach(function (color, layer) {
-          const segment = document.createElement('span');
-          segment.className = 'water-seg' + (layer === tube.length - 1 ? ' water-surface' : '');
-          segment.style.setProperty('--liquid', colorOf(color).hex);
-          segment.style.setProperty('--liquid-deep', colorOf(color).deep);
-          segment.setAttribute('aria-hidden', 'true');
-          glass.appendChild(segment);
-        });
+        if (tube.length) {
+          const liquid = document.createElement('span');
+          liquid.className = 'water-liquid';
+          liquid.style.setProperty('--fill', String(tube.length));
+          let below = null;
+          tube.forEach(function (color, layer) {
+            const swatch = colorOf(color);
+            const segment = document.createElement('span');
+            segment.className = 'water-seg' + (layer === tube.length - 1 ? ' water-surface' : '');
+            segment.style.setProperty('--liquid', swatch.hex);
+            segment.style.setProperty('--liquid-deep', swatch.deep);
+            if (below) {
+              segment.style.setProperty('--liquid-below', below.hex);
+              segment.style.setProperty('--liquid-below-deep', below.deep);
+            }
+            segment.setAttribute('aria-hidden', 'true');
+            liquid.appendChild(segment);
+            below = swatch;
+          });
+          glass.appendChild(liquid);
+        }
 
         const shine = document.createElement('span');
         shine.className = 'water-shine';
@@ -926,30 +941,59 @@
       });
     }
 
-    function pourStream(fromIndex, toIndex, color) {
+    function pourStream(fromIndex, toIndex, color, sourceBaseRect) {
       const from = tubesEl.querySelector('[data-index="' + fromIndex + '"]');
       const to = tubesEl.querySelector('[data-index="' + toIndex + '"]');
       if (!from || !to) return;
-      const a = from.getBoundingClientRect();
-      const b = to.getBoundingClientRect();
-      const sx = a.left + a.width / 2;
-      const sy = a.top + Math.max(8, a.height * 0.18);
+      const toGlass = to.querySelector('.water-glass') || to;
+      const a = sourceBaseRect || (from.querySelector('.water-glass') || from).getBoundingClientRect();
+      const b = toGlass.getBoundingClientRect();
+      const targetCount = Math.min(CAP, tubes[toIndex].length);
       const dx = b.left + b.width / 2;
-      const dy = b.top + Math.max(8, b.height * 0.18);
-      const lift = Math.max(22, Math.abs(sy - dy) * 0.42);
+      const dy = b.bottom - 2 - (b.height - 5) * (targetCount / CAP);
+      const pourRight = dx >= a.left + a.width / 2;
+      const tilt = (pourRight ? 6 : -6) * Math.PI / 180;
+      const halfWidth = a.width / 2;
+      const localX = pourRight ? halfWidth : -halfWidth;
+      const sx = a.left + halfWidth + localX * Math.cos(tilt) + a.height * Math.sin(tilt) + (pourRight ? -1 : 1);
+      const sy = a.bottom + localX * Math.sin(tilt) - a.height * Math.cos(tilt) + 2;
+      const span = dx - sx;
+      const drop = dy - sy;
+      const sag = Math.max(8, Math.abs(span) * 0.1 + Math.max(0, drop) * 0.16);
+      const cx = sx + span * 0.62;
+      const cy = sy + drop * 0.16 + sag;
+      const d = 'M ' + sx + ' ' + sy + ' Q ' + cx + ' ' + cy + ' ' + dx + ' ' + dy;
       const layer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       layer.setAttribute('class', 'water-pour-layer');
       layer.setAttribute('viewBox', '0 0 ' + window.innerWidth + ' ' + window.innerHeight);
       layer.setAttribute('aria-hidden', 'true');
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', 'M ' + sx + ' ' + sy + ' Q ' + ((sx + dx) / 2) + ' ' + (Math.min(sy, dy) - lift) + ' ' + dx + ' ' + dy);
-      path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', color.hex);
-      path.setAttribute('stroke-width', '4');
-      path.setAttribute('stroke-linecap', 'round');
-      layer.appendChild(path);
+
+      const splash = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      splash.setAttribute('class', 'water-pour-splash');
+      splash.setAttribute('cx', String(dx));
+      splash.setAttribute('cy', String(dy));
+      splash.setAttribute('rx', String(Math.max(6, a.width * 0.16)));
+      splash.setAttribute('ry', '2.5');
+      splash.setAttribute('fill', color.hex);
+      layer.appendChild(splash);
+
+      [
+        { className: 'water-stream-edge', stroke: color.deep, width: 4.6, opacity: 0.42 },
+        { className: 'water-stream-core', stroke: color.hex, width: 2.3, opacity: 0.95 }
+      ].forEach(function (stroke) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('class', stroke.className);
+        path.setAttribute('d', d);
+        path.setAttribute('pathLength', '1');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', stroke.stroke);
+        path.setAttribute('stroke-width', String(stroke.width));
+        path.setAttribute('stroke-opacity', String(stroke.opacity));
+        path.setAttribute('stroke-linecap', 'round');
+        layer.appendChild(path);
+      });
       document.body.appendChild(layer);
-      window.setTimeout(function () { layer.remove(); }, 460);
+      window.setTimeout(function () { layer.remove(); }, 580);
     }
 
     function chooseTube(index) {
@@ -978,9 +1022,11 @@
       }
       const sourceIndex = selected;
       const colorIndex = tubes[sourceIndex][tubes[sourceIndex].length - 1];
+      const pouredColor = colorOf(colorIndex);
       history.push({ tubes: cloneTubes(tubes), moves: moves });
       const source = tubes[sourceIndex];
       const destination = tubes[index];
+      const destinationBefore = destination.length;
       destination.push.apply(destination, source.splice(source.length - amount, amount));
       moves += 1;
       selected = -1;
@@ -990,15 +1036,43 @@
       render();
       const sourceEl = tubesEl.querySelector('[data-index="' + sourceIndex + '"]');
       const targetEl = tubesEl.querySelector('[data-index="' + index + '"]');
-      if (sourceEl) sourceEl.classList.add('is-pouring');
-      if (targetEl) targetEl.classList.add('is-receiving');
-      pourStream(sourceIndex, index, colorOf(colorIndex));
+      const sourceGlass = sourceEl ? sourceEl.querySelector('.water-glass') : null;
+      const sourceBaseRect = sourceGlass ? sourceGlass.getBoundingClientRect() : null;
+      let drain = null;
+      if (sourceEl) {
+        if (sourceGlass) {
+          const remainingTop = tubes[sourceIndex].length
+            ? colorOf(tubes[sourceIndex][tubes[sourceIndex].length - 1])
+            : null;
+          drain = document.createElement('span');
+          drain.className = 'water-drain';
+          drain.style.setProperty('--drain', pouredColor.hex);
+          drain.style.setProperty('--drain-deep', pouredColor.deep);
+          drain.style.setProperty('--poured', String(amount));
+          drain.style.setProperty('--fill', String(tubes[sourceIndex].length));
+          if (remainingTop) drain.style.setProperty('--drain-below', remainingTop.hex);
+          sourceGlass.insertBefore(drain, sourceGlass.querySelector('.water-shine'));
+        }
+        sourceEl.classList.add('is-pouring');
+      }
+      if (targetEl) {
+        targetEl.style.setProperty('--before-fill', String(destinationBefore));
+        targetEl.classList.add('is-receiving');
+      }
+      const sourceRect = sourceEl ? sourceEl.getBoundingClientRect() : null;
+      const targetRect = targetEl ? targetEl.getBoundingClientRect() : null;
+      if (sourceEl && sourceRect && targetRect) {
+        sourceEl.style.setProperty('--pour-tilt',
+          (targetRect.left + targetRect.width / 2 >= sourceRect.left + sourceRect.width / 2 ? 6 : -6) + 'deg');
+      }
+      pourStream(sourceIndex, index, pouredColor, sourceBaseRect);
       busy = true;
       window.setTimeout(function () {
         busy = false;
         if (sourceEl) sourceEl.classList.remove('is-pouring');
         if (targetEl) targetEl.classList.remove('is-receiving');
-      }, 300);
+        if (drain) drain.remove();
+      }, 430);
       if (solved) {
         if (window.MergeCoach) window.MergeCoach.complete('water');
         status('Level clear. Every colour has its own tube.');
@@ -1091,7 +1165,7 @@
       shareBtn.addEventListener('click', function () {
         shareResult('Water Sort', 'I sorted Water Sort level ' + (level + 1) + ' of ' + LEVELS.length +
           ' in ' + moves + (moves === 1 ? ' move' : ' moves') + '. Can you?', {
-          game: 'Water Sort', number: '02', kind: 'SORTING',
+          game: 'Water Sort', number: '05', kind: 'SORTING',
           title: 'Water Sort',
           score: moves,
           label: 'MOVES',
@@ -1156,1071 +1230,21 @@
   })();
 
   /* ======================================================================
-     One Line
+     Sudoku
      ====================================================================== */
 
-  (function oneLine() {
-    const root = screens.oneline;
-    if (!root) return;
-    const svg = $('one-line-svg');
-    const levelEl = $('one-line-level');
-    const labelEl = $('one-line-level-label');
-    const levelValue = $('one-line-level-value');
-    const movesEl = $('one-line-moves');
-    const statusEl = $('one-line-status');
-    const winEl = $('one-line-win');
-    const winCopy = $('one-line-win-copy');
-    const starsEl = $('one-line-stars');
-    const nextBtn = $('one-line-win-next');
-    const restartBtn = $('one-line-restart');
-    const undoBtn = $('one-line-undo');
-    const shapesBtn = $('one-line-new');
-    const title = $('one-line-title');
-    const levelSheet = $('one-line-levels');
-    const levelGrid = $('one-line-level-grid');
-    const hintBtn = $('one-line-hint');
-    const statusRow = $('one-line-status-row');
-    const shareBtn = $('one-line-share');
-    const shareStarsBtn = $('one-line-share-stars');
-    const starTotalEl = $('one-line-star-total');
-    const starMeter = $('one-line-star-meter');
-    const starMeterFill = $('one-line-star-meter-fill');
-    const LEVEL_KEY = 'merge-games.oneline.level.v2';
-    const CHAPTERS = ['Easy', 'Medium', 'Hard', 'Expert'];
-
-    /* The first ten shapes are hand-drawn. The rest are generated as clean,
-       planar boards: no lines cross and no line runs through a dot. Every
-       board starts as an Euler circuit; after the first chapter one extra
-       chord leaves exactly two open ends, so the player has to begin on one
-       of the ringed dots. */
-    const HANDMADE = [
-      {
-        name: 'Triangle',
-        nodes: [[50, 18], [24, 72], [76, 72]],
-        edges: [[0, 1], [1, 2], [2, 0]]
-      },
-      {
-        name: 'Square',
-        nodes: [[26, 26], [74, 26], [74, 74], [26, 74]],
-        edges: [[0, 1], [1, 2], [2, 3], [3, 0]]
-      },
-      {
-        name: 'Bow',
-        nodes: [[50, 50], [22, 24], [22, 76], [78, 24], [78, 76]],
-        edges: [[0, 1], [1, 2], [2, 0], [0, 3], [3, 4], [4, 0]]
-      },
-      {
-        name: 'House',
-        nodes: [[62, 78], [30, 78], [30, 44], [62, 44], [18, 18], [48, 18]],
-        edges: [[0, 1], [1, 2], [2, 3], [3, 0], [2, 4], [4, 5], [5, 2]]
-      },
-      {
-        name: 'Star',
-        nodes: [[50, 16], [58.8, 37.9], [82.3, 39.5], [63.7, 55.7], [70, 77.5], [50, 63], [30, 77.5], [36.3, 55.7], [17.7, 39.5], [41.2, 37.9]],
-        edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 0]]
-      },
-      {
-        name: 'Clover',
-        nodes: [[50, 50], [50, 12], [82, 36], [82, 64], [50, 88], [18, 64], [18, 36]],
-        edges: [[0, 1], [1, 2], [2, 0], [0, 3], [3, 4], [4, 0], [0, 5], [5, 6], [6, 0]]
-      },
-      {
-        name: 'Switchback',
-        nodes: [[22, 18], [50, 18], [78, 18], [78, 40], [50, 40], [50, 62], [78, 62], [78, 84], [50, 84], [22, 84], [22, 62], [22, 40]],
-        edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 0]]
-      },
-      {
-        name: 'Spectacles',
-        nodes: [[50, 50], [14, 50], [23, 32], [41, 32], [41, 68], [23, 68], [59, 32], [77, 32], [86, 50], [77, 68], [59, 68]],
-        edges: [[0, 3], [3, 2], [2, 1], [1, 5], [5, 4], [4, 0], [0, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 0]]
-      },
-      {
-        name: 'Four leaf',
-        nodes: [[50, 50], [50, 10], [78, 28], [90, 50], [78, 72], [50, 90], [22, 72], [10, 50], [22, 28]],
-        edges: [[0, 1], [1, 2], [2, 0], [0, 3], [3, 4], [4, 0], [0, 5], [5, 6], [6, 0], [0, 7], [7, 8], [8, 0]]
-      },
-      {
-        name: 'Grand tour',
-        nodes: [[22, 18], [50, 18], [78, 18], [78, 40], [50, 40], [50, 62], [78, 62], [78, 84], [50, 84], [22, 84], [22, 62], [22, 40], [8, 8], [35, 8]],
-        edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 0], [0, 12], [12, 13], [13, 0]]
-      }
-    ];
-    HANDMADE.forEach(function (board) { board.handmade = true; });
-
-    function makeRng(seed) {
-      let value = seed >>> 0;
-      return function () {
-        value = (value + 0x6D2B79F5) >>> 0;
-        let t = value;
-        t = Math.imul(t ^ (t >>> 15), t | 1);
-        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
+  games.sudoku = {
+    title: $('sudoku-title'),
+    activate: function () {
+      if (window.SixfoldSudoku) window.SixfoldSudoku.activate();
+    },
+    deactivate: function () {
+      if (window.SixfoldSudoku) window.SixfoldSudoku.deactivate();
+    },
+    reset: function () {
+      if (window.SixfoldSudoku) window.SixfoldSudoku.reset();
     }
-
-    function dist(a, b) {
-      return Math.hypot(a[0] - b[0], a[1] - b[1]);
-    }
-
-    function orientation(a, b, c) {
-      return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
-    }
-
-    function onSegment(a, b, c) {
-      const epsilon = 1e-9;
-      return Math.abs(orientation(a, b, c)) < epsilon &&
-        c[0] >= Math.min(a[0], b[0]) - epsilon &&
-        c[0] <= Math.max(a[0], b[0]) + epsilon &&
-        c[1] >= Math.min(a[1], b[1]) - epsilon &&
-        c[1] <= Math.max(a[1], b[1]) + epsilon;
-    }
-
-    function segmentsCross(a, b, c, d) {
-      const o1 = orientation(a, b, c);
-      const o2 = orientation(a, b, d);
-      const o3 = orientation(c, d, a);
-      const o4 = orientation(c, d, b);
-      if (((o1 > 0 && o2 < 0) || (o1 < 0 && o2 > 0)) &&
-          ((o3 > 0 && o4 < 0) || (o3 < 0 && o4 > 0))) return true;
-      return onSegment(a, b, c) || onSegment(a, b, d) || onSegment(c, d, a) || onSegment(c, d, b);
-    }
-
-    function shareNode(edge, other) {
-      return edge[0] === other[0] || edge[0] === other[1] ||
-        edge[1] === other[0] || edge[1] === other[1];
-    }
-
-    function pointToSegment(point, a, b) {
-      const dx = b[0] - a[0];
-      const dy = b[1] - a[1];
-      const lengthSq = dx * dx + dy * dy;
-      if (!lengthSq) return dist(point, a);
-      let t = ((point[0] - a[0]) * dx + (point[1] - a[1]) * dy) / lengthSq;
-      t = Math.max(0, Math.min(1, t));
-      return Math.hypot(point[0] - (a[0] + t * dx), point[1] - (a[1] + t * dy));
-    }
-
-    function placePath(ai, bi, count, side, rng, nodes, edges) {
-      const A = nodes[ai];
-      const B = nodes[bi];
-      const dx = B[0] - A[0];
-      const dy = B[1] - A[1];
-      const length = Math.hypot(dx, dy) || 1;
-      const nx = -dy / length;
-      const ny = dx / length;
-      const points = [];
-
-      for (let step = 1; step <= count; step += 1) {
-        const t = step / (count + 1);
-        const offset = (count === 1 ? 12 : 9) + rng() * 9;
-        const along = (rng() - 0.5) * 7;
-        const x = A[0] + dx * t + nx * offset * side - (dy / length) * along;
-        const y = A[1] + dy * t + ny * offset * side + (dx / length) * along;
-        if (x < 12 || x > 88 || y < 12 || y > 88) return null;
-        for (let n = 0; n < nodes.length; n += 1) {
-          if (dist([x, y], nodes[n]) < 12.5) return null;
-        }
-        for (let e = 0; e < edges.length; e += 1) {
-          const edge = edges[e];
-          if (pointToSegment([x, y], nodes[edge[0]], nodes[edge[1]]) < 8) return null;
-        }
-        for (let p = 0; p < points.length; p += 1) {
-          if (dist([x, y], points[p]) < 12.5) return null;
-        }
-        points.push([x, y]);
-      }
-
-      const ids = [ai].concat(points.map(function (point, index) {
-        return nodes.length + index;
-      }), [bi]);
-      const allNodes = nodes.concat(points);
-      const candidate = [];
-      for (let i = 0; i < ids.length - 1; i += 1) {
-        candidate.push([ids[i], ids[i + 1]]);
-      }
-
-      for (let i = 0; i < candidate.length; i += 1) {
-        const edge = candidate[i];
-        for (let e = 0; e < edges.length; e += 1) {
-          const other = edges[e];
-          if ((edge[0] === other[0] && edge[1] === other[1]) ||
-              (edge[0] === other[1] && edge[1] === other[0])) return null;
-        }
-      }
-
-      for (let i = 0; i < candidate.length; i += 1) {
-        const edge = candidate[i];
-        const p1 = allNodes[edge[0]];
-        const p2 = allNodes[edge[1]];
-        for (let e = 0; e < edges.length; e += 1) {
-          const other = edges[e];
-          if (shareNode(edge, other)) continue;
-          if (segmentsCross(p1, p2, allNodes[other[0]], allNodes[other[1]])) return null;
-        }
-        for (let p = 0; p < i; p += 1) {
-          const other = candidate[p];
-          if (shareNode(edge, other)) continue;
-          if (segmentsCross(p1, p2, allNodes[other[0]], allNodes[other[1]])) return null;
-        }
-        for (let n = 0; n < allNodes.length; n += 1) {
-          if (n === edge[0] || n === edge[1]) continue;
-          if (pointToSegment(allNodes[n], p1, p2) < 8) return null;
-        }
-      }
-
-      return { points: points, edges: candidate };
-    }
-
-    /* One Line used to build every generated shape from the same ring, which
-       made later levels read as the same drawing turned to a new angle. These
-       five simple, non-crossing families vary the silhouette itself: circle,
-       ellipse, rounded diamond, eight-point star and hexagon. Node counts and
-       rotation move too, so even two shapes of the same family feel different. */
-    function baseLoop(index, rng) {
-      const styles = ['ring', 'ellipse', 'diamond', 'star', 'hexagon'];
-      const style = styles[index % styles.length];
-      const rotation = rng() * Math.PI * 2;
-      let count = 4 + Math.floor(rng() * 3);
-      if (style === 'diamond') count = 4;
-      if (style === 'star') count = 8;
-      if (style === 'hexagon') count = 6;
-
-      const nodes = [];
-      for (let i = 0; i < count; i += 1) {
-        const angle = rotation + (i * Math.PI * 2) / count;
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        let x = 50;
-        let y = 50;
-        if (style === 'ellipse') {
-          x = 50 + c * (31 + rng() * 7);
-          y = 50 + s * (20 + rng() * 6);
-        } else if (style === 'diamond') {
-          x = 50 + 36 * Math.sign(c) * Math.pow(Math.abs(c), 0.62);
-          y = 50 + 31 * Math.sign(s) * Math.pow(Math.abs(s), 0.62);
-        } else if (style === 'star') {
-          const radius = i % 2 ? 17 + rng() * 3 : 37 + rng() * 3;
-          x = 50 + c * radius;
-          y = 50 + s * radius;
-        } else if (style === 'hexagon') {
-          x = 50 + c * (32 + rng() * 4);
-          y = 50 + s * (28 + rng() * 4);
-        } else {
-          const radius = 24 + rng() * 9;
-          x = 50 + c * radius;
-          y = 50 + s * radius;
-        }
-        nodes.push([clamp(x, 13, 87), clamp(y, 13, 87)]);
-      }
-
-      return {
-        nodes: nodes,
-        edges: nodes.map(function (_, i) { return [i, (i + 1) % count]; })
-      };
-    }
-
-    function buildEvenBoard(index) {
-      const rng = makeRng(0x9E3779B9 ^ (index * 2654435761));
-      const target = clamp(4 + Math.round(index * 24 / 89 + (rng() - 0.5) * 3), 4, 30);
-      const base = baseLoop(index, rng);
-      let nodes = base.nodes;
-      let edges = base.edges;
-
-      let ears = 0;
-      while (edges.length < target && ears < 9) {
-        let added = false;
-        for (let tries = 0; tries < 240 && !added; tries += 1) {
-          const ai = Math.floor(rng() * nodes.length);
-          const bi = Math.floor(rng() * nodes.length);
-          if (bi === ai) continue;
-          if (dist(nodes[ai], nodes[bi]) < 22) continue;
-          const countA = rng() < 0.55 ? 1 : 2;
-          const countB = rng() < 0.55 ? 1 : 2;
-          const pathA = placePath(ai, bi, countA, 1, rng, nodes, edges);
-          if (!pathA) continue;
-          const nodesA = nodes.concat(pathA.points);
-          const edgesA = edges.concat(pathA.edges);
-          const pathB = placePath(ai, bi, countB, -1, rng, nodesA, edgesA);
-          if (!pathB) continue;
-          nodes = nodesA.concat(pathB.points);
-          edges = edgesA.concat(pathB.edges);
-          added = true;
-          ears += 1;
-        }
-        if (!added) break;
-      }
-
-      return { nodes: nodes, edges: edges };
-    }
-
-    function addOpenEdge(board, rng) {
-      const nodes = board.nodes;
-      const edges = board.edges;
-      const pairs = [];
-      for (let i = 0; i < nodes.length; i += 1) {
-        for (let j = i + 1; j < nodes.length; j += 1) {
-          const exists = edges.some(function (edge) {
-            return (edge[0] === i && edge[1] === j) || (edge[0] === j && edge[1] === i);
-          });
-          if (exists || dist(nodes[i], nodes[j]) < 16) continue;
-          pairs.push([i, j]);
-        }
-      }
-      for (let i = pairs.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(rng() * (i + 1));
-        const temp = pairs[i];
-        pairs[i] = pairs[j];
-        pairs[j] = temp;
-      }
-      for (let p = 0; p < pairs.length; p += 1) {
-        const i = pairs[p][0];
-        const j = pairs[p][1];
-        const a = nodes[i];
-        const b = nodes[j];
-        let valid = true;
-        for (let e = 0; e < edges.length; e += 1) {
-          const edge = edges[e];
-          if (shareNode([i, j], edge)) continue;
-          if (segmentsCross(a, b, nodes[edge[0]], nodes[edge[1]])) {
-            valid = false;
-            break;
-          }
-        }
-        if (!valid) continue;
-        for (let n = 0; n < nodes.length; n += 1) {
-          if (n === i || n === j) continue;
-          if (pointToSegment(nodes[n], a, b) < 8) {
-            valid = false;
-            break;
-          }
-        }
-        if (!valid) continue;
-        edges.push([i, j]);
-        return true;
-      }
-      return false;
-    }
-
-    function degreeCounts(board) {
-      const counts = board.nodes.map(function () { return 0; });
-      board.edges.forEach(function (edge) {
-        counts[edge[0]] += 1;
-        counts[edge[1]] += 1;
-      });
-      return counts;
-    }
-
-    const GENERATED = [];
-    for (let i = 0; i < 90; i += 1) {
-      GENERATED.push(buildEvenBoard(i));
-    }
-    const LEVELS = HANDMADE.concat(GENERATED);
-    LEVELS.sort(function (a, b) {
-      return a.edges.length - b.edges.length ||
-        a.nodes.length - b.nodes.length ||
-        (a.handmade === b.handmade ? 0 : a.handmade ? -1 : 1);
-    });
-    LEVELS.forEach(function (board, index) {
-      if (!board.handmade) board.name = 'Shape ' + (index + 1);
-    });
-    const CHAPTER_SIZE = Math.ceil(LEVELS.length / 4);
-    for (let i = CHAPTER_SIZE; i < LEVELS.length; i += 1) {
-      addOpenEdge(LEVELS[i], makeRng(0xABCDEF ^ (i * 7919)));
-    }
-
-    function chapterFor(index) {
-      return CHAPTERS[Math.min(CHAPTERS.length - 1, Math.floor(index / CHAPTER_SIZE))] || CHAPTERS[0];
-    }
-
-    let level = 0;
-    let unlocked = 0;
-    let starMap = {};
-    let path = [];
-    let used = new Set();
-    let solved = false;
-    let pointerId = null;
-    let pointerActive = false;
-    let attemptUndo = false;
-    let attemptRestart = false;
-    let attemptHint = false;
-
-    function data() {
-      return LEVELS[level];
-    }
-
-    function edgeKey(a, b) {
-      return Math.min(a, b) + '-' + Math.max(a, b);
-    }
-
-    function edgeExists(a, b) {
-      return data().edges.some(function (edge) {
-        return (edge[0] === a && edge[1] === b) || (edge[0] === b && edge[1] === a);
-      });
-    }
-
-    function setStatus(message) {
-      if (statusEl) statusEl.textContent = message;
-    }
-
-    function saveProgress() {
-      save(LEVEL_KEY, {
-        level: level,
-        unlocked: unlocked,
-        stars: starMap
-      });
-    }
-
-    function starSummary() {
-      let total = 0;
-      let solvedCount = 0;
-      Object.keys(starMap).forEach(function (key) {
-        const value = starMap[key] || 0;
-        total += value;
-        if (value > 0) solvedCount += 1;
-      });
-      return { total: total, solved: solvedCount };
-    }
-
-    function shareStarProgress(justSolved) {
-      // Sharing is a deliberate pause: keep the result card up instead of
-      // letting the five-second next-round timer replace it.
-      if (window.MergeAutoNext) window.MergeAutoNext.cancel();
-      const summary = starSummary();
-      const max = LEVELS.length * 3;
-      let message;
-      if (summary.total >= max) {
-        message = justSolved
-          ? 'I just completed One Line — all ' + LEVELS.length + ' shapes and ' + max + ' stars. Can you match it?'
-          : 'I earned all ' + max + ' stars in One Line — all ' + LEVELS.length + ' shapes solved. Can you match it?';
-      } else if (justSolved && starMap[String(level)]) {
-        message = 'I solved One Line shape ' + (level + 1) + ' with ' + starMap[String(level)] +
-          ' stars — ' + summary.total + ' of ' + max + ' stars so far. Can you beat it?';
-      } else if (!summary.solved) {
-        message = 'I’m playing One Line in Sixfold — ' + LEVELS.length +
-          ' shapes, one unbroken line each. Can you beat my stars?';
-      } else {
-        message = 'I’ve earned ' + summary.total + ' of ' + max + ' stars in One Line — ' +
-          summary.solved + ' of ' + LEVELS.length + ' shapes solved. Can you beat it?';
-      }
-      shareResult('One Line', message, {
-        game: 'One Line', number: '03', kind: 'DRAWING',
-        title: 'Shape ' + (level + 1),
-        score: summary.total,
-        label: 'OF ' + max + ' STARS',
-        meta: [summary.solved + ' of ' + LEVELS.length + ' solved', 'One unbroken line'],
-        accent: '#e85f3b'
-      });
-    }
-
-    /* Walk the unused links with Hierholzer's algorithm. If the trail uses
-       every remaining link, it is a real continuation from the current dot. */
-    function remainingTrail(start) {
-      const board = data();
-      const adjacency = board.nodes.map(function () { return []; });
-      let remaining = 0;
-      board.edges.forEach(function (edge) {
-        const key = edgeKey(edge[0], edge[1]);
-        if (used.has(key)) return;
-        adjacency[edge[0]].push({ to: edge[1], key: key });
-        adjacency[edge[1]].push({ to: edge[0], key: key });
-        remaining += 1;
-      });
-      let odd = 0;
-      adjacency.forEach(function (list) {
-        if (list.length % 2) odd += 1;
-      });
-      if (!remaining || !adjacency[start].length) {
-        return { trail: [start], edges: 0, remaining: remaining, odd: odd, startOdd: adjacency[start].length % 2 === 1 };
-      }
-      const seen = new Set();
-      const stack = [start];
-      const trail = [];
-      while (stack.length) {
-        const node = stack[stack.length - 1];
-        const next = adjacency[node].find(function (option) { return !seen.has(option.key); });
-        if (next) {
-          seen.add(next.key);
-          stack.push(next.to);
-        } else {
-          trail.push(stack.pop());
-        }
-      }
-      trail.reverse();
-      return { trail: trail, edges: seen.size, remaining: remaining, odd: odd, startOdd: adjacency[start].length % 2 === 1 };
-    }
-
-    function highlightHint(index) {
-      const nodes = svg.querySelectorAll('.one-node');
-      for (let i = 0; i < nodes.length; i += 1) {
-        nodes[i].classList.toggle('is-hint', i === index);
-      }
-      const target = nodes[index];
-      if (!target) return;
-      const label = target.getAttribute('aria-label') || '';
-      if (label.indexOf(', hint') === -1) target.setAttribute('aria-label', label + ', hint');
-      target.focus({ preventScroll: true });
-    }
-
-    function showHint() {
-      if (solved) return;
-      const board = data();
-      const degrees = degreeCounts(board);
-      const open = degrees.filter(function (count) { return count % 2; }).length;
-      const firstHint = !attemptHint;
-
-      if (!path.length) {
-        const candidates = board.nodes.map(function (_, index) { return index; }).filter(function (index) {
-          return open === 2 ? degrees[index] % 2 === 1 : degrees[index] > 0;
-        });
-        for (let i = 0; i < candidates.length; i += 1) {
-          const trial = remainingTrail(candidates[i]);
-          if (trial.remaining > 0 && trial.edges === trial.remaining && trial.trail.length > 1) {
-            attemptHint = true;
-            highlightHint(candidates[i]);
-            setStatus('Hint: start on the pulsing dot.' +
-              (firstHint && !attemptUndo && !attemptRestart ? ' This shape now tops out at two stars.' : ''));
-            return;
-          }
-        }
-        setStatus('No hint is available for this shape.');
-        return;
-      }
-
-      const current = path[path.length - 1];
-      const trial = remainingTrail(current);
-      if (!trial.remaining) {
-        setStatus('Every link is already used.');
-        return;
-      }
-      // A trail can only start on an even dot when every unused dot is even.
-      // Starting on a closed dot of an open shape cannot finish the shape.
-      const canFinish = trial.odd === 0 || (trial.odd === 2 && trial.startOdd);
-      if (!canFinish || trial.edges !== trial.remaining || trial.trail.length < 2) {
-        if (path.length === 1 && open === 2 && degrees[current] % 2 === 0) {
-          setStatus('Start on a ringed dot. Restart to begin again.');
-        } else {
-          setStatus('This line can’t be finished from here. Undo a step or restart.');
-        }
-        return;
-      }
-
-      attemptHint = true;
-      highlightHint(trial.trail[1]);
-      setStatus('Hint: tap the pulsing dot.' +
-        (firstHint && !attemptUndo && !attemptRestart ? ' This shape now tops out at two stars.' : ''));
-    }
-
-    function introMessage() {
-      const degrees = degreeCounts(data());
-      const open = degrees.filter(function (count) { return count % 2; }).length;
-      return open === 2
-        ? 'Start on a ringed dot. Use every link once.'
-        : 'Drag from any dot. Use every link once.';
-    }
-
-    function startMessage(index) {
-      const degrees = degreeCounts(data());
-      const open = degrees.filter(function (count) { return count % 2; }).length;
-      if (open === 2 && degrees[index] % 2 === 0) {
-        return 'Started on a closed dot. Ringed dots are the open ends.';
-      }
-      return 'Line started. Drag or tap a connected dot.';
-    }
-
-    function updateStats() {
-      const board = data();
-      if (levelEl) {
-        levelEl.setAttribute('aria-label', 'Open shape list. ' + chapterFor(level) +
-          ', shape ' + (level + 1) + ' of ' + LEVELS.length + '.');
-      }
-      if (labelEl) {
-        labelEl.textContent = chapterFor(level) + ' · ' + (level + 1) + ' of ' + LEVELS.length;
-      }
-      if (levelValue) levelValue.textContent = String(level + 1);
-      if (movesEl) movesEl.textContent = String(Math.max(0, path.length - 1));
-      if (starsEl) starsEl.setAttribute('aria-label', (starMap[String(level)] || 0) + ' of 3 stars');
-      return board;
-    }
-
-    function focusCurrent() {
-      const node = svg.querySelector('.one-node.is-current');
-      if (node) node.focus({ preventScroll: true });
-    }
-
-    function render() {
-      if (!svg) return;
-      const board = updateStats();
-      svg.innerHTML = '';
-
-      const edgeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      const pathLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      const nodeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-      board.edges.forEach(function (edge) {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', board.nodes[edge[0]][0]);
-        line.setAttribute('y1', board.nodes[edge[0]][1]);
-        line.setAttribute('x2', board.nodes[edge[1]][0]);
-        line.setAttribute('y2', board.nodes[edge[1]][1]);
-        line.setAttribute('class', 'one-edge' + (used.has(edgeKey(edge[0], edge[1])) ? ' is-used' : ''));
-        edgeLayer.appendChild(line);
-      });
-
-      if (path.length > 1) {
-        const trail = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-        trail.setAttribute('class', 'one-path');
-        trail.setAttribute('points', path.map(function (index) {
-          return board.nodes[index][0] + ',' + board.nodes[index][1];
-        }).join(' '));
-        pathLayer.appendChild(trail);
-      }
-
-      const inPath = new Set(path);
-      const degrees = degreeCounts(board);
-      board.nodes.forEach(function (node, index) {
-        const isOpen = degrees[index] % 2 === 1;
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', node[0]);
-        circle.setAttribute('cy', node[1]);
-        circle.setAttribute('r', '4.7');
-        circle.setAttribute('class', 'one-node' +
-          (isOpen ? ' is-open-end' : '') +
-          (inPath.has(index) ? ' is-visited' : '') +
-          (path[path.length - 1] === index ? ' is-current' : ''));
-        circle.setAttribute('tabindex', '0');
-        circle.setAttribute('role', 'button');
-        circle.setAttribute('aria-label', 'Dot ' + (index + 1) + ' of ' + board.nodes.length +
-          (isOpen ? ', open end' : '') +
-          (path[path.length - 1] === index ? ', current line end' : ''));
-        circle.addEventListener('keydown', function (event) {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            tapNode(index);
-          }
-        });
-        nodeLayer.appendChild(circle);
-      });
-
-      svg.appendChild(edgeLayer);
-      svg.appendChild(pathLayer);
-      svg.appendChild(nodeLayer);
-      if (winEl) winEl.hidden = !solved;
-      if (statusEl) statusEl.hidden = false;
-      if (statusRow) statusRow.hidden = solved;
-      else if (statusEl) statusEl.hidden = solved;
-      svg.classList.toggle('is-complete', solved);
-    }
-
-    function noOpenLink() {
-      if (!path.length) return false;
-      const last = path[path.length - 1];
-      return !data().edges.some(function (edge) {
-        if (edge[0] !== last && edge[1] !== last) return false;
-        return !used.has(edgeKey(edge[0], edge[1]));
-      });
-    }
-
-    function finish() {
-      cancelAutoNext();
-      solved = true;
-      pointerActive = false;
-      pointerId = null;
-      const earned = attemptRestart ? 1 : (attemptUndo || attemptHint) ? 2 : 3;
-      const key = String(level);
-      starMap[key] = Math.max(starMap[key] || 0, earned);
-      if (level === unlocked && unlocked < LEVELS.length - 1) {
-        unlocked += 1;
-      }
-      saveProgress();
-      render();
-      if (winCopy) {
-        winCopy.textContent = 'All ' + used.size + ' links in one unbroken stroke. ' + earned + ' of 3 stars.';
-      }
-      if (starsEl) {
-        starsEl.textContent = ['', '★☆☆', '★★☆', '★★★'][earned];
-        starsEl.setAttribute('aria-label', earned + ' of 3 stars');
-        starsEl.hidden = false;
-      }
-      if (nextBtn) {
-        nextBtn.textContent = level === LEVELS.length - 1 ? 'Choose a shape' : 'Next shape';
-        delete nextBtn.dataset.autoNextBase;
-      }
-      setStatus('One line. Every link used.');
-      if (window.MergeCoach) window.MergeCoach.complete('oneline');
-      if (window.MergeHaptics) window.MergeHaptics.win();
-      if (window.MergeCelebrate) {
-        window.MergeCelebrate.win(winEl, { stamp: earned === 3 ? 'PERFECT LINE' : 'ONE LINE' });
-      }
-      if (nextBtn) {
-        nextBtn.focus({ preventScroll: true });
-        if (level < LEVELS.length - 1) {
-          scheduleAutoNext(nextBtn, nextLevel);
-        }
-      }
-    }
-
-    function addNode(index) {
-      if (solved) return false;
-      const last = path[path.length - 1];
-      if (last === undefined || index === last) return false;
-      const key = edgeKey(last, index);
-      if (!edgeExists(last, index) || used.has(key)) return false;
-      used.add(key);
-      path.push(index);
-      if (window.MergeCoach) window.MergeCoach.event('oneline', 'link', { links: used.size });
-      if (used.size === data().edges.length) {
-        finish();
-      } else {
-        render();
-        if (window.MergeHaptics) window.MergeHaptics.merge(path.length);
-        if (noOpenLink()) {
-          setStatus('Dead end. Step back or restart.');
-        } else {
-          setStatus('Keep going. ' + (data().edges.length - used.size) + ' link' +
-            (data().edges.length - used.size === 1 ? '' : 's') + ' left.');
-        }
-      }
-      return true;
-    }
-
-    function stepBack() {
-      cancelAutoNext();
-      if (!path.length) {
-        setStatus('The line is clear. Pick a dot to begin.');
-        return;
-      }
-      if (path.length > 1 || solved) attemptUndo = true;
-      if (path.length === 1) {
-        path = [];
-        render();
-        setStatus('Line cleared. Pick a dot to begin.');
-        return;
-      }
-      const last = path.pop();
-      const previous = path[path.length - 1];
-      used.delete(edgeKey(previous, last));
-      solved = false;
-      if (winEl) winEl.hidden = true;
-      render();
-      setStatus('Stepped back. Pick another link.');
-    }
-
-    function tapNode(index) {
-      if (solved) return;
-      if (!path.length) {
-        path = [index];
-        render();
-        setStatus(startMessage(index));
-        if (window.MergeCoach) window.MergeCoach.event('oneline', 'start');
-        focusCurrent();
-        return;
-      }
-      const last = path[path.length - 1];
-      if (index === last) {
-        setStatus('That is the line end. Choose a connected dot.');
-        return;
-      }
-      if (path.length > 1 && index === path[path.length - 2]) {
-        stepBack();
-        return;
-      }
-      if (addNode(index)) {
-        focusCurrent();
-      } else {
-        setStatus('Those dots are not connected by an unused link.');
-      }
-    }
-
-    function reset(message, isRestart) {
-      cancelAutoNext();
-      path = [];
-      used = new Set();
-      solved = false;
-      pointerId = null;
-      pointerActive = false;
-      attemptUndo = false;
-      attemptRestart = !!isRestart;
-      attemptHint = false;
-      if (winEl) winEl.hidden = true;
-      if (winCopy) winCopy.textContent = '';
-      if (starsEl) {
-        starsEl.textContent = '';
-        starsEl.hidden = true;
-      }
-      if (nextBtn) {
-        nextBtn.textContent = 'Next shape';
-        delete nextBtn.dataset.autoNextBase;
-      }
-      saveProgress();
-      render();
-      setStatus(message || introMessage());
-    }
-
-    function nextLevel() {
-      cancelAutoNext();
-      if (level + 1 < LEVELS.length && level + 1 <= unlocked) {
-        level += 1;
-        saveProgress();
-        reset(chapterFor(level) + ' · Shape ' + (level + 1) + '. ' + introMessage());
-        return;
-      }
-      if (level + 1 < LEVELS.length) {
-        setStatus('Solve this shape to unlock the next one.');
-      }
-      openLevelSheet(nextBtn || shapesBtn || levelEl);
-    }
-
-    function renderLevelGrid() {
-      if (!levelGrid) return;
-      if (starTotalEl) {
-        const total = starSummary().total;
-        const max = LEVELS.length * 3;
-        starTotalEl.textContent = total + ' of ' + max + ' stars';
-        if (starMeter) {
-          starMeter.setAttribute('aria-valuenow', String(total));
-          starMeter.setAttribute('aria-valuetext', total + ' of ' + max + ' stars');
-          starMeter.classList.toggle('has-stars', total > 0);
-        }
-        if (starMeterFill) starMeterFill.style.width = (total / max * 100) + '%';
-      }
-      levelGrid.innerHTML = '';
-      LEVELS.forEach(function (board, index) {
-        const stars = starMap[String(index)] || 0;
-        const locked = index > unlocked;
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'level-cell' +
-          (index === level ? ' is-current' : '') +
-          (locked ? ' is-locked' : '');
-        button.disabled = locked;
-
-        const number = document.createElement('strong');
-        number.textContent = String(index + 1);
-
-        const dots = document.createElement('span');
-        dots.className = 'level-dots';
-        dots.setAttribute('aria-hidden', 'true');
-        for (let dot = 0; dot < 3; dot += 1) {
-          const mark = document.createElement('i');
-          if (dot < stars) mark.className = 'on';
-          dots.appendChild(mark);
-        }
-
-        button.appendChild(number);
-        button.appendChild(dots);
-        button.setAttribute('aria-label', 'Shape ' + (index + 1) + ', ' + chapterFor(index) +
-          (locked ? ', locked' : stars ? ', ' + stars + ' of 3 stars' : ', not solved'));
-        button.addEventListener('click', function () { selectLevel(index); });
-        levelGrid.appendChild(button);
-      });
-    }
-
-    function openLevelSheet(opener) {
-      if (!levelSheet || !levelGrid) return;
-      cancelAutoNext();
-      renderLevelGrid();
-      if (window.MergeTheme && window.MergeTheme.openSheet) {
-        window.MergeTheme.openSheet(levelSheet, opener || shapesBtn || levelEl);
-      } else {
-        levelSheet.hidden = false;
-        levelSheet.classList.add('is-open');
-      }
-      const doneBtn = levelSheet.querySelector('.sheet-done');
-      const current = levelGrid.querySelector('.is-current');
-      window.setTimeout(function () {
-        if (doneBtn) doneBtn.focus({ preventScroll: true });
-        if (current) current.scrollIntoView({ block: 'nearest' });
-      }, 60);
-    }
-
-    function closeLevelSheet() {
-      if (!levelSheet || levelSheet.hidden) return;
-      if (window.MergeTheme && window.MergeTheme.closeSheet) {
-        window.MergeTheme.closeSheet(levelSheet);
-      } else {
-        levelSheet.hidden = true;
-        levelSheet.classList.remove('is-open');
-      }
-    }
-
-    function selectLevel(index) {
-      if (index < 0 || index >= LEVELS.length || index > unlocked) return;
-      level = index;
-      saveProgress();
-      closeLevelSheet();
-      reset(chapterFor(level) + ' · Shape ' + (level + 1) + '. ' + introMessage());
-    }
-
-    function svgPoint(event) {
-      const rect = svg.getBoundingClientRect();
-      if (!rect.width) return { x: -100, y: -100 };
-      return {
-        x: ((event.clientX - rect.left) / rect.width) * 100,
-        y: ((event.clientY - rect.top) / rect.height) * 100
-      };
-    }
-
-    function nearestNode(event) {
-      const point = svgPoint(event);
-      let best = null;
-      let bestDistance = 11;
-      data().nodes.forEach(function (node, index) {
-        const distance = Math.hypot(node[0] - point.x, node[1] - point.y);
-        if (distance < bestDistance) {
-          best = index;
-          bestDistance = distance;
-        }
-      });
-      return best;
-    }
-
-    function extendFromPointer(index) {
-      if (index === null || solved) return;
-      if (!path.length) {
-        path = [index];
-        render();
-        setStatus(startMessage(index));
-        if (window.MergeCoach) window.MergeCoach.event('oneline', 'start');
-        return;
-      }
-      const last = path[path.length - 1];
-      if (index === last) return;
-      if (path.length > 1 && index === path[path.length - 2]) {
-        stepBack();
-        return;
-      }
-      if (addNode(index)) {
-        setStatus('Keep tracing. ' + (data().edges.length - used.size) + ' links left.');
-      }
-    }
-
-    svg.addEventListener('pointerdown', function (event) {
-      if (solved) return;
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      const index = nearestNode(event);
-      if (index === null) return;
-      event.preventDefault();
-      const last = path[path.length - 1];
-      if (!path.length || index === last || (path.length > 1 && index === path[path.length - 2]) ||
-          (last !== undefined && edgeExists(last, index) && !used.has(edgeKey(last, index)))) {
-        extendFromPointer(index);
-        pointerId = event.pointerId;
-        pointerActive = true;
-        try { svg.setPointerCapture(event.pointerId); } catch (err) {}
-      } else {
-        setStatus('Start at the glowing line end or a free dot.');
-      }
-    });
-
-    svg.addEventListener('pointermove', function (event) {
-      if (!pointerActive || solved) return;
-      extendFromPointer(nearestNode(event));
-    });
-
-    function endPointer(event) {
-      if (pointerId !== null && event && event.pointerId !== undefined && event.pointerId !== pointerId) return;
-      pointerActive = false;
-      pointerId = null;
-      if (!solved) {
-        setStatus(path.length ? 'Line paused at the glowing dot. Continue from there.' : 'Pick a dot to begin.');
-      }
-    }
-
-    svg.addEventListener('pointerup', endPointer);
-    svg.addEventListener('pointercancel', endPointer);
-    svg.addEventListener('pointerleave', function (event) {
-      if (pointerActive && event.pointerType === 'mouse') endPointer(event);
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (current !== 'oneline' || event.defaultPrevented || document.documentElement.classList.contains('sheet-open')) return;
-      if (event.metaKey || event.ctrlKey || event.altKey) return;
-      const target = event.target;
-      if (target && target.closest && target.closest('input, textarea, select')) return;
-      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-      if (key === 'u' || event.key === 'Backspace') {
-        event.preventDefault();
-        stepBack();
-      } else if (key === 'r') {
-        event.preventDefault();
-        reset('Same shape. Start again.', true);
-      } else if (key === 'h') {
-        event.preventDefault();
-        showHint();
-      } else if (key === 'n') {
-        event.preventDefault();
-        nextLevel();
-      }
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && levelSheet && !levelSheet.hidden) {
-        closeLevelSheet();
-      }
-    });
-
-    restartBtn.addEventListener('click', function () { reset('Same shape. Start again.', true); });
-    if (undoBtn) undoBtn.addEventListener('click', stepBack);
-    if (hintBtn) hintBtn.addEventListener('click', showHint);
-    if (shapesBtn) shapesBtn.addEventListener('click', function () { openLevelSheet(shapesBtn); });
-    if (levelEl) levelEl.addEventListener('click', function () { openLevelSheet(levelEl); });
-    nextBtn.addEventListener('click', nextLevel);
-    if (shareBtn) shareBtn.addEventListener('click', function () { shareStarProgress(true); });
-    if (shareStarsBtn) shareStarsBtn.addEventListener('click', function () { shareStarProgress(false); });
-    if (levelSheet) {
-      levelSheet.querySelectorAll('[data-close], .sheet-done').forEach(function (el) {
-        el.addEventListener('click', closeLevelSheet);
-      });
-    }
-
-    const saved = load(LEVEL_KEY, null);
-    if (saved && typeof saved === 'object') {
-      if (Number.isInteger(saved.level) && saved.level >= 0 && saved.level < LEVELS.length) {
-        level = saved.level;
-      }
-      if (Number.isInteger(saved.unlocked)) {
-        unlocked = clamp(saved.unlocked, 0, LEVELS.length - 1);
-      }
-      if (saved.stars && typeof saved.stars === 'object') {
-        Object.keys(saved.stars).forEach(function (key) {
-          const value = saved.stars[key];
-          if (/^\d+$/.test(key) && Number.isInteger(value) && value >= 1 && value <= 3) {
-            const index = Number(key);
-            if (index >= 0 && index < LEVELS.length) {
-              starMap[key] = value;
-              unlocked = Math.max(unlocked, Math.min(index + 1, LEVELS.length - 1));
-            }
-          }
-        });
-      }
-    }
-    unlocked = Math.max(unlocked, Math.min(level, LEVELS.length - 1));
-    level = Math.min(level, unlocked);
-    reset(introMessage());
-
-    games.oneline = {
-      title: title,
-      activate: function () {
-        render();
-        if (solved && level < LEVELS.length - 1) {
-          scheduleAutoNext(nextBtn, nextLevel);
-        } else cancelAutoNext();
-        setStatus(path.length ? 'Line paused at the glowing dot. Continue from there.' : introMessage());
-      },
-      deactivate: function () {
-        cancelAutoNext();
-        pointerActive = false;
-        pointerId = null;
-      },
-      reset: function () {
-        level = 0;
-        unlocked = 0;
-        starMap = {};
-        try { localStorage.removeItem(LEVEL_KEY); } catch (err) {}
-        reset('Progress reset. Back to shape 1.');
-      }
-    };
-  })();
+  };
 
   /* ======================================================================
      Tic Tac Toe
@@ -2622,12 +1646,14 @@
             : winner === 'O'
               ? 'The ' + level + ' computer got me at Tic Tac Toe.'
               : 'I drew against the ' + level + ' computer at Tic Tac Toe.';
+        const isTwo = mode === 'two';
+        const draws = isTwo ? twoStats.draws : stats.draws;
         shareResult('Tic Tac Toe', copy, {
-          game: 'Tic Tac Toe', number: '05', kind: 'CLASSIC',
-          title: winner === 'X' ? 'You win' : winner === 'O' ? (mode === 'two' ? 'O wins' : 'Computer wins') : 'A draw',
-          score: mode === 'two' ? (twoStats.x + '–' + twoStats.o) : (stats.wins + '–' + stats.losses),
-          label: mode === 'two' ? 'X – O' : 'WINS – LOSSES',
-          meta: [level + ' computer', stats.draws + ' draws'],
+          game: 'Tic Tac Toe', number: '03', kind: 'CLASSIC',
+          title: winner ? (isTwo ? winner + ' wins' : winner === 'X' ? 'You win' : 'Computer wins') : 'A draw',
+          score: isTwo ? (twoStats.x + '–' + twoStats.o) : (stats.wins + '–' + stats.losses),
+          label: isTwo ? 'X – O' : 'WINS – LOSSES',
+          meta: [isTwo ? 'Two players' : level + ' computer', draws + (draws === 1 ? ' draw' : ' draws')],
           accent: '#8bbd54'
         });
       });
@@ -2673,7 +1699,8 @@
     if (!root) return;
     const canvas = $('fruit-canvas');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    let ctx = canvas.getContext('2d');
+    let aimFrame = 0;
     const scoreEl = $('fruit-score');
     const bestEl = $('fruit-best');
     const nextDot = $('fruit-next-dot');
@@ -2763,7 +1790,9 @@
     }
 
     function setupCanvas() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      // A 2× backing store stays sharp on phones without the extra memory a
+      // 2.5× canvas costs on every resize and page restore.
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       canvas.style.aspectRatio = W + ' / ' + H;
@@ -3037,8 +2066,12 @@
           for (let j = i + 1; j < fruits.length; j += 1) {
             const b = fruits[j];
             if (b.dead) continue;
-            const distance = Math.hypot(b.x - a.x, b.y - a.y);
-            if (distance >= a.r + b.r) continue;
+            // Most pairs do not touch; compare squared distance first so the
+            // physics pass avoids a square root for every pair on every frame.
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const reach = a.r + b.r;
+            if (dx * dx + dy * dy >= reach * reach) continue;
             if (a.tier === b.tier && a.mergeLock <= 0 && b.mergeLock <= 0 && a.age > 0.1 && b.age > 0.1) {
               mergePair(a, b, pending);
             } else if (!a.dead && !b.dead) {
@@ -3528,17 +2561,31 @@
       drawGuide();
     }
 
+    function scheduleAimRender() {
+      if (aimFrame || running) return;
+      aimFrame = window.requestAnimationFrame(function () {
+        aimFrame = 0;
+        if (current === 'fruit' && !over) render();
+      });
+    }
+
     function aimFromEvent(event) {
       const rect = canvas.getBoundingClientRect();
       if (!rect.width) return;
       aimX = clamp(((event.clientX - rect.left) / rect.width) * W, 0, W);
-      render();
+      // Pointer events can arrive faster than the display can paint; redraw
+      // once per frame instead of repainting the whole board for every event.
+      scheduleAimRender();
     }
 
     function dropFruit() {
       if (over || dropLock > 0) {
         if (!over && dropLock > 0) setStatus('Let the last fruit settle for a moment.');
         return;
+      }
+      if (aimFrame) {
+        window.cancelAnimationFrame(aimFrame);
+        aimFrame = 0;
       }
       const tier = nextTier;
       const r = FRUITS[tier].r;
@@ -3551,7 +2598,8 @@
       dropLock = DROP_LOCK;
       updateHud();
       startLoop();
-      setStatus('Dropped a ' + FRUITS[tier].name.toLowerCase() + '. Pair it with another.');
+      const droppedName = FRUITS[tier].name.toLowerCase();
+      setStatus('Dropped ' + (droppedName === 'grapes' ? 'grapes' : 'a ' + droppedName) + '. Pair it with another.');
       coachEvent('fruit', 'drop');
       if (window.MergeHaptics) window.MergeHaptics.merge(20);
       render();
@@ -3619,7 +2667,7 @@
     if (shareBtn) {
       shareBtn.addEventListener('click', function () {
         shareResult('Fruit Merge', 'I scored ' + score + ' in Fruit Merge. My best is ' + best + '. Can you beat it?', {
-          game: 'Fruit Merge', number: '04', kind: 'MERGING',
+          game: 'Fruit Merge', number: '06', kind: 'MERGING',
           title: 'Run complete',
           score: score,
           label: 'POINTS',
@@ -3671,6 +2719,10 @@
         cancelAutoNext();
         stopLoop();
         drag = null;
+        if (aimFrame) {
+          window.cancelAnimationFrame(aimFrame);
+          aimFrame = 0;
+        }
       },
       reset: function () {
         best = 0;
@@ -4182,7 +3234,7 @@
           ? 'I cleared Minesweeper on ' + currentLevel().label + ' in ' + formatTime(elapsedTime()) + '.'
           : 'The ' + currentLevel().label + ' Minesweeper field got me after ' + formatTime(elapsedTime()) + '.';
         shareResult('Minesweeper', copy, {
-          game: 'Minesweeper', number: '06', kind: 'LOGIC',
+          game: 'Minesweeper', number: '04', kind: 'LOGIC',
           title: won ? 'Field cleared' : 'Mine hit',
           score: formatTime(elapsedTime()),
           label: won ? 'TIME' : 'LASTED',

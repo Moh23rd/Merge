@@ -4,7 +4,7 @@
 
 body[data-screen="hub"] .app,
 body[data-screen="water"] .app,
-body[data-screen="oneline"] .app,
+body[data-screen="sudoku"] .app,
 body[data-screen="fruit"] .app,
 body[data-screen="ttt"] .app,
 body[data-screen="mines"] .app {
@@ -211,18 +211,6 @@ body[data-screen="mines"] .app {
 .mini-tube i.g3 { --mini-liquid: var(--g3, #8bbd54); }
 .mini-tube i.g4 { --mini-liquid: var(--g4, #39a9a1); }
 .mini-tube i.g5 { --mini-liquid: var(--g5, #5b8fd5); }
-
-.mini-oneline {
-  width: 130px;
-  height: 130px;
-  color: var(--ink);
-  opacity: 0.82;
-}
-
-.mini-oneline path:nth-child(2) {
-  stroke: var(--t64);
-  opacity: 0.85;
-}
 
 .mini-fruit-cluster {
   position: relative;
@@ -573,8 +561,7 @@ html[data-theme="dark"] .play-screen { background: var(--page); }
 .result-share:active { transform: scale(0.94); }
 .result-share:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-/* One Line shares a star total, not just a score, so the result card gives
-   the action a visible word wherever there is room. */
+/* Several result cards have room for a visible Share label. */
 .result-share--labeled {
   width: auto;
   min-width: 34px;
@@ -729,12 +716,10 @@ html[data-theme="dark"] .water-board {
 
 .water-glass {
   position: relative;
-  display: flex;
-  flex-direction: column-reverse;
-  justify-content: flex-start;
+  display: block;
   width: min(100%, 62px);
   height: clamp(116px, 29vw, 148px);
-  padding: 3px 2px 1px;
+  padding: 0;
   border: 1.5px solid color-mix(in srgb, var(--ink) 30%, transparent);
   border-top-width: 3px;
   border-radius: 5px 5px 28px 28px;
@@ -744,10 +729,64 @@ html[data-theme="dark"] .water-board {
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.2),
     inset 5px 0 9px -6px rgba(255, 255, 255, 0.5),
+    inset -4px 0 8px -7px rgba(0, 0, 0, 0.22),
+    inset 0 -12px 18px -16px rgba(0, 0, 0, 0.35),
     0 10px 14px -14px rgba(0, 0, 0, 0.55);
   overflow: hidden;
   transform-origin: 50% 100%;
   transition: transform 180ms var(--ease-spring), border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.water-liquid {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  z-index: 1;
+  height: calc(var(--fill, 1) * 25% - 3px);
+  display: flex;
+  flex-direction: column-reverse;
+  overflow: hidden;
+  border-radius: 1px 1px 25px 25px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 -2px 5px rgba(0, 0, 0, 0.08);
+  transform-origin: 50% 100%;
+}
+
+.water-drain {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: calc(var(--fill, 0) * 25% - 1px);
+  z-index: 2;
+  height: calc(var(--poured, 1) * 25%);
+  overflow: hidden;
+  border-radius: 1px 1px 0 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.02) 30% 70%, rgba(0, 0, 0, 0.16)),
+    linear-gradient(to top,
+      var(--drain-below, var(--drain)) 0,
+      color-mix(in srgb, var(--drain-below, var(--drain)) 58%, var(--drain)) 3px,
+      var(--drain) 8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  pointer-events: none;
+  animation: sourceDrain 400ms var(--ease-out) both;
+}
+
+.water-drain::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 0;
+  right: 0;
+  height: 7px;
+  border-radius: 50% 50% 38% 38% / 90% 90% 18% 18%;
+  background:
+    radial-gradient(ellipse at 50% 100%, transparent 0 54%, rgba(255, 255, 255, 0.28) 62%, rgba(255, 255, 255, 0.03) 82%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0) 78%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  pointer-events: none;
 }
 
 html[data-theme="dark"] .water-glass {
@@ -797,36 +836,43 @@ html[data-theme="dark"] .water-glass {
 .water-seg {
   position: relative;
   display: block;
-  flex: 0 0 25%;
+  flex: 1 1 0;
   width: 100%;
   min-height: 0;
   border-radius: 0;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.02) 30% 70%, rgba(0, 0, 0, 0.15)),
-    var(--liquid);
-  animation: waterFill 240ms var(--ease-out) both;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.02) 30% 70%, rgba(0, 0, 0, 0.16)),
+    linear-gradient(to top,
+      var(--liquid-below, var(--liquid)) 0,
+      color-mix(in srgb, var(--liquid-below, var(--liquid)) 58%, var(--liquid)) 3px,
+      var(--liquid) 8px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
 }
 
 .water-seg:first-child {
-  border-radius: 2px 2px 23px 23px;
+  border-radius: 0 0 23px 23px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.02) 30% 70%, rgba(0, 0, 0, 0.15)),
-    linear-gradient(180deg, var(--liquid) 0 54%, var(--liquid-deep));
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.02) 30% 70%, rgba(0, 0, 0, 0.16)),
+    linear-gradient(180deg, var(--liquid) 0 58%, var(--liquid-deep));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -5px 9px -7px rgba(0, 0, 0, 0.32);
 }
 
 .water-seg.water-surface::before {
   content: "";
   position: absolute;
-  top: -2px;
-  left: 1%;
-  right: 1%;
+  top: 1px;
+  left: 0;
+  right: 0;
   z-index: 2;
-  height: 6px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at 38% 30%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1) 62%, transparent 74%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  height: 7px;
+  border-radius: 50% 50% 38% 38% / 90% 90% 18% 18%;
+  background:
+    radial-gradient(ellipse at 50% 100%, transparent 0 54%, rgba(255, 255, 255, 0.28) 62%, rgba(255, 255, 255, 0.03) 82%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0) 78%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
   pointer-events: none;
-  animation: liquidShift 5.5s ease-in-out infinite;
 }
 
 .water-tube.is-selected .water-glass {
@@ -858,7 +904,8 @@ html[data-theme="dark"] .water-glass {
   animation: targetPulse 1.2s ease-in-out infinite;
 }
 
-.water-tube.is-pouring .water-glass { transform: translateY(-13px) rotate(-5deg); }
+.water-tube.is-pouring .water-glass { transform: translateY(-13px) rotate(var(--pour-tilt, -5deg)); }
+.water-tube.is-receiving .water-liquid { animation: waterRise 400ms var(--ease-out) both; }
 .water-tube.is-receiving .water-glass { animation: receivePulse 300ms ease-out; }
 .water-tube.is-invalid { animation: tubeShake 320ms ease-out; }
 
@@ -883,18 +930,33 @@ html[data-theme="dark"] .water-glass {
 .water-pour-layer path {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.12));
-  animation: waterStream 380ms var(--ease-out) forwards;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: waterStream 440ms cubic-bezier(0.22, 0.75, 0.3, 1) forwards;
 }
 
-@keyframes liquidShift {
-  0%, 100% { transform: translateY(0) scaleX(1); opacity: 0.82; }
-  50% { transform: translateY(-1px) scaleX(0.98); opacity: 1; }
+.water-pour-layer .water-stream-edge { filter: blur(0.15px); }
+
+.water-pour-splash {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: waterSplash 460ms ease-out forwards;
 }
 
-@keyframes waterFill {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: none; }
+@keyframes waterRise {
+  from { clip-path: inset(calc(100% - var(--before-fill, 0) * 25%) 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes sourceDrain {
+  from { height: calc(var(--poured, 1) * 25%); }
+  to { height: 0; }
+}
+
+@keyframes waterSplash {
+  0% { opacity: 0.55; transform: scale(0.35); }
+  45% { opacity: 0.5; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.9); }
 }
 
 @keyframes receivePulse {
@@ -918,7 +980,7 @@ html[data-theme="dark"] .water-glass {
 
 @keyframes waterStream {
   0% { stroke-dashoffset: 1; opacity: 1; }
-  72% { stroke-dashoffset: 0.18; opacity: 1; }
+  60% { stroke-dashoffset: 0; opacity: 1; }
   100% { stroke-dashoffset: 0; opacity: 0; }
 }
 
@@ -931,112 +993,12 @@ html[data-theme="dark"] .water-glass {
 
 @media (prefers-reduced-motion: reduce) {
   .water-glass,
+  .water-liquid,
+  .water-drain,
   .water-seg,
   .water-seg.water-surface::before,
   .water-tube.is-target::after { transition: none; animation: none; }
   .water-pour-layer { display: none; }
-}
-
-/* ---------- one line ---------- */
-
-.one-line-wrap {
-  position: relative;
-  width: min(100%, 430px);
-  aspect-ratio: 1;
-  padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--t64) 8%, transparent), transparent 52%),
-    var(--panel);
-  box-shadow: var(--board-shadow);
-  overflow: hidden;
-}
-
-.one-line-wrap::before {
-  content: "";
-  position: absolute;
-  inset: 14px;
-  background-image: radial-gradient(circle, color-mix(in srgb, var(--ink) 12%, transparent) 0.9px, transparent 1px);
-  background-size: 17px 17px;
-  opacity: 0.65;
-  pointer-events: none;
-}
-
-.one-line-board {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-  cursor: crosshair;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-.one-edge {
-  stroke: color-mix(in srgb, var(--ink) 24%, transparent);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  transition: stroke 140ms ease, opacity 140ms ease;
-}
-
-.one-edge.is-used {
-  stroke: color-mix(in srgb, var(--t64) 54%, transparent);
-  stroke-width: 3;
-}
-
-.one-path {
-  fill: none;
-  stroke: var(--t64);
-  stroke-width: 4.3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 1px 1px color-mix(in srgb, var(--t64) 22%, transparent));
-}
-
-.one-node {
-  fill: var(--panel);
-  stroke: var(--ink);
-  stroke-width: 2.2;
-  cursor: pointer;
-  transition: fill 140ms ease, stroke 140ms ease, filter 140ms ease;
-}
-
-.one-node.is-open-end {
-  stroke-width: 2.8;
-  stroke-dasharray: 2.2 1.7;
-}
-
-.one-node.is-open-end.is-current {
-  stroke-dasharray: none;
-}
-
-.one-node.is-visited {
-  fill: color-mix(in srgb, var(--t64) 16%, var(--panel));
-}
-
-.one-node.is-current {
-  fill: var(--t64);
-  stroke: var(--t64);
-  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--t64) 55%, transparent));
-}
-
-.one-line-board.is-complete .one-path {
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--t64) 42%, transparent));
-}
-
-.one-node:focus-visible {
-  outline: none;
-  stroke: var(--t64);
-  stroke-width: 3.2;
-  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--t64) 65%, transparent));
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .one-edge,
-  .one-node { transition: none; }
 }
 
 /* ---------- fruit merge ---------- */
@@ -1327,7 +1289,7 @@ html[data-theme="dark"] .ttt-cell { box-shadow: inset 0 1px 0 rgba(255, 255, 255
   box-shadow: var(--board-shadow);
 }
 
-#mines[data-difficulty="medium"] .mines-board-wrap { width: min(100%, 440px); }
+#mines[data-difficulty="medium"] .mines-board-wrap { width: min(100%, 440px, calc(100cqh - 12px)); }
 #mines[data-difficulty="hard"] .mines-board-wrap { width: min(100%, 720px); overflow-x: auto; overflow-y: hidden; }
 
 .mines-board {
@@ -1442,8 +1404,7 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 /* ---------- responsive ---------- */
 
 @media (max-width: 720px) {
-  .mini-merge,
-  .mini-oneline { width: 124px; }
+  .mini-merge { width: 124px; }
   .mini-water { height: 108px; }
   .mini-fruit-cluster { transform: scale(0.9); }
 }
@@ -1459,7 +1420,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
   .play-foot { align-items: flex-start; flex-direction: column; }
   .play-note { text-align: left; }
   .water-glass { height: clamp(138px, 40vw, 174px); }
-  .one-line-wrap { width: min(100%, 380px); }
   .ttt-board { width: min(100%, 310px); }
 }
 
@@ -1497,7 +1457,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
   }
   .play-note { display: none; }
   .water-glass { height: min(52vh, 170px); }
-  .one-line-wrap { width: min(44vw, 290px); }
   .ttt-board { width: min(44vw, 290px); }
   .fruit-stage { width: min(44vw, 290px); }
 }
@@ -1615,7 +1574,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
 }
 
 .mini-merge { width: 112px; }
-.mini-oneline { width: 110px; height: 110px; }
 .mini-water { height: 106px; }
 .mini-fruit-cluster { transform: scale(0.9); }
 
@@ -1762,15 +1720,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
   max-width: 180px;
   font-size: 10.5px;
 }
-
-/* ---------- one line ---------- */
-
-.one-line-wrap {
-  width: min(100%, 420px);
-  border-color: color-mix(in srgb, var(--line) 88%, transparent);
-}
-
-.one-line-shell .play-win { width: min(100%, 420px); }
 
 /* ---------- tic tac toe ---------- */
 
@@ -1998,14 +1947,11 @@ html[data-theme="dark"] .ttt-cell { box-shadow: none; }
   }
 
   .play-intro h1 { font-size: clamp(23px, 7.4vw, 28px); }
-
-  .one-line-wrap { width: 100%; }
   .play-actions { gap: 6px; }
   .play-btn { padding-inline: 14px; }
 }
 
 @media (min-width: 700px) {
-  .one-line-wrap { width: min(100%, 460px); }
   .ttt-board { width: min(100%, 390px); }
   .mines-board-wrap,
   .mines-toolbar { width: min(100%, 390px); }
@@ -2060,8 +2006,6 @@ html[data-theme="dark"] .ttt-cell { box-shadow: none; }
 
   .play-actions { flex-wrap: nowrap; }
   .play-note { display: none; }
-
-  .one-line-wrap { width: min(44vw, 300px); }
   .ttt-board { width: min(44vw, 300px); }
   .mines-board-wrap,
   .mines-toolbar { width: min(44vw, 300px); }
@@ -2232,7 +2176,7 @@ html[data-theme="dark"] .mines-cell.has-6 { color: color-mix(in srgb, var(--g4, 
 html[data-theme="dark"] .mines-cell.has-7 { color: var(--ink); }
 html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 
-/* ---------- water, one line, fruit ---------- */
+/* ---------- water, sudoku, fruit ---------- */
 
 .water-board {
   width: min(100%, 430px);
@@ -2243,11 +2187,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 .water-glass { height: min(38cqh, 160px); }
 .water-tubes[data-count="3"] .water-glass { height: min(62cqh, 200px); }
 
-.one-line-wrap {
-  width: min(100%, 430px, 100cqh);
-  max-height: 100%;
-}
-
 .fruit-stage {
   width: min(100%, 390px, calc(80cqh - 28px));
   max-height: 100%;
@@ -2255,7 +2194,7 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 
 /* ---------- compact portrait headers ---------- */
 
-/* Keep the title and the stat rail on one line even on a 320 px phone. */
+/* Keep the title and the stat rail in a single row on a 320 px phone. */
 @media (max-width: 380px) {
   .play-title-row {
     display: flex;
@@ -2369,7 +2308,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 
   #ttt-board { width: min(100%, 300px, 100cqh); }
   .mines-board-wrap { width: min(100%, 300px, calc(100cqh - 12px)); }
-  .one-line-wrap { width: min(100%, 320px, 100cqh); }
   .fruit-stage { width: min(100%, 300px, calc(76cqh - 30px)); }
   .water-board { width: 100%; }
   .ttt-difficulty,
@@ -2517,7 +2455,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 
   #ttt-board { width: min(100%, 430px, 100cqh); }
   .mines-board-wrap { width: min(100%, 440px, calc(100cqh - 10px)); }
-  .one-line-wrap { width: min(100%, 440px, 100cqh); }
   .fruit-stage { width: min(100%, 390px, calc(84cqh - 30px)); }
   .water-board { width: min(100%, 470px); }
   .water-glass { height: min(38cqh, 170px); }
@@ -2684,7 +2621,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 
   #ttt-board { width: min(100%, 380px, 100cqh); }
   .mines-board-wrap { width: min(100%, 380px, calc(100cqh - 8px)); }
-  .one-line-wrap { width: min(100%, 380px, 100cqh); }
   .fruit-stage { width: min(100%, 340px, calc(84cqh - 30px)); }
   .water-board { width: min(100%, 430px); padding: 8px 8px 7px; }
   .water-glass { height: min(60cqh, 190px); }
@@ -2726,7 +2662,6 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 
   #ttt-board { width: min(100%, 480px, 100cqh); }
   .mines-board-wrap { width: min(100%, 490px, calc(100cqh - 10px)); }
-  .one-line-wrap { width: min(100%, 490px, 100cqh); }
   .fruit-stage { width: min(100%, 430px, calc(84cqh - 30px)); }
   .water-board { width: min(100%, 520px); }
 }
@@ -2989,7 +2924,7 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
 }
 
 /* The landscape rail is narrow by design, so the tools and actions become
-   two calm rows instead of trying to share one line. */
+   two calm rows instead of trying to share a row. */
 @media (orientation: landscape) and (min-height: 500px) {
   .play-shell { padding-top: calc(env(safe-area-inset-top, 0px) + 22px); }
 
@@ -3083,7 +3018,7 @@ html[data-theme="dark"] .mines-cell.has-8 { color: var(--muted); }
   .play-actions .play-btn { padding-inline: 10px; }
 }
 
-/* One-line actions: tighter labels, still a 40px tap target. */
+/* Compact actions: tighter labels, still a 40px tap target. */
 @media (max-width: 420px) {
   .play-foot .play-actions { gap: 4px; }
   .play-foot .play-actions .play-btn { padding-inline: 8px; }
@@ -3507,7 +3442,6 @@ html[data-theme="dark"] .reset-confirm:hover {
   #mines:not([data-difficulty="hard"]) .mines-board-wrap {
     width: min(100%, 360px, 64cqh);
   }
-  .one-line-wrap { width: min(100%, 430px, 72cqh); }
 }
 
 /* At 380px and below the footer and tools share one compact row. This keeps
@@ -3735,8 +3669,8 @@ html[data-theme="dark"] .reset-confirm:hover {
 .install-fix-close:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 /* ==========================================================================
-   v1.0.4 — a clearer About door and the One Line shape map. The About row
-   is a real control now, not quiet footer text.
+   v1.0.4 — a clearer About door. The About row is a real control now,
+   not quiet footer text.
    ========================================================================== */
 
 .hub-meta {
@@ -3819,223 +3753,6 @@ html[data-theme="dark"] .reset-confirm:hover {
   letter-spacing: 0;
 }
 
-.one-line-stars {
-  margin-left: 4px;
-  color: var(--t64);
-  font-size: 12px;
-  letter-spacing: 1px;
-  line-height: 1;
-  white-space: nowrap;
-}
-.one-line-stars[hidden] { display: none; }
-
-.level-grid {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 7px;
-  max-height: min(54vh, 520px);
-  margin-top: 14px;
-  padding: 2px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-}
-
-.level-cell {
-  min-height: 50px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 5px 2px 4px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: var(--ghost-bg);
-  color: var(--ink);
-  font: inherit;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.level-cell strong {
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.level-cell:not(:disabled):hover { background: var(--card); }
-.level-cell:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.level-cell.is-current { border-color: transparent; box-shadow: inset 0 0 0 2px var(--ink); }
-.level-cell.is-locked { opacity: 0.45; cursor: not-allowed; background: transparent; }
-
-.level-dots { display: inline-flex; gap: 2px; }
-.level-dots i {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--ink) 18%, transparent);
-}
-.level-dots i.on { background: var(--t64); }
-
-@media (max-width: 360px) {
-  .level-grid { gap: 5px; }
-  .level-cell { min-height: 46px; }
-  .level-cell strong { font-size: 13px; }
-}
-
-/* ==========================================================================
-   v1.0.5 — the One Line hint sits beside the status line so the footer keeps
-   its existing width, and the shape map gains a star total with a share action.
-   ========================================================================== */
-
-.one-line-status-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  width: 100%;
-  height: 100%;
-  min-width: 0;
-}
-
-.one-line-status-row[hidden] { display: none; }
-
-.one-line-status-row .play-status {
-  flex: 1 1 auto;
-  min-width: 0;
-  text-align: left;
-}
-
-.one-line-hint {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-height: 36px;
-  padding: 0 11px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--ghost-bg);
-  color: var(--ink);
-  font: inherit;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: background-color 150ms ease, transform 120ms ease;
-}
-
-.one-line-hint svg { width: 14px; height: 14px; display: block; }
-.one-line-hint:hover { background: var(--card); }
-.one-line-hint:active { transform: scale(0.96); }
-.one-line-hint:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-
-.play-feedback.has-coach .one-line-status-row { visibility: hidden; }
-
-.one-node.is-hint {
-  fill: var(--ink);
-  stroke: var(--ink);
-  stroke-width: 3.4;
-  stroke-dasharray: none;
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--ink) 45%, transparent));
-  animation: oneHintPulse 1.1s ease-in-out infinite;
-}
-
-@keyframes oneHintPulse {
-  0%, 100% { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--ink) 30%, transparent)); }
-  50% { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--ink) 62%, transparent)); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .one-line-hint { transition: none; }
-  .one-node.is-hint { animation: none; }
-}
-
-.level-share-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-}
-
-.level-share-summary {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: grid;
-  gap: 6px;
-}
-
-.level-share-copy {
-  margin: 0;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.25;
-  font-variant-numeric: tabular-nums;
-}
-
-.level-share-meter {
-  width: min(100%, 160px);
-  height: 3px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--ink) 12%, transparent);
-}
-
-.level-share-meter span {
-  display: block;
-  width: 0;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--g1, #e85f3b);
-  transition: width 260ms ease;
-}
-
-.level-share-meter.has-stars span { min-width: 4px; }
-
-@media (prefers-reduced-motion: reduce) {
-  .level-share-meter span { transition: none; }
-}
-
-.level-share-btn {
-  flex: none;
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: var(--ghost-bg);
-  color: var(--ink);
-  font: inherit;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: background-color 150ms ease, transform 120ms ease;
-}
-
-.level-share-btn:hover { background: var(--card); }
-.level-share-btn:active { transform: translateY(1px) scale(0.985); }
-.level-share-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-
-@media (max-width: 380px) {
-  .one-line-hint {
-    min-height: 34px;
-    padding: 0 8px;
-    gap: 4px;
-    font-size: 10px;
-  }
-  .one-line-hint svg { width: 12px; height: 12px; }
-  .level-share-row { margin-top: 10px; padding-bottom: 10px; gap: 8px; }
-  .level-share-btn { min-height: 36px; padding: 0 11px; font-size: 10.5px; }
-}
-
 @media (max-width: 380px) {
   .result-share--labeled {
     width: 28px;
@@ -4093,7 +3810,6 @@ html[data-theme="dark"] .reset-confirm:hover {
 @media (max-width: 360px) {
   .hub h1 { font-size: 41px; }
   .mini-merge { width: 92px; gap: 6px; }
-  .mini-oneline { width: 94px; height: 94px; }
   .mini-water { transform: scale(0.82); transform-origin: bottom; }
   .mini-fruit-cluster { transform: scale(0.78); }
   .mini-ttt { width: 92px; height: 92px; gap: 4px; }
@@ -4233,7 +3949,7 @@ html[data-theme="dark"] .reset-confirm:hover {
 
 .app { --cart: var(--t16); --cart-ink: var(--home-accent-ink, #211d18); }
 #water { --cart: var(--g4, #39a9a1); --cart-ink: var(--home-accent-ink, #211d18); }
-#oneline { --cart: var(--g1, #e85f3b); --cart-ink: var(--home-accent-ink, #211d18); }
+#sudoku { --cart: var(--g1, #e85f3b); --cart-ink: var(--home-accent-ink, #211d18); }
 #fruit { --cart: var(--g2, #e3a92f); --cart-ink: var(--home-accent-ink, #211d18); }
 #ttt { --cart: var(--g3, #8bbd54); --cart-ink: var(--home-accent-ink, #211d18); }
 #mines { --cart: var(--g5, #5b8fd5); --cart-ink: var(--home-accent-ink, #211d18); }

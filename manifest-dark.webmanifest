@@ -2,7 +2,7 @@
   "id": "./sixfold",
   "name": "Sixfold — Pocket arcade",
   "short_name": "Sixfold",
-  "description": "Six games. No filler. An offline pocket arcade: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper.",
+  "description": "Six games. No filler. An offline pocket arcade: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort and Fruit Merge.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./",

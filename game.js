@@ -1262,6 +1262,7 @@
     // A sheet sits on top of the board; the game must not move underneath it.
     if (sheetEl && !sheetEl.hidden) return;
     if (helpEl && !helpEl.hidden) return;
+    if (e.repeat) return;
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     const dir = KEYS[key];
     if (!dir) return;

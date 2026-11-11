@@ -4,12 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Sixfold — Six games. No filler.</title>
-  <meta name="description" content="Six games. No filler. An offline pocket arcade: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper. No accounts, no ads." />
+  <meta name="description" content="Six games. No filler. An offline pocket arcade: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort and Fruit Merge. No accounts, no ads." />
   <link rel="canonical" href="https://moh23rd.github.io/Sixfold/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Sixfold" />
   <meta property="og:title" content="Sixfold — Six games. No filler." />
-  <meta property="og:description" content="Six games. No filler. An offline pocket arcade: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper. No accounts, no ads." />
+  <meta property="og:description" content="Six games. No filler. An offline pocket arcade: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort and Fruit Merge. No accounts, no ads." />
   <meta property="og:url" content="https://moh23rd.github.io/Sixfold/" />
   <meta property="og:image" content="https://moh23rd.github.io/Sixfold/og-image.png?v=3.0.0" />
   <meta property="og:image:width" content="1200" />
@@ -17,7 +17,7 @@
   <meta property="og:image:alt" content="Sixfold — six games, no filler. A pocket arcade of six offline puzzles." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Sixfold — Six games. No filler." />
-  <meta name="twitter:description" content="Six games. No filler. An offline pocket arcade: Merge, Water Sort, One Line, Fruit Merge, Tic Tac Toe and Minesweeper. No accounts, no ads." />
+  <meta name="twitter:description" content="Six games. No filler. An offline pocket arcade: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort and Fruit Merge. No accounts, no ads." />
   <meta name="twitter:image" content="https://moh23rd.github.io/Sixfold/og-image.png?v=3.0.0" />
   <meta name="theme-color" content="#f6f1e8" />
   <meta name="color-scheme" content="light" />
@@ -60,7 +60,7 @@
       var link = document.createElement('link');
       link.rel = 'manifest';
       link.id = 'manifest-link';
-      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=3.0.0';
+      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=3.0.0-w2';
       document.head.appendChild(link);
 
       // Capture Chrome's install event early enough that the Help panel can
@@ -195,9 +195,10 @@
   <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
   <link rel="preload" href="fonts/google-sans-flex.woff2?v=3.0.0" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="styles.css?v=3.0.0" />
-  <link rel="stylesheet" href="games.css?v=3.0.0" />
+  <link rel="stylesheet" href="games.css?v=3.0.0-w6" />
   <link rel="stylesheet" href="home.css?v=3.0.0" />
-  <link rel="stylesheet" href="polish.css?v=3.0.0" />
+  <link rel="stylesheet" href="polish.css?v=3.0.0-w6" />
+  <link rel="stylesheet" href="sudoku.css?v=3.0.0-w8" />
 </head>
 <body data-screen="hub">
   <div class="boot-splash" id="boot-splash" aria-hidden="true">
@@ -275,10 +276,10 @@
       <div class="home-ticker" aria-hidden="true">
         <div class="home-ticker-track">
           <div class="home-ticker-group">
-            <span>Merge</span><span>Water Sort</span><span>One Line</span><span>Fruit Merge</span><span>Tic Tac Toe</span><span>Minesweeper</span><span>No ads</span><span>Offline</span>
+            <span>Merge</span><span>Sudoku</span><span>Tic Tac Toe</span><span>Minesweeper</span><span>Water Sort</span><span>Fruit Merge</span><span>No ads</span><span>Offline</span>
           </div>
           <div class="home-ticker-group">
-            <span>Merge</span><span>Water Sort</span><span>One Line</span><span>Fruit Merge</span><span>Tic Tac Toe</span><span>Minesweeper</span><span>No ads</span><span>Offline</span>
+            <span>Merge</span><span>Sudoku</span><span>Tic Tac Toe</span><span>Minesweeper</span><span>Water Sort</span><span>Fruit Merge</span><span>No ads</span><span>Offline</span>
           </div>
         </div>
       </div>
@@ -312,8 +313,54 @@
             </span>
           </button>
 
+          <button class="home-game home-game--sudoku" type="button" data-game="sudoku" aria-label="Play Sudoku">
+            <span class="home-game-bar"><span class="home-game-num">02</span><span class="home-game-kind">Numbers</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
+            <span class="home-game-art" aria-hidden="true">
+              <span class="home-game-stage">
+                <span class="mini-sudoku"><i>5</i><i>3</i><i></i><i>6</i><i></i><i></i><i></i><i>9</i><i>8</i></span>
+              </span>
+            </span>
+            <span class="home-game-copy">
+              <span class="home-game-title">Sudoku</span>
+              <span class="home-game-desc">Fill every row, column and box with 1–9.</span>
+              <span class="home-game-meta"><span>4 levels · one solution</span><span class="home-game-play">Play</span></span>
+            </span>
+          </button>
+
+          <button class="home-game home-game--ttt" type="button" data-game="ttt" aria-label="Play Tic Tac Toe">
+            <span class="home-game-bar"><span class="home-game-num">03</span><span class="home-game-kind">Classic</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
+            <span class="home-game-art" aria-hidden="true">
+              <span class="home-game-stage">
+                <span class="mini-ttt"><i class="x">×</i><i class="o">o</i><i></i><i class="o">o</i><i class="x">×</i><i></i><i></i><i class="x">×</i><i class="o">o</i></span>
+              </span>
+            </span>
+            <span class="home-game-copy">
+              <span class="home-game-title">Tic Tac Toe</span>
+              <span class="home-game-desc">Outplay the computer. Or a friend.</span>
+              <span class="home-game-meta"><span>3 levels · 2 players</span><span class="home-game-play">Play</span></span>
+            </span>
+          </button>
+
+          <button class="home-game home-game--mines" type="button" data-game="mines" aria-label="Play Minesweeper">
+            <span class="home-game-bar"><span class="home-game-num">04</span><span class="home-game-kind">Logic</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
+            <span class="home-game-art" aria-hidden="true">
+              <span class="home-game-stage">
+                <span class="mini-mines">
+                  <i class="mines-open">1</i><i class="mines-flag">⚑</i><i class="mines-open">2</i>
+                  <i class="mines-open"></i><i class="mines-mine">✹</i><i class="mines-open">3</i>
+                  <i class="mines-open">2</i><i class="mines-open">1</i><i class="mines-flag">⚑</i>
+                </span>
+              </span>
+            </span>
+            <span class="home-game-copy">
+              <span class="home-game-title">Minesweeper</span>
+              <span class="home-game-desc">Read the numbers. Clear the field.</span>
+              <span class="home-game-meta"><span>3 levels</span><span class="home-game-play">Play</span></span>
+            </span>
+          </button>
+
           <button class="home-game home-game--water" type="button" data-game="water" aria-label="Play Water Sort">
-            <span class="home-game-bar"><span class="home-game-num">02</span><span class="home-game-kind">Sorting</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
+            <span class="home-game-bar"><span class="home-game-num">05</span><span class="home-game-kind">Sorting</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
             <span class="home-game-art" aria-hidden="true">
               <span class="home-game-stage">
                 <span class="mini-water">
@@ -330,27 +377,8 @@
             </span>
           </button>
 
-          <button class="home-game home-game--oneline" type="button" data-game="oneline" aria-label="Play One Line">
-            <span class="home-game-bar"><span class="home-game-num">03</span><span class="home-game-kind">Drawing</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
-            <span class="home-game-art" aria-hidden="true">
-              <span class="home-game-stage">
-                <svg class="mini-oneline" viewBox="0 0 100 100">
-                  <path d="M24 24 L76 24 L76 76 L24 76 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                  <path d="M24 24 L76 76 M76 24 L24 76" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                  <circle cx="24" cy="24" r="4" fill="currentColor" /><circle cx="76" cy="24" r="4" fill="currentColor" />
-                  <circle cx="76" cy="76" r="4" fill="currentColor" /><circle cx="24" cy="76" r="4" fill="currentColor" />
-                </svg>
-              </span>
-            </span>
-            <span class="home-game-copy">
-              <span class="home-game-title">One Line</span>
-              <span class="home-game-desc">Trace every link in one unbroken stroke.</span>
-              <span class="home-game-meta"><span>100 shapes</span><span class="home-game-play">Play</span></span>
-            </span>
-          </button>
-
           <button class="home-game home-game--fruit" type="button" data-game="fruit" aria-label="Play Fruit Merge">
-            <span class="home-game-bar"><span class="home-game-num">04</span><span class="home-game-kind">Merging</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
+            <span class="home-game-bar"><span class="home-game-num">06</span><span class="home-game-kind">Merging</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
             <span class="home-game-art" aria-hidden="true">
               <span class="home-game-stage">
                 <span class="mini-fruit-cluster"><i class="mini-fruit f1"></i><i class="mini-fruit f2"></i><i class="mini-fruit f3"></i><i class="mini-fruit f4"></i><i class="mini-fruit f5"></i></span>
@@ -360,38 +388,6 @@
               <span class="home-game-title">Fruit Merge</span>
               <span class="home-game-desc">Drop matching fruit. Don’t overflow.</span>
               <span class="home-game-meta"><span>Endless · best saved</span><span class="home-game-play">Play</span></span>
-            </span>
-          </button>
-
-          <button class="home-game home-game--ttt" type="button" data-game="ttt" aria-label="Play Tic Tac Toe">
-            <span class="home-game-bar"><span class="home-game-num">05</span><span class="home-game-kind">Classic</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
-            <span class="home-game-art" aria-hidden="true">
-              <span class="home-game-stage">
-                <span class="mini-ttt"><i class="x">×</i><i class="o">o</i><i></i><i class="o">o</i><i class="x">×</i><i></i><i></i><i class="x">×</i><i class="o">o</i></span>
-              </span>
-            </span>
-            <span class="home-game-copy">
-              <span class="home-game-title">Tic Tac Toe</span>
-              <span class="home-game-desc">Outplay the computer. Or a friend.</span>
-              <span class="home-game-meta"><span>3 levels · 2 players</span><span class="home-game-play">Play</span></span>
-            </span>
-          </button>
-
-          <button class="home-game home-game--mines" type="button" data-game="mines" aria-label="Play Minesweeper">
-            <span class="home-game-bar"><span class="home-game-num">06</span><span class="home-game-kind">Logic</span><span class="home-game-arrow" aria-hidden="true">↗</span></span>
-            <span class="home-game-art" aria-hidden="true">
-              <span class="home-game-stage">
-                <span class="mini-mines">
-                  <i class="mines-open">1</i><i class="mines-flag">⚑</i><i class="mines-open">2</i>
-                  <i class="mines-open"></i><i class="mines-mine">✹</i><i class="mines-open">3</i>
-                  <i class="mines-open">2</i><i class="mines-open">1</i><i class="mines-flag">⚑</i>
-                </span>
-              </span>
-            </span>
-            <span class="home-game-copy">
-              <span class="home-game-title">Minesweeper</span>
-              <span class="home-game-desc">Read the numbers. Clear the field.</span>
-              <span class="home-game-meta"><span>3 levels</span><span class="home-game-play">Play</span></span>
             </span>
           </button>
         </div>
@@ -532,7 +528,7 @@
         <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </button>
-        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">02</span><span class="play-cart-kind">Sorting</span></span>
+        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">05</span><span class="play-cart-kind">Sorting</span></span>
         </div>
         <div class="play-title-row">
           <div class="play-intro">
@@ -573,59 +569,67 @@
     </div>
   </section>
 
-  <section class="play-screen" id="oneline" aria-labelledby="one-line-title" hidden>
-    <div class="play-shell one-line-shell">
+  <section class="play-screen" id="sudoku" aria-labelledby="sudoku-title" hidden>
+    <div class="play-shell sudoku-shell">
       <header class="play-head">
         <div class="play-cart-row">
         <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h12"/><path d="m12 6-6 6 6 6"/></svg>
         </button>
-        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">03</span><span class="play-cart-kind">Drawing</span></span>
+        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">02</span><span class="play-cart-kind">Numbers</span></span>
         </div>
         <div class="play-title-row">
           <div class="play-intro">
-            <button class="game-tag play-chip" id="one-line-level" type="button" aria-haspopup="dialog" aria-controls="one-line-levels" aria-label="Open shape list">
-              <span id="one-line-level-label">Easy · 1 of 100</span>
+            <button class="game-tag play-chip" id="sudoku-level" type="button" aria-haspopup="dialog" aria-controls="sudoku-levels" aria-label="Choose Sudoku difficulty">
+              <span id="sudoku-level-label">Easy</span>
               <span class="play-chip-chevron" aria-hidden="true">›</span>
             </button>
-            <h1 id="one-line-title" tabindex="-1">One Line</h1>
-            <p class="sub">Trace every link in one unbroken stroke.</p>
+            <h1 id="sudoku-title" tabindex="-1">Sudoku</h1>
+            <p class="sub">Fill every row, column and 3 × 3 box with 1–9.</p>
           </div>
-          <div class="play-stats" aria-label="One Line progress">
-            <div class="play-stat"><span class="label">Links</span><strong id="one-line-moves">0</strong></div>
-            <div class="play-stat"><span class="label">Level</span><strong id="one-line-level-value">1</strong></div>
+          <div class="play-stats" aria-label="Sudoku progress">
+            <div class="play-stat"><span class="label">Time</span><strong id="sudoku-time">0:00</strong></div>
+            <div class="play-stat"><span class="label">Best</span><strong id="sudoku-best">—</strong></div>
           </div>
         </div>
       </header>
       <div class="play-body">
-      <main class="play-main">
+      <main class="play-main sudoku-main">
         <div class="board-stage">
-          <div class="one-line-wrap">
-            <svg class="one-line-board" id="one-line-svg" viewBox="0 0 100 100" role="group" aria-label="One Line puzzle" aria-describedby="one-line-status"></svg>
+          <div class="sudoku-wrap">
+            <div class="sudoku-board" id="sudoku-board" role="grid" aria-label="Sudoku board"></div>
+            <div class="sudoku-result" id="sudoku-result" role="dialog" aria-labelledby="sudoku-result-title" aria-modal="true" tabindex="-1" hidden>
+              <div class="sudoku-result-card">
+                <p class="game-tag">Grid complete</p>
+                <h2 id="sudoku-result-title">Solved.</h2>
+                <p id="sudoku-result-copy">The grid is complete.</p>
+                <p class="sudoku-result-stats" id="sudoku-result-stats"></p>
+                <div class="sudoku-result-actions">
+                  <button class="play-btn play-btn--solid" id="sudoku-result-new" type="button">New puzzle</button>
+                  <button class="result-share" id="sudoku-result-share" type="button" aria-label="Share result" title="Share result">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 16V3"/><path d="m7 8 5-5 5 5"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="play-feedback">
-          <div class="one-line-status-row" id="one-line-status-row">
-            <p class="play-status" id="one-line-status" role="status" aria-live="polite">Drag from any dot. Lift and continue from the glowing dot.</p>
-            <button class="one-line-hint" id="one-line-hint" type="button" aria-keyshortcuts="h" title="Show the next dot. A hint caps this shape at two stars.">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.45.9 1.1.9 1.8v.4h5.4v-.4c0-.7.3-1.35.9-1.8A6 6 0 0 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              <span>Hint</span>
-            </button>
-          </div>
-          <div class="play-win" id="one-line-win" hidden>
-            <p><strong>One line.</strong> <span id="one-line-win-copy"></span> <span class="one-line-stars" id="one-line-stars" role="img" aria-label="0 of 3 stars" hidden></span></p>
-            <button class="play-btn play-btn--solid" id="one-line-win-next" type="button">Next shape</button>
-            <button class="result-share result-share--labeled" id="one-line-share" type="button" aria-label="Share star progress" title="Share star progress"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="17.5" cy="5.5" r="2.5" /><circle cx="6.5" cy="12" r="2.5" /><circle cx="17.5" cy="18.5" r="2.5" /><path d="M8.65 10.73 15.35 6.77M8.65 13.27l6.7 3.96" /></g></svg><span class="result-share-label" aria-hidden="true">Share</span></button>
-          </div>
+          <p class="play-status sudoku-status" id="sudoku-status" role="status" aria-live="polite">Tap a cell, then a number.</p>
+        </div>
+        <div class="sudoku-pad" id="sudoku-pad" role="group" aria-label="Number pad"></div>
+        <div class="sudoku-tools" role="group" aria-label="Sudoku controls">
+          <button class="sudoku-tool" id="sudoku-notes" type="button" aria-pressed="false">Notes</button>
+          <button class="sudoku-tool" id="sudoku-erase" type="button">Erase</button>
+          <button class="sudoku-tool" id="sudoku-undo" type="button">Undo</button>
+          <button class="sudoku-tool" id="sudoku-hint" type="button">Hint</button>
         </div>
       </main>
       <footer class="play-foot">
         <div class="play-actions">
-          <button class="play-btn play-btn--ghost" id="one-line-undo" type="button">Undo</button>
-          <button class="play-btn play-btn--ghost" id="one-line-restart" type="button">Restart</button>
-          <button class="play-btn play-btn--solid" id="one-line-new" type="button" aria-haspopup="dialog" aria-controls="one-line-levels">Shapes</button>
+          <button class="play-btn play-btn--solid" id="sudoku-new" type="button">New puzzle</button>
         </div>
-        <span class="play-note">Drag to trace · ringed dots are open ends.</span>
+        <span class="play-note">Givens are locked · notes are yours.</span>
       </footer>
       </div>
     </div>
@@ -638,7 +642,7 @@
         <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </button>
-        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">04</span><span class="play-cart-kind">Merging</span></span>
+        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">06</span><span class="play-cart-kind">Merging</span></span>
         </div>
         <div class="play-title-row">
           <div class="play-intro">
@@ -695,7 +699,7 @@
         <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </button>
-        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">05</span><span class="play-cart-kind">Classic</span></span>
+        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">03</span><span class="play-cart-kind">Classic</span></span>
         </div>
         <div class="play-title-row">
           <div class="play-intro">
@@ -747,7 +751,7 @@
         <button class="games-home" data-back type="button" aria-label="Back to all games" title="Back to all games">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </button>
-        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">06</span><span class="play-cart-kind">Logic</span></span>
+        <span class="play-cart" aria-hidden="true"><span class="play-cart-num">04</span><span class="play-cart-kind">Logic</span></span>
         </div>
         <div class="play-title-row">
           <div class="play-intro">
@@ -822,15 +826,14 @@
         <main class="play-main wordle-main">
           <div class="wordle-board-wrap">
             <div class="wordle-board" id="wordle-board" role="grid" aria-label="Wordle board, 0 of 6 guesses used" aria-rowcount="6" aria-colcount="5" tabindex="0"></div>
-            <input class="wordle-native-input" id="wordle-native-input" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="enter" tabindex="-1" aria-label="Wordle guess input" aria-describedby="wordle-status" />
-            <div class="wordle-result" id="wordle-result" hidden role="dialog" aria-labelledby="wordle-result-title" tabindex="-1">
+            <div class="wordle-result" id="wordle-result" hidden role="dialog" aria-labelledby="wordle-result-title">
               <div class="wordle-result-card">
                 <p class="game-tag">Round complete</p>
                 <h2 id="wordle-result-title">Solved.</h2>
                 <p id="wordle-result-copy">The word was CRANE.</p>
                 <p class="wordle-result-stats" id="wordle-result-stats"></p>
                 <div class="wordle-result-actions">
-                  <button class="play-btn play-btn--solid" id="wordle-result-new" type="button">New word</button>
+                  <button class="play-btn play-btn--solid" id="wordle-result-new" type="button">New game</button>
                   <button class="result-share" id="wordle-result-share" type="button" aria-label="Share result" title="Share result"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="17.5" cy="5.5" r="2.5" /><circle cx="6.5" cy="12" r="2.5" /><circle cx="17.5" cy="18.5" r="2.5" /><path d="M8.65 10.73 15.35 6.77M8.65 13.27l6.7 3.96" /></g></svg></button>
                 </div>
               </div>
@@ -840,7 +843,10 @@
           <div class="wordle-keyboard" id="wordle-keyboard" role="group" aria-label="Letter keyboard"></div>
         </main>
         <footer class="play-foot">
-          <span class="play-note">Tap the board to type, or use the on-screen keys.</span>
+          <div class="play-actions">
+            <button class="play-btn play-btn--ghost wordle-new" id="wordle-new" type="button">New game</button>
+          </div>
+          <span class="play-note">Type on your keyboard or tap the letters.</span>
         </footer>
       </div>
     </div>
@@ -958,24 +964,15 @@
     </div>
   </div>
 
-  <div class="sheet" id="one-line-levels" hidden>
+  <div class="sheet" id="sudoku-levels" hidden>
     <div class="sheet-backdrop" data-close></div>
-    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="one-line-levels-title">
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sudoku-levels-title">
       <div class="sheet-head">
-        <h2 id="one-line-levels-title">Shapes</h2>
+        <h2 id="sudoku-levels-title">Difficulty</h2>
         <button class="sheet-done" data-close type="button">Done</button>
       </div>
-      <p class="sheet-sub">100 shapes across four chapters. Stars mark clean solves; finishing a shape opens the next one.</p>
-      <div class="level-share-row">
-        <div class="level-share-summary">
-          <p class="level-share-copy" id="one-line-star-total">0 of 300 stars</p>
-          <div class="level-share-meter" id="one-line-star-meter" role="progressbar" aria-label="One Line stars earned" aria-valuemin="0" aria-valuemax="300" aria-valuenow="0" aria-valuetext="0 of 300 stars">
-            <span id="one-line-star-meter-fill"></span>
-          </div>
-        </div>
-        <button class="level-share-btn" id="one-line-share-stars" type="button" title="Share your One Line star progress">Share stars</button>
-      </div>
-      <div class="level-grid" id="one-line-level-grid" role="group" aria-label="One Line shapes"></div>
+      <p class="sheet-sub">Every puzzle has exactly one solution. Best times save on this device.</p>
+      <div class="sudoku-level-grid" id="sudoku-level-grid" role="group" aria-label="Sudoku difficulty"></div>
     </div>
   </div>
 
@@ -986,10 +983,11 @@
   <script src="celebrate.js?v=3.0.0"></script>
   <script src="sharecard.js?v=3.0.0"></script>
   <script src="theme.js?v=3.0.0"></script>
-  <script src="game.js?v=3.0.0"></script>
+  <script src="game.js?v=3.0.0-w3"></script>
   <script src="install.js?v=3.0.0"></script>
-  <script src="games.js?v=3.0.0"></script>
-  <script src="wordle-loader.js?v=3.0.0"></script>
+  <script src="sudoku.js?v=3.0.0-w3"></script>
+  <script src="games.js?v=3.0.0-w8"></script>
+  <script src="wordle-loader.js?v=3.0.0-w3"></script>
   <script>
     (function () {
       var splash = document.getElementById('boot-splash');

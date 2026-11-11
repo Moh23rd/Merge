@@ -614,7 +614,7 @@ html.home-ready .home-six-caption {
 }
 
 .home-game--water { --game-accent: var(--g4); }
-.home-game--oneline { --game-accent: var(--g1); }
+.home-game--sudoku { --game-accent: var(--g1); }
 .home-game--fruit { --game-accent: var(--g2); }
 .home-game--ttt { --game-accent: var(--g3); }
 .home-game--mines { --game-accent: var(--g5); }
@@ -710,7 +710,7 @@ html.home-ready .home-six-caption {
   transform-origin: center;
 }
 
-.home-game-stage .mini-oneline {
+.home-game-stage .mini-sudoku {
   width: 98px;
   height: 98px;
   opacity: 0.9;
@@ -960,7 +960,7 @@ html.home-ready .home-six-caption {
 
   .home-game-stage .mini-merge { width: 124px; }
   .home-game-stage .mini-water { transform: scale(0.95); }
-  .home-game-stage .mini-oneline { width: 116px; height: 116px; }
+  .home-game-stage .mini-sudoku { width: 116px; height: 116px; }
   .home-game-stage .mini-fruit-cluster { transform: scale(0.94); }
   .home-game-stage .mini-ttt { width: 110px; height: 110px; }
   .home-game-stage .mini-mines { width: 112px; height: 112px; }
@@ -1031,7 +1031,7 @@ html.home-ready .home-six-caption {
   .home-game-stage { height: 120px; }
   .home-game-stage .mini-merge { width: 96px; gap: 6px; }
   .home-game-stage .mini-water { transform: scale(0.77); }
-  .home-game-stage .mini-oneline { width: 92px; height: 92px; }
+  .home-game-stage .mini-sudoku { width: 92px; height: 92px; }
   .home-game-stage .mini-fruit-cluster { transform: scale(0.73); }
   .home-game-stage .mini-ttt { width: 90px; height: 90px; }
   .home-game-stage .mini-mines { width: 92px; height: 92px; }

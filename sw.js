@@ -1,35 +1,39 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
 // 3.0: the shell is rebuilt so the three-second result timing and the
 // restored What's New note reach clients that already hold an older cache.
-const VERSION = 'sixfold-3.0.0';
-// Cache Storage is shared by every app on the origin. Only remove Sixfold's
-// own older caches, never another project's offline data.
-const CACHE_PREFIX = 'sixfold-';
+const VERSION = 'sixfold-3.0.7';
 // Keep these matching index.html. A new cache version refreshes the shell even
-// when the asset URLs themselves do not change.
+// when the asset URLs themselves do not change. The game code has its own
+// query suffix, so it must be listed separately or offline play would look for
+// files that were never cached.
 const ASSET = '3.0.0';
-const GAMES = '3.0.0';
+const GAME_CODE = '3.0.0-w3';
+const GAMES_CSS = '3.0.0-w6';
+const GAMES_JS = '3.0.0-w8';
+const SUDOKU_CSS = '3.0.0-w8';
 
 const SHELL = [
   './',
   './index.html',
   './styles.css?v=' + ASSET,
   './theme.js?v=' + ASSET,
-  './game.js?v=' + ASSET,
+  './game.js?v=' + GAME_CODE,
   './haptics.js?v=' + ASSET,
   './overscroll.js?v=' + ASSET,
   './celebrate.js?v=' + ASSET,
   './sharecard.js?v=' + ASSET,
   './install.js?v=' + ASSET,
-  './games.css?v=' + GAMES,
-  './home.css?v=' + GAMES,
-  './polish.css?v=' + GAMES,
-  './games.js?v=' + GAMES,
-  './wordle-loader.js?v=' + GAMES,
+  './games.css?v=' + GAMES_CSS,
+  './home.css?v=' + ASSET,
+  './polish.css?v=' + GAMES_CSS,
+  './sudoku.css?v=' + SUDOKU_CSS,
+  './sudoku.js?v=' + GAME_CODE,
+  './games.js?v=' + GAMES_JS,
+  './wordle-loader.js?v=' + GAME_CODE,
   // The hidden word game is loaded on demand, but it still belongs in the
   // offline shell so unlocking it works with no connection.
-  './wordle-words.js?v=' + GAMES,
-  './wordle.js?v=' + GAMES,
+  './wordle-words.js?v=' + GAME_CODE,
+  './wordle.js?v=' + GAME_CODE,
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -61,13 +65,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key.startsWith(CACHE_PREFIX) && key !== VERSION)
-            .map((key) => caches.delete(key))
-        )
-      )
+      .then((keys) => Promise.all(keys.filter((key) => key !== VERSION).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -89,13 +87,11 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches
-              .open(VERSION)
-              .then((cache) => cache.put(request, copy))
-              .catch(() => {});
-          }
+          const copy = response.clone();
+          caches
+            .open(VERSION)
+            .then((cache) => cache.put(request, copy))
+            .catch(() => {});
           return response;
         })
         .catch(() => caches.match(request))
@@ -108,10 +104,9 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Only cache a successful HTML page. A failed navigation (including
-          // GitHub Pages' 404 page) must never replace the offline app shell.
-          if (response.ok &&
-              (response.headers.get('Content-Type') || '').indexOf('text/html') !== -1) {
+          // Only cache a real HTML page. A non-page navigation must never
+          // replace the offline app shell.
+          if ((response.headers.get('Content-Type') || '').indexOf('text/html') !== -1) {
             const copy = response.clone();
             caches
               .open(VERSION)
