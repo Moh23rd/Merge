@@ -73,13 +73,26 @@
   .one-node { will-change: transform; backface-visibility: hidden; }
 }
 
-@keyframes sixTap {
-  0% { transform: translateY(0) scale(1); }
-  42% { transform: translateY(1px) scale(0.93); }
-  100% { transform: translateY(0) scale(1); }
+/* A tap is a brief press, not an animation. Keeping it off the animation
+   property means it can never cancel or replace the sixBuild entrance. */
+.home-six-piece.is-six-hit {
+  transform: translateY(2px) scale(0.94);
+  filter: brightness(1.07) saturate(1.06);
+  box-shadow:
+    inset 0 -2px 0 rgba(33, 29, 24, 0.12),
+    0 0 0 3px color-mix(in srgb, var(--ink) 15%, transparent);
 }
 
-.home-six-piece.is-six-hit { animation: sixTap 260ms cubic-bezier(0.22, 1, 0.36, 1); }
+.home-six.is-unlocking {
+  animation: sixUnlock 520ms var(--ease-spring) both;
+}
+
+@keyframes sixUnlock {
+  0% { transform: rotate(-3deg) scale(1); }
+  38% { transform: rotate(-3deg) scale(1.035); }
+  68% { transform: rotate(-3deg) scale(0.993); }
+  100% { transform: rotate(-3deg) scale(1); }
+}
 
 /* Merge tiles keep their responsive 150ms feel on touch, but a mouse gets a
    slightly longer, springier slide so a fast swipe no longer looks like a snap. */
@@ -396,6 +409,7 @@ html[data-theme="dark"] #wordle {
 
 @media (prefers-reduced-motion: reduce) {
   .home-six,
+  .home-six.is-unlocking,
   .home-six-piece,
   .home-game,
   .home-game-stage,
@@ -1180,10 +1194,10 @@ html.hidden-reveal-open body {
 
 /* The cover now starts its build after the launch layer is removed. Keep the
    cascade brisk so the hub is alive as soon as the splash clears. */
-html.home-ready .six-1 { animation-delay: 80ms; }
-html.home-ready .six-2 { animation-delay: 130ms; }
-html.home-ready .six-3 { animation-delay: 180ms; }
-html.home-ready .six-4 { animation-delay: 230ms; }
-html.home-ready .six-5 { animation-delay: 280ms; }
-html.home-ready .six-6 { animation-delay: 330ms; }
-html.home-ready .home-six-caption { animation-delay: 360ms; }
+html.home-ready .six-1 { animation-delay: 100ms; }
+html.home-ready .six-2 { animation-delay: 170ms; }
+html.home-ready .six-3 { animation-delay: 240ms; }
+html.home-ready .six-4 { animation-delay: 310ms; }
+html.home-ready .six-5 { animation-delay: 380ms; }
+html.home-ready .six-6 { animation-delay: 450ms; }
+html.home-ready .home-six-caption { animation-delay: 500ms; }

@@ -771,7 +771,7 @@ html[data-theme="dark"] .water-board {
       var(--drain) 8px);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
   pointer-events: none;
-  animation: sourceDrain 400ms var(--ease-out) both;
+  animation: sourceDrain var(--pour-ms, 400ms) var(--ease-out) both;
 }
 
 .water-drain::before {
@@ -904,9 +904,13 @@ html[data-theme="dark"] .water-glass {
   animation: targetPulse 1.2s ease-in-out infinite;
 }
 
-.water-tube.is-pouring .water-glass { transform: translateY(-13px) rotate(var(--pour-tilt, -5deg)); }
-.water-tube.is-receiving .water-liquid { animation: waterRise 400ms var(--ease-out) both; }
-.water-tube.is-receiving .water-glass { animation: receivePulse 300ms ease-out; }
+.water-tube.is-pouring .water-glass {
+  transform: translateY(-13px) rotate(var(--pour-tilt, -5deg));
+  animation: waterTip var(--pour-ms, 500ms) cubic-bezier(0.22, 0.8, 0.3, 1) both;
+}
+.water-tube.is-receiving .water-liquid { animation: waterRise var(--pour-ms, 400ms) var(--ease-out) both; }
+.water-tube.is-receiving .water-glass { animation: receivePulse 360ms ease-out; }
+.water-tube.is-receiving .water-seg.water-surface::before { animation: waterSurfaceSettle var(--pour-ms, 400ms) var(--ease-out) both; }
 .water-tube.is-invalid { animation: tubeShake 320ms ease-out; }
 
 .water-tube:focus-visible .water-glass {
@@ -932,15 +936,44 @@ html[data-theme="dark"] .water-glass {
   stroke-dashoffset: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
-  animation: waterStream 440ms cubic-bezier(0.22, 0.75, 0.3, 1) forwards;
+  animation: waterStream var(--pour-ms, 440ms) cubic-bezier(0.22, 0.75, 0.3, 1) forwards;
 }
 
 .water-pour-layer .water-stream-edge { filter: blur(0.15px); }
 
+.water-pour-splash,
+.water-pour-ring,
+.water-pour-drop { opacity: 0; }
+
 .water-pour-splash {
   transform-box: fill-box;
   transform-origin: center;
-  animation: waterSplash 460ms ease-out forwards;
+  animation: waterSplash var(--pour-ms, 460ms) ease-out forwards;
+}
+
+.water-pour-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: waterRipple var(--pour-ms, 460ms) ease-out forwards;
+}
+
+.water-pour-drop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: waterDrop 420ms cubic-bezier(0.2, 0.7, 0.4, 1) forwards;
+}
+
+@keyframes waterRipple {
+  0% { opacity: 0.5; transform: scale(0.25); }
+  65% { opacity: 0.16; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.55); }
+}
+
+@keyframes waterDrop {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  18% { opacity: 0.9; }
+  52% { opacity: 0.8; transform: translate(var(--drop-x-mid), var(--drop-y-mid)) scale(1); }
+  100% { opacity: 0; transform: translate(var(--drop-x), 12px) scale(0.55); }
 }
 
 @keyframes waterRise {
@@ -965,6 +998,19 @@ html[data-theme="dark"] .water-glass {
   100% { transform: scale(1); }
 }
 
+@keyframes waterSurfaceSettle {
+  0% { transform: translateY(3px) scaleX(0.84) skewX(-4deg); opacity: 0.6; }
+  35% { transform: translateY(-1px) scaleX(1.08) skewX(2deg); opacity: 1; }
+  65% { transform: translateY(0) scaleX(0.97) skewX(-1deg); opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+
+@keyframes waterTip {
+  0% { transform: translateY(0) rotate(0deg); }
+  18% { transform: translateY(-15px) rotate(var(--pour-tilt, -5deg)); }
+  100% { transform: translateY(-13px) rotate(var(--pour-tilt, -5deg)); }
+}
+
 @keyframes targetPulse {
   0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(0.9); }
   50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
@@ -979,8 +1025,10 @@ html[data-theme="dark"] .water-glass {
 }
 
 @keyframes waterStream {
-  0% { stroke-dashoffset: 1; opacity: 1; }
-  60% { stroke-dashoffset: 0; opacity: 1; }
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  8% { opacity: 1; }
+  58% { stroke-dashoffset: 0; opacity: 1; }
+  86% { stroke-dashoffset: 0; opacity: 1; }
   100% { stroke-dashoffset: 0; opacity: 0; }
 }
 
@@ -997,7 +1045,8 @@ html[data-theme="dark"] .water-glass {
   .water-drain,
   .water-seg,
   .water-seg.water-surface::before,
-  .water-tube.is-target::after { transition: none; animation: none; }
+  .water-tube.is-target::after,
+  .water-tube.is-receiving .water-seg.water-surface::before { transition: none; animation: none; }
   .water-pour-layer { display: none; }
 }
 
@@ -1560,7 +1609,7 @@ html[data-theme="dark"] .mines-cell.has-8 { color: #bdb2a3; }
   flex-basis: calc(25% - 8px);
 }
 /* ==========================================================================
-   Collection v3 — quieter chrome, game-first boards
+   Collection v4 — quieter chrome, game-first boards
    The shell now reads like one designed product rather than six templates:
    compact inline scores, a single tool cluster, editorial difficulty tabs,
    and boards that own the screen on small phones and in landscape.

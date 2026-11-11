@@ -11,22 +11,22 @@
   <meta property="og:title" content="Sixfold — Six games. No filler." />
   <meta property="og:description" content="Six games. No filler. An offline pocket arcade: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort and Fruit Merge. No accounts, no ads." />
   <meta property="og:url" content="https://moh23rd.github.io/Sixfold/" />
-  <meta property="og:image" content="https://moh23rd.github.io/Sixfold/og-image.png?v=3.0.0" />
+  <meta property="og:image" content="https://moh23rd.github.io/Sixfold/og-image.png?v=4.0.0-w1" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Sixfold — six games, no filler. A pocket arcade of six offline puzzles." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Sixfold — Six games. No filler." />
   <meta name="twitter:description" content="Six games. No filler. An offline pocket arcade: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort and Fruit Merge. No accounts, no ads." />
-  <meta name="twitter:image" content="https://moh23rd.github.io/Sixfold/og-image.png?v=3.0.0" />
+  <meta name="twitter:image" content="https://moh23rd.github.io/Sixfold/og-image.png?v=4.0.0-w1" />
   <meta name="theme-color" content="#f6f1e8" />
   <meta name="color-scheme" content="light" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Sixfold" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=3.0.0" />
-  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=3.0.0" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=4.0.0" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png?v=4.0.0" />
   <script>
     (function () {
       // A phone captures the installed app's bottom chrome when the app is
@@ -60,7 +60,7 @@
       var link = document.createElement('link');
       link.rel = 'manifest';
       link.id = 'manifest-link';
-      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=3.0.0-w2';
+      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=4.0.0-w3';
       document.head.appendChild(link);
 
       // Capture Chrome's install event early enough that the Help panel can
@@ -192,14 +192,14 @@
       box-shadow: inset 0 0 0 1px rgba(59, 56, 51, 0.08);
       transform: scaleX(0);
       transform-origin: left center;
-      animation: bootRail 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation: bootRail 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
-    .boot-track span:nth-child(1) { background: #f3ecdf; animation-delay: 180ms; }
-    .boot-track span:nth-child(2) { background: #ee9563; animation-delay: 220ms; }
-    .boot-track span:nth-child(3) { background: #e7c364; animation-delay: 260ms; }
-    .boot-track span:nth-child(4) { background: #efb07a; animation-delay: 300ms; }
-    .boot-track span:nth-child(5) { background: #ec7c55; animation-delay: 340ms; }
-    .boot-track span:nth-child(6) { background: #e85f3b; animation-delay: 380ms; }
+    .boot-track span:nth-child(1) { background: #f3ecdf; animation-delay: 150ms; }
+    .boot-track span:nth-child(2) { background: #ee9563; animation-delay: 185ms; }
+    .boot-track span:nth-child(3) { background: #e7c364; animation-delay: 220ms; }
+    .boot-track span:nth-child(4) { background: #efb07a; animation-delay: 255ms; }
+    .boot-track span:nth-child(5) { background: #ec7c55; animation-delay: 290ms; }
+    .boot-track span:nth-child(6) { background: #e85f3b; animation-delay: 325ms; }
     html.app-ready #boot-splash { opacity: 0; visibility: hidden; pointer-events: none; }
     html.app-ready .boot-stage { transform: translateY(-7px) scale(1.012); }
     @keyframes bootPiece {
@@ -225,50 +225,50 @@
       #boot-splash { transition-duration: 0.01ms; animation: none; }
     }
   </style>
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=3.0.0" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=4.0.0" />
   <!-- Native iOS launch images, light and dark, portrait phone and tablet sizes. -->
-  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-light.png?v=3.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-dark.png?v=3.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
-  <link rel="preload" href="fonts/google-sans-flex.woff2?v=3.0.0" as="font" type="font/woff2" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=3.0.0" />
-  <link rel="stylesheet" href="games.css?v=3.0.0-w6" />
-  <link rel="stylesheet" href="home.css?v=3.0.0" />
-  <link rel="stylesheet" href="polish.css?v=3.0.0-w8" />
-  <link rel="stylesheet" href="sudoku.css?v=3.0.0-w8" />
+  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-640x1136-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-750x1334-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2208-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1125x2436-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-828x1792-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1242x2688-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1170x2532-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1284x2778-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1179x2556-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1290x2796-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1206x2622-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1320x2868-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1488x2266-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1536x2048-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1620x2160-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1640x2360-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-1668x2388-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-light.png?v=4.0.0" media="screen and (prefers-color-scheme: light) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="apple-touch-startup-image" href="splash/ios-2048x2732-dark.png?v=4.0.0" media="screen and (prefers-color-scheme: dark) and (device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" />
+  <link rel="preload" href="fonts/google-sans-flex.woff2?v=4.0.0" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="styles.css?v=4.0.0" />
+  <link rel="stylesheet" href="games.css?v=4.0.0-w10" />
+  <link rel="stylesheet" href="home.css?v=4.0.0-w4" />
+  <link rel="stylesheet" href="polish.css?v=4.0.0-w9" />
+  <link rel="stylesheet" href="sudoku.css?v=4.0.0-w13" />
 </head>
 <body data-screen="hub">
   <div class="boot-splash" id="boot-splash" aria-hidden="true">
@@ -338,6 +338,20 @@
         </div>
       </header>
 
+      <!-- Bump data-version and replace this list with each release. -->
+      <aside class="whats-new" id="whats-new" data-version="4.0" aria-labelledby="whats-new-title" hidden>
+        <span class="whats-new-mark" aria-hidden="true">✦</span>
+        <div class="whats-new-copy">
+          <p class="whats-new-label" id="whats-new-title">What’s new in 4.0</p>
+          <ul class="whats-new-list">
+            <li>Sudoku replaces One Line: four difficulties, notes, hints, best times and a board-left landscape layout</li>
+            <li>The six-piece cover builds in one steady pass again, and tapping 01–06 in order works on touch as well as mouse</li>
+            <li>Landscape layouts are tighter across the arcade; Sudoku’s tutorial and controls stay visible on short screens</li>
+          </ul>
+        </div>
+        <button class="whats-new-close" id="whats-new-close" type="button" aria-label="Dismiss what’s new">×</button>
+      </aside>
+
       <div class="home-hero">
         <div class="home-head">
           <p class="home-kicker"><span class="home-kicker-pip" aria-hidden="true"></span>The pocket arcade</p>
@@ -358,12 +372,12 @@
 
         <div class="home-hero-art" aria-hidden="true">
           <div class="home-six">
-            <span class="home-six-piece six-1">01</span>
-            <span class="home-six-piece six-2">02</span>
-            <span class="home-six-piece six-3">03</span>
-            <span class="home-six-piece six-4">04</span>
-            <span class="home-six-piece six-5">05</span>
-            <span class="home-six-piece six-6">06</span>
+            <button class="home-six-piece six-1" type="button" tabindex="-1">01</button>
+            <button class="home-six-piece six-2" type="button" tabindex="-1">02</button>
+            <button class="home-six-piece six-3" type="button" tabindex="-1">03</button>
+            <button class="home-six-piece six-4" type="button" tabindex="-1">04</button>
+            <button class="home-six-piece six-5" type="button" tabindex="-1">05</button>
+            <button class="home-six-piece six-6" type="button" tabindex="-1">06</button>
           </div>
           <p class="home-six-caption"><span>Play offline</span><span>01—06</span></p>
         </div>
@@ -501,20 +515,6 @@
           <button class="install-fix-close" id="install-fix-close" type="button" aria-label="Dismiss install notice" title="Dismiss">×</button>
         </aside>
 
-        <!-- Bump data-version and replace this list with each release. -->
-        <aside class="whats-new" id="whats-new" data-version="3.0" aria-labelledby="whats-new-title" hidden>
-          <span class="whats-new-mark" aria-hidden="true">✦</span>
-          <div class="whats-new-copy">
-            <p class="whats-new-label" id="whats-new-title">What’s new in 3.0</p>
-            <ul class="whats-new-list">
-              <li>Results now share one shape and label style; Wordle’s Share button is icon-only at every width</li>
-              <li>Fruit Merge stamps a WATERMELON at the top of the chain, and every result now moves on in three seconds</li>
-              <li>Erase all data now clears Merge after a reload; Android stretch follows normal and fast scrolling</li>
-            </ul>
-          </div>
-          <button class="whats-new-close" id="whats-new-close" type="button" aria-label="Dismiss what’s new">×</button>
-        </aside>
-
         <footer class="hub-foot"><span>No accounts</span><span>No ads</span><span>Works offline</span></footer>
         <div class="hub-meta">
           <button class="hub-link" id="hub-about" type="button" aria-haspopup="dialog" aria-controls="about" title="About and privacy">
@@ -522,7 +522,7 @@
             <span>About &amp; privacy</span>
             <span class="hub-link-chevron" aria-hidden="true">›</span>
           </button>
-          <p class="hub-version" id="app-version" aria-label="Sixfold version 3.0">v3.0</p>
+          <p class="hub-version" id="app-version" aria-label="Sixfold version 4.0">v4.0</p>
         </div>
       </div>
     </div>
@@ -922,7 +922,7 @@
         <main class="play-main wordle-main">
           <div class="wordle-board-wrap">
             <div class="wordle-board" id="wordle-board" role="grid" aria-label="Wordle board, 0 of 6 guesses used" aria-rowcount="6" aria-colcount="5" tabindex="0"></div>
-            <div class="wordle-result" id="wordle-result" hidden role="dialog" aria-labelledby="wordle-result-title">
+            <div class="wordle-result" id="wordle-result" hidden role="dialog" aria-labelledby="wordle-result-title" tabindex="-1">
               <div class="wordle-result-card">
                 <p class="game-tag">Round complete</p>
                 <h2 id="wordle-result-title">Solved.</h2>
@@ -1055,7 +1055,7 @@
         <p class="sheet-note">No accounts, ads or tracking. Your board, best scores and appearance choices stay on this device. Each game has its own reset in its tool row, so clearing one game never touches the others. Your light/dark choice is also remembered in a first-party cookie so an installed app can choose matching launch chrome.</p>
         <p class="sheet-note">Questions, bug reports or feedback?<br /><a class="contact-link" href="mailto:mohrd9685@gmail.com">Email mohrd9685@gmail.com</a></p>
         <p class="sheet-note">Release notes live in <a class="contact-link" href="https://github.com/Moh23rd/Sixfold/releases">GitHub Releases</a>.</p>
-        <p class="sheet-note version-note">Version 3.0</p>
+        <p class="sheet-note version-note">Version 4.0</p>
       </section>
     </div>
   </div>
@@ -1074,16 +1074,16 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="haptics.js?v=3.0.0"></script>
-  <script src="overscroll.js?v=3.0.0"></script>
-  <script src="celebrate.js?v=3.0.0"></script>
-  <script src="sharecard.js?v=3.0.0"></script>
-  <script src="theme.js?v=3.0.0"></script>
-  <script src="game.js?v=3.0.0-w4"></script>
-  <script src="install.js?v=3.0.0"></script>
-  <script src="sudoku.js?v=3.0.0-w4"></script>
-  <script src="games.js?v=3.0.0-w10"></script>
-  <script src="wordle-loader.js?v=3.0.0-w4"></script>
+  <script src="haptics.js?v=4.0.0"></script>
+  <script src="overscroll.js?v=4.0.0"></script>
+  <script src="celebrate.js?v=4.0.0"></script>
+  <script src="sharecard.js?v=4.0.0"></script>
+  <script src="theme.js?v=4.0.0"></script>
+  <script src="game.js?v=4.0.0-w4"></script>
+  <script src="install.js?v=4.0.0"></script>
+  <script src="sudoku.js?v=4.0.0-w4"></script>
+  <script src="games.js?v=4.0.0-w14"></script>
+  <script src="wordle-loader.js?v=4.0.0-w4"></script>
   <script>
     (function () {
       var splash = document.getElementById('boot-splash');
@@ -1096,10 +1096,11 @@
         standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       } catch (err) {}
-      // An installed app keeps the full launch composition. A browser visit
-      // gets the same frame without the extra second in front of the hub.
-      var minimum = calm ? 0 : (standalone ? 900 : 780);
-      var fade = calm ? 60 : (standalone ? 520 : 500);
+      // An installed app keeps the full launch composition; a browser visit
+      // gets the same frame with a shorter hold. The last rail piece finishes
+      // around 625ms, so both timings leave it fully drawn before the lift.
+      var minimum = calm ? 0 : (standalone ? 800 : 680);
+      var fade = calm ? 60 : (standalone ? 480 : 460);
       function lift() {
         if (gone) return;
         gone = true;

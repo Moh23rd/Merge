@@ -1,17 +1,20 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-// 3.0: the shell is rebuilt so the three-second result timing and the
-// restored What's New note reach clients that already hold an older cache.
-const VERSION = 'sixfold-3.0.9';
+// 4.0: rebuilds the six-piece cover and ships the Sudoku release.
+const VERSION = 'sixfold-4.0.0';
+// Cache Storage is shared by every app on the origin. Only remove Sixfold's
+// own older caches, never another project's offline data.
+const CACHE_PREFIX = 'sixfold-';
 // Keep these matching index.html. A new cache version refreshes the shell even
 // when the asset URLs themselves do not change. The game code has its own
 // query suffix, so it must be listed separately or offline play would look for
 // files that were never cached.
-const ASSET = '3.0.0';
-const GAME_CODE = '3.0.0-w4';
-const GAMES_CSS = '3.0.0-w6';
-const POLISH_CSS = '3.0.0-w8';
-const GAMES_JS = '3.0.0-w10';
-const SUDOKU_CSS = '3.0.0-w8';
+const ASSET = '4.0.0';
+const GAME_CODE = '4.0.0-w4';
+const GAMES_CSS = '4.0.0-w10';
+const POLISH_CSS = '4.0.0-w9';
+const GAMES_JS = '4.0.0-w14';
+const SUDOKU_CSS = '4.0.0-w13';
+const HOME_CSS = '4.0.0-w4';
 
 const SHELL = [
   './',
@@ -25,7 +28,7 @@ const SHELL = [
   './sharecard.js?v=' + ASSET,
   './install.js?v=' + ASSET,
   './games.css?v=' + GAMES_CSS,
-  './home.css?v=' + ASSET,
+  './home.css?v=' + HOME_CSS,
   './polish.css?v=' + POLISH_CSS,
   './sudoku.css?v=' + SUDOKU_CSS,
   './sudoku.js?v=' + GAME_CODE,
@@ -66,7 +69,13 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== VERSION).map((key) => caches.delete(key))))
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key.startsWith(CACHE_PREFIX) && key !== VERSION)
+            .map((key) => caches.delete(key))
+        )
+      )
       .then(() => self.clients.claim())
   );
 });
@@ -88,11 +97,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches
-            .open(VERSION)
-            .then((cache) => cache.put(request, copy))
-            .catch(() => {});
+          if (response.ok) {
+            const copy = response.clone();
+            caches
+              .open(VERSION)
+              .then((cache) => cache.put(request, copy))
+              .catch(() => {});
+          }
           return response;
         })
         .catch(() => caches.match(request))
@@ -105,9 +116,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Only cache a real HTML page. A non-page navigation must never
-          // replace the offline app shell.
-          if ((response.headers.get('Content-Type') || '').indexOf('text/html') !== -1) {
+          // Only cache a successful HTML page. A failed navigation (including
+          // GitHub Pages' 404 page) must never replace the offline app shell.
+          if (response.ok &&
+              (response.headers.get('Content-Type') || '').indexOf('text/html') !== -1) {
             const copy = response.clone();
             caches
               .open(VERSION)

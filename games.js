@@ -403,6 +403,7 @@
       void hub.offsetWidth;
       hub.classList.add('is-returning');
       window.setTimeout(function () { hub.classList.remove('is-returning'); }, 520);
+      window.setTimeout(replaySixBuild, 160);
     }
 
     if (isMerge) {
@@ -612,41 +613,73 @@
      secret key. Tap 01 through 06 in order; any wrong tap starts the sequence
      again. The only feedback is a tiny physical press, which keeps the game
      hidden until it is actually found. */
+  const sixArt = document.querySelector('.home-hero-art');
+  const sixGrid = document.querySelector('.home-six');
   const sixPieces = $$('.home-six-piece');
+  const sixHitTimers = new WeakMap();
   let sixStep = 0;
   let sixTouch = null;
-  let sixTouchAt = 0;
+  let sixLastTapIndex = -1;
+  let sixLastTapAt = 0;
+  let sixLocked = false;
   function clearSixPress() {
-    sixPieces.forEach(function (piece) { piece.classList.remove('is-six-hit'); });
+    sixPieces.forEach(function (piece) {
+      piece.classList.remove('is-six-hit');
+      const timer = sixHitTimers.get(piece);
+      if (timer) window.clearTimeout(timer);
+      sixHitTimers.delete(piece);
+    });
   }
-  function handleSixPress(index) {
-    const piece = sixPieces[index];
+  function flashSixPiece(piece) {
     if (!piece) return;
-    if (index !== sixStep) {
-      sixStep = index === 0 ? 1 : 0;
-      clearSixPress();
-      if (index === 0) {
-        piece.classList.remove('is-six-hit');
-        void piece.offsetWidth;
-        piece.classList.add('is-six-hit');
-      }
-      return;
-    }
-    sixStep += 1;
+    const previous = sixHitTimers.get(piece);
+    if (previous) window.clearTimeout(previous);
     piece.classList.remove('is-six-hit');
     void piece.offsetWidth;
     piece.classList.add('is-six-hit');
+    sixHitTimers.set(piece, window.setTimeout(function () {
+      piece.classList.remove('is-six-hit');
+      sixHitTimers.delete(piece);
+    }, 280));
+  }
+  function commitSixTap(index) {
+    if (sixLocked) return;
+    const now = Date.now();
+    if (index === sixLastTapIndex && now - sixLastTapAt < 450) return;
+    sixLastTapIndex = index;
+    sixLastTapAt = now;
+    handleSixPress(index);
+  }
+  function handleSixPress(index) {
+    const piece = sixPieces[index];
+    if (!piece || sixLocked) return;
+    if (index !== sixStep) {
+      sixStep = index === 0 ? 1 : 0;
+      clearSixPress();
+      if (index === 0) flashSixPiece(piece);
+      return;
+    }
+    sixStep += 1;
+    flashSixPiece(piece);
     if (sixStep === sixPieces.length) {
       sixStep = 0;
-      window.setTimeout(showHiddenReveal, 140);
+      sixLocked = true;
+      if (sixGrid) {
+        sixGrid.classList.remove('is-unlocking');
+        void sixGrid.offsetWidth;
+        sixGrid.classList.add('is-unlocking');
+      }
+      window.setTimeout(function () {
+        if (sixGrid) sixGrid.classList.remove('is-unlocking');
+        sixLocked = false;
+        showHiddenReveal();
+      }, calmMotion() ? 80 : 520);
     }
   }
   sixPieces.forEach(function (piece, index) {
-    piece.addEventListener('click', function () {
-      // A real tap fires touchend first; ignore its synthetic click.
-      if (Date.now() - sixTouchAt < 600) return;
-      handleSixPress(index);
-    });
+    piece.addEventListener('click', function () { commitSixTap(index); });
+    // Safari can suppress the synthetic click on animated tiles. Handle the
+    // physical tap directly, and let the same-index guard absorb a late click.
     piece.addEventListener('touchstart', function (event) {
       const touch = event.changedTouches && event.changedTouches[0];
       sixTouch = touch ? { x: touch.clientX, y: touch.clientY, id: touch.identifier } : null;
@@ -656,18 +689,29 @@
       const start = sixTouch;
       sixTouch = null;
       if (!touch || !start || touch.identifier !== start.id) return;
-      // Do not turn a vertical scroll into a secret-key tap.
-      if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 12) return;
-      sixTouchAt = Date.now();
-      if (event.cancelable) event.preventDefault();
-      handleSixPress(index);
-    }, { passive: false });
+      if (Math.hypot(touch.clientX - start.x, touch.clientY - start.y) > 18) return;
+      commitSixTap(index);
+    }, { passive: true });
+    piece.addEventListener('touchcancel', function () { sixTouch = null; }, { passive: true });
   });
+
+  function replaySixBuild() {
+    if (!document.documentElement.classList.contains('home-ready')) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cover = document.querySelector('.home-six');
+    if (!cover) return;
+    sixStep = 0;
+    sixLocked = false;
+    sixLastTapIndex = -1;
+    clearSixPress();
+    if (sixGrid) sixGrid.classList.remove('is-unlocking');
+    sixPieces.forEach(function (piece) { piece.style.animation = 'none'; });
+    void cover.offsetWidth;
+    sixPieces.forEach(function (piece) { piece.style.animation = ''; });
+  }
 
   /* A small pointer tilt on the cover gives desktop mice the same sense of
      physicality that touch scrolling already gives the phone layout. */
-  const sixArt = document.querySelector('.home-hero-art');
-  const sixGrid = document.querySelector('.home-six');
   if (sixArt && sixGrid && window.matchMedia &&
       window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
       !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1055,7 +1099,7 @@
       });
     }
 
-    function pourStream(fromIndex, toIndex, color, sourceBaseRect) {
+    function pourStream(fromIndex, toIndex, color, sourceBaseRect, amount, pourMs) {
       const from = tubesEl.querySelector('[data-index="' + fromIndex + '"]');
       const to = tubesEl.querySelector('[data-index="' + toIndex + '"]');
       if (!from || !to) return;
@@ -1082,18 +1126,63 @@
       layer.setAttribute('viewBox', '0 0 ' + window.innerWidth + ' ' + window.innerHeight);
       layer.setAttribute('aria-hidden', 'true');
 
-      const splash = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-      splash.setAttribute('class', 'water-pour-splash');
-      splash.setAttribute('cx', String(dx));
-      splash.setAttribute('cy', String(dy));
-      splash.setAttribute('rx', String(Math.max(6, a.width * 0.16)));
-      splash.setAttribute('ry', '2.5');
-      splash.setAttribute('fill', color.hex);
-      layer.appendChild(splash);
+      const splashWidth = Math.max(5, a.width * (0.08 + amount * 0.018));
+      const impacts = Math.max(1, Math.min(4, amount));
+      const impactGap = impacts > 1 ? (pourMs * 0.38) / (impacts - 1) : 0;
+      const impactDelay = pourMs * 0.16;
+      const impactDuration = Math.max(280, Math.min(460, pourMs * 0.42));
+
+      for (let impact = 0; impact < impacts; impact++) {
+        const at = impactDelay + impact * impactGap;
+        const scaleFactor = 1 - impact * 0.055;
+        const splash = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        splash.setAttribute('class', 'water-pour-splash');
+        splash.setAttribute('cx', String(dx));
+        splash.setAttribute('cy', String(dy));
+        splash.setAttribute('rx', String(splashWidth * scaleFactor));
+        splash.setAttribute('ry', '2.4');
+        splash.setAttribute('fill', color.hex);
+        splash.style.animationDelay = Math.round(at) + 'ms';
+        splash.style.animationDuration = Math.round(impactDuration) + 'ms';
+        layer.appendChild(splash);
+
+        const ring = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        ring.setAttribute('class', 'water-pour-ring');
+        ring.setAttribute('cx', String(dx));
+        ring.setAttribute('cy', String(dy));
+        ring.setAttribute('rx', String(splashWidth * scaleFactor * 1.18));
+        ring.setAttribute('ry', '2.2');
+        ring.setAttribute('fill', 'none');
+        ring.setAttribute('stroke', color.light);
+        ring.setAttribute('stroke-width', '1.1');
+        ring.style.animationDelay = Math.round(at + 14) + 'ms';
+        ring.style.animationDuration = Math.round(impactDuration * 0.95) + 'ms';
+        layer.appendChild(ring);
+
+        const drops = amount > 1 ? 2 : 1;
+        for (let dropIndex = 0; dropIndex < drops; dropIndex++) {
+          const direction = dropIndex % 2 === 0 ? -1 : 1;
+          const drop = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          drop.setAttribute('class', 'water-pour-drop');
+          drop.setAttribute('cx', String(dx));
+          drop.setAttribute('cy', String(dy));
+          drop.setAttribute('r', String(1.2 + amount * 0.18 + impact * 0.06));
+          drop.setAttribute('fill', color.light);
+          drop.setAttribute('fill-opacity', '0.9');
+          const finalX = direction * (6 + impact * 2 + dropIndex * 3);
+          const apexY = -(5 + impact * 1.5 + dropIndex * 3) * 1.2;
+          drop.style.setProperty('--drop-x', finalX + 'px');
+          drop.style.setProperty('--drop-x-mid', (finalX * 0.7).toFixed(1) + 'px');
+          drop.style.setProperty('--drop-y-mid', apexY.toFixed(1) + 'px');
+          drop.style.animationDelay = Math.round(at + 14 + dropIndex * 18) + 'ms';
+          drop.style.animationDuration = Math.round(Math.max(300, impactDuration * 0.9)) + 'ms';
+          layer.appendChild(drop);
+        }
+      }
 
       [
-        { className: 'water-stream-edge', stroke: color.deep, width: 4.6, opacity: 0.42 },
-        { className: 'water-stream-core', stroke: color.hex, width: 2.3, opacity: 0.95 }
+        { className: 'water-stream-edge', stroke: color.deep, width: 3.4 + amount * 0.45, opacity: 0.42 },
+        { className: 'water-stream-core', stroke: color.hex, width: 1.8 + amount * 0.22, opacity: 0.95 }
       ].forEach(function (stroke) {
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('class', stroke.className);
@@ -1106,8 +1195,9 @@
         path.setAttribute('stroke-linecap', 'round');
         layer.appendChild(path);
       });
+      layer.style.setProperty('--pour-ms', pourMs + 'ms');
       document.body.appendChild(layer);
-      window.setTimeout(function () { layer.remove(); }, 580);
+      window.setTimeout(function () { layer.remove(); }, pourMs + 420);
     }
 
     function chooseTube(index) {
@@ -1152,8 +1242,10 @@
       const targetEl = tubesEl.querySelector('[data-index="' + index + '"]');
       const sourceGlass = sourceEl ? sourceEl.querySelector('.water-glass') : null;
       const sourceBaseRect = sourceGlass ? sourceGlass.getBoundingClientRect() : null;
+      const pourMs = amount === 1 ? 360 : Math.min(1000, 340 + amount * 170);
       let drain = null;
       if (sourceEl) {
+        sourceEl.style.setProperty('--pour-ms', pourMs + 'ms');
         if (sourceGlass) {
           const remainingTop = tubes[sourceIndex].length
             ? colorOf(tubes[sourceIndex][tubes[sourceIndex].length - 1])
@@ -1171,6 +1263,7 @@
       }
       if (targetEl) {
         targetEl.style.setProperty('--before-fill', String(destinationBefore));
+        targetEl.style.setProperty('--pour-ms', pourMs + 'ms');
         targetEl.classList.add('is-receiving');
       }
       const sourceRect = sourceEl ? sourceEl.getBoundingClientRect() : null;
@@ -1179,14 +1272,14 @@
         sourceEl.style.setProperty('--pour-tilt',
           (targetRect.left + targetRect.width / 2 >= sourceRect.left + sourceRect.width / 2 ? 6 : -6) + 'deg');
       }
-      pourStream(sourceIndex, index, pouredColor, sourceBaseRect);
+      pourStream(sourceIndex, index, pouredColor, sourceBaseRect, amount, pourMs);
       busy = true;
       window.setTimeout(function () {
         busy = false;
         if (sourceEl) sourceEl.classList.remove('is-pouring');
         if (targetEl) targetEl.classList.remove('is-receiving');
         if (drain) drain.remove();
-      }, 430);
+      }, pourMs + 50);
       if (solved) {
         if (window.MergeCoach) window.MergeCoach.complete('water');
         status('Level clear. Every colour has its own tube.');
@@ -2632,7 +2725,7 @@
       ctx.stroke();
       ctx.setLineDash([]);
 
-      ctx.globalAlpha = 0.65;
+      ctx.globalAlpha = 1;
       const ghost = { x: x, y: 44, r: r, tier: tier, angle: 0 };
       drawFruit(ghost);
       ctx.globalAlpha = 1;

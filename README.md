@@ -1,6 +1,6 @@
 # Sixfold
 
-![Sixfold — six games. no filler.](og-image.png)
+![Sixfold 4.0 — six games. no filler.](og-image.png)
 
 Sixfold is a small, installable pocket arcade: six satisfying puzzle games in one offline web app. No accounts, no ads, no tracking — and it keeps working without a connection.
 
@@ -53,7 +53,7 @@ Open `http://localhost:8000`. Opening `index.html` directly still plays, but off
 
 ## Beta previews
 
-Beta builds are previews, never releases. They do not change the app version, the offline cache name, tags or the published 3.0 release, and nothing in `beta-build/` is committed or deployed.
+Beta builds are previews, never releases. They do not change the app version, the offline cache name, tags or the published 4.0 release, and nothing in `beta-build/` is committed or deployed.
 
 ```sh
 ./beta.sh            # build and serve at http://localhost:4173
@@ -65,9 +65,9 @@ The script copies the current working tree — uncommitted changes included — 
 
 - a small **beta** tag beside the version on the hub, carrying the commit and build time in its tooltip;
 - `<meta name="robots" content="noindex, nofollow">` and a ` · beta` title suffix;
-- service-worker registration removed, so a preview never caches itself and can never overwrite the 3.0 offline shell.
+- service-worker registration removed, so a preview never caches itself and can never overwrite the 4.0 offline shell.
 
-The preview is served on its own port from `beta-build/`, so the published site keeps serving 3.0 untouched. Do not serve a beta from a path on the live origin: the 3.0 service worker's scope covers the whole site and would cache the preview as the app shell. Shipping a change stays a separate, explicit step; a beta never gets a tag, a GitHub release or a version bump.
+The preview is served on its own port from `beta-build/`, so the published site keeps serving 4.0 untouched. Do not serve a beta from a path on the live origin: the 4.0 service worker's scope covers the whole site and would cache the preview as the app shell. Shipping a change stays a separate, explicit step; a beta never gets a tag, a GitHub release or a version bump.
 
 ## Project structure
 
@@ -96,7 +96,7 @@ The site is published with GitHub Pages from the `main` branch root. No build st
 
 ## Release notes
 
-Release notes and version history live in [GitHub Releases](https://github.com/Moh23rd/Sixfold/releases).
+Version history lives in [CHANGELOG.md](CHANGELOG.md); tagged builds are on [GitHub Releases](https://github.com/Moh23rd/Sixfold/releases).
 
 ## Rules references
 

@@ -382,8 +382,10 @@
       resultStats.textContent = stats.played + ' played · ' + rate + '% won · streak ' + stats.streak + ' · best ' + stats.max;
     }
     if (resultShare) resultShare.hidden = false;
-    if (resultNew && document.body.dataset.screen === 'wordle') {
-      resultNew.focus({ preventScroll: true });
+    if (document.body.dataset.screen === 'wordle') {
+      // Focus the dialog, not the New word button, so Enter cannot start a
+      // fresh round before the result has been seen.
+      resultEl.focus({ preventScroll: true });
     }
   }
 

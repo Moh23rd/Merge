@@ -500,6 +500,218 @@
   .sudoku-shell .sudoku-tool { min-height: 26px; font-size: 8px; }
 }
 
+/* Landscape follows the Merge composition: the square board is the anchor on
+   the left, with one calm information-and-controls rail on the right. */
+@media (orientation: landscape) {
+  .sudoku-shell {
+    width: min(100%, 1240px);
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(300px, 34vw, 470px);
+    grid-template-rows: auto auto auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "board head"
+      "board status"
+      "board pad"
+      "board tools"
+      "board foot";
+    align-content: stretch;
+    align-items: start;
+    gap: 8px clamp(24px, 3.2vw, 48px);
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 18px)
+      calc(env(safe-area-inset-right, 0px) + 26px)
+      calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 14px)
+      calc(env(safe-area-inset-left, 0px) + 26px);
+  }
+
+  .sudoku-shell .play-head {
+    grid-area: head;
+    display: block;
+    width: 100%;
+    align-self: start;
+  }
+
+  .sudoku-shell .play-body { display: contents; }
+  .sudoku-shell .play-main { display: contents; }
+
+  .sudoku-shell .board-stage {
+    grid-area: board;
+    width: min(100%, 640px, calc(100dvh - 52px));
+    min-height: 0;
+    align-self: center;
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    container-type: normal;
+  }
+
+  .sudoku-shell .sudoku-wrap { width: 100%; }
+
+  .sudoku-shell .play-feedback {
+    grid-area: status;
+    width: 100%;
+    height: auto;
+    min-height: 18px;
+    align-self: start;
+  }
+
+  .sudoku-shell .play-feedback .play-status { font-size: 11.5px; }
+
+  .sudoku-shell .sudoku-pad {
+    grid-area: pad;
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    align-self: start;
+  }
+
+  .sudoku-shell .sudoku-pad-key {
+    min-height: clamp(42px, 6dvh, 54px);
+    font-size: clamp(13px, 1.8dvh, 17px);
+  }
+
+  .sudoku-shell .sudoku-tools {
+    grid-area: tools;
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    align-self: start;
+  }
+
+  .sudoku-shell .sudoku-tool { min-height: 44px; font-size: 11px; }
+
+  .sudoku-shell .play-foot {
+    grid-area: foot;
+    display: flex;
+    width: 100%;
+    min-height: 40px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    align-self: end;
+  }
+
+  .sudoku-shell .play-foot .play-actions { display: flex; width: auto; flex: none; }
+  .sudoku-shell .play-foot .play-note { display: block; flex: 1; min-width: 0; font-size: 10.5px; text-align: right; }
+
+  .sudoku-shell .play-title-row { display: block; }
+  .sudoku-shell .play-stats { width: 100%; margin-top: 16px; padding-top: 10px; gap: 8px; }
+  .sudoku-shell .play-intro h1 { font-size: clamp(32px, 3.2vw, 42px); }
+}
+
+/* Compact landscape: keep the same board-left composition, with a tighter
+   rail so the 3 × 3 pad and one-row tools still fit above the thumb line. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .sudoku-shell {
+    /* Hug the board and give every spare pixel to the control rail. The old
+       1fr board column left a dead band between the grid and the pad. */
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 5px clamp(10px, 1.8vw, 18px);
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 8px)
+      calc(env(safe-area-inset-right, 0px) + 12px)
+      calc(max(env(safe-area-inset-bottom, 0px), env(safe-area-max-inset-bottom, 0px)) + 6px)
+      calc(env(safe-area-inset-left, 0px) + 12px);
+  }
+
+  .sudoku-shell .play-intro .sub { display: none; }
+  /* The desktop rule adds 18px above the title row; short landscape cannot
+     spare it. */
+  .sudoku-shell .play-title-row { margin-top: 4px; }
+  .sudoku-shell .play-intro h1 { font-size: clamp(24px, 4vw, 30px); }
+  .sudoku-shell .play-stats { margin-top: 7px; padding-top: 7px; gap: 5px; }
+  .sudoku-shell .play-stat strong { font-size: 17px; }
+  .sudoku-shell .play-stat .label { font-size: 8px; }
+  .sudoku-shell .play-feedback {
+    /* Keep the grid overlay: the status line and the coach share one cell.
+       Block layout stacked them and added ~14px of dead height. */
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 16px;
+    height: auto;
+    align-self: start;
+  }
+  .sudoku-shell .play-status { font-size: 9.5px; line-height: 1.2; }
+  .sudoku-shell .play-feedback.has-coach { min-height: 28px; }
+  .sudoku-shell .play-feedback .coach {
+    height: auto;
+    min-height: 26px;
+    padding: 2px 4px 2px 7px;
+    gap: 5px;
+    border-radius: 9px;
+  }
+  .sudoku-shell .coach-step { min-width: 24px; height: 18px; padding-inline: 3px; font-size: 8px; }
+  .sudoku-shell .coach-text { font-size: 9.5px; line-height: 1.15; }
+  .sudoku-shell .coach-skip { min-width: 30px; height: 24px; padding-inline: 5px; font-size: 8.5px; }
+  .sudoku-shell .sudoku-pad-key { min-height: 30px; font-size: 11px; }
+  .sudoku-shell .sudoku-tool { min-height: 29px; font-size: 9px; }
+  .sudoku-shell .sudoku-pad,
+  .sudoku-shell .sudoku-tools { width: 100%; justify-self: stretch; }
+  .sudoku-shell .play-foot { min-height: 30px; gap: 8px; }
+  .sudoku-shell .play-foot .play-note { display: none; }
+  .sudoku-shell .play-foot .play-btn { min-height: 30px; padding-inline: 10px; font-size: 10px; }
+  .sudoku-shell .board-stage {
+    width: min(calc(100dvh - 20px), 55vw);
+    justify-self: start;
+  }
+}
+
+/* Very short landscape screens: preserve the board, pad and the tutorial /
+   status line before the footer note. */
+@media (orientation: landscape) and (max-height: 360px) {
+  .sudoku-shell { gap: 4px clamp(8px, 1.4vw, 14px); }
+  .sudoku-shell .play-title-row { margin-top: 2px; }
+  .sudoku-shell .play-intro h1 { font-size: 22px; }
+  .sudoku-shell .play-stats { margin-top: 5px; padding-top: 5px; }
+  .sudoku-shell .play-feedback { min-height: 14px; }
+  .sudoku-shell .play-feedback.has-coach { min-height: 26px; }
+  .sudoku-shell .play-feedback .coach { min-height: 24px; padding-block: 1px; }
+  .sudoku-shell .coach-text { font-size: 9px; }
+  .sudoku-shell .coach-step { display: none; }
+  .sudoku-shell .coach-skip { height: 22px; }
+  .sudoku-shell .sudoku-tool { min-height: 26px; font-size: 8px; }
+  .sudoku-shell .sudoku-pad-key { min-height: 27px; }
+  .sudoku-shell .play-foot { min-height: 26px; }
+  .sudoku-shell .play-foot .play-btn { min-height: 26px; }
+}
+
+/* Very short screens cannot stack the title and stats. Put the two stats
+   beside the title so the coach and footer keep their space. */
+@media (orientation: landscape) and (max-height: 340px) {
+  .sudoku-shell .play-title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .sudoku-shell .play-intro { min-width: 0; }
+  .sudoku-shell .play-stats {
+    width: auto;
+    flex: 0 1 140px;
+    min-width: 0;
+    margin-top: 0;
+    padding-top: 0;
+    gap: 4px;
+  }
+  .sudoku-shell .play-stat { min-height: 32px; padding: 2px 4px; }
+  .sudoku-shell .play-stat strong { font-size: 15px; }
+  .sudoku-shell .play-stat .label { font-size: 7px; }
+}
+
+/* Small landscape phones need a slightly smaller board so the pad and tools
+   still have a usable width beside it. */
+@media (orientation: landscape) and (max-height: 420px) and (max-width: 620px) {
+  .sudoku-shell { grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; padding-inline: 8px; }
+  .sudoku-shell .board-stage { width: min(calc(100dvh - 16px), 50vw); }
+  .sudoku-shell .sudoku-pad-key { min-height: 25px; font-size: 10px; }
+  .sudoku-shell .sudoku-tool { min-height: 25px; font-size: 8px; }
+}
+
 /* 320×568 portrait: keep the board large and trim the footer chrome so the
    final row stays inside the viewport. */
 @media (orientation: portrait) and (max-height: 600px) {
