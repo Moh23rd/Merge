@@ -266,7 +266,9 @@
       btn.className = 'palette';
       btn.dataset.paletteOpt = p.id;
       btn.setAttribute('aria-pressed', 'false');
-      btn.setAttribute('aria-label', p.label + ' colours');
+      // Use the visible palette name. A composed "Warm colours" label stops
+      // matching the visible word once the locale translates them separately.
+      btn.setAttribute('aria-label', p.label);
 
       const sw = document.createElement('span');
       sw.className = 'swatches';

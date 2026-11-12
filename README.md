@@ -66,7 +66,7 @@ npx playwright install chromium
 npm test
 ```
 
-The Playwright suite covers the six game screens, Daily Sixfold, Sudoku Learn hints, settings and backup download. Axe scans the hub, all six games and settings in both light and dark themes, with no rule exceptions. CI runs the same suite on every push and pull request, and can be run manually from the Actions tab.
+The Playwright suite covers the six game screens, Daily Sixfold, Sudoku Learn hints, settings and backup download. Axe scans the hub, all six games and settings in both light and dark themes and in both English and Spanish, with no rule exceptions. CI runs the same suite on every push and pull request, and can be run manually from the Actions tab.
 
 ## Install
 

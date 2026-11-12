@@ -24,20 +24,22 @@ async function expectNoAxeViolations(page, screen) {
   expect(results.violations, 'axe violations on ' + screen + ':\n' + summary).toEqual([]);
 }
 
-async function expectAllScreensAccessible(page, theme) {
+async function expectAllScreensAccessible(page, theme, locale) {
+  const screen = (locale === 'es' ? 'Spanish ' : 'English ') + theme;
   await page.goto('/');
   await page.waitForSelector('#daily');
+  await expect(page.locator('html')).toHaveAttribute('lang', locale);
   await expect(page.locator('#boot-splash')).toBeHidden();
   await expect(page.locator('html')).toHaveClass(/home-ready/);
   await waitForEntrance(page);
-  await expectNoAxeViolations(page, theme + ' hub');
+  await expectNoAxeViolations(page, screen + ' hub');
 
   for (const game of ['merge', 'sudoku', 'ttt', 'mines', 'water', 'fruit']) {
     await page.locator('[data-game="' + game + '"]').click();
     await expect(page.locator(game === 'merge' ? 'main.app' : '#' + game)).toBeVisible();
     await expect(page.locator('body')).toHaveAttribute('data-screen', game);
     await waitForEntrance(page);
-    await expectNoAxeViolations(page, theme + ' ' + game);
+    await expectNoAxeViolations(page, screen + ' ' + game);
 
     if (game === 'merge') await page.locator('#back-to-games').click();
     else await page.locator('#' + game + ' [data-back]').first().click();
@@ -47,7 +49,14 @@ async function expectAllScreensAccessible(page, theme) {
   await page.locator('#appearance').click();
   await expect(page.locator('#sheet')).toBeVisible();
   await waitForEntrance(page);
-  await expectNoAxeViolations(page, theme + ' settings');
+  await expectNoAxeViolations(page, screen + ' settings');
+}
+
+async function setPreferences(page, theme, locale) {
+  await page.addInitScript(({ theme, locale }) => {
+    localStorage.setItem('merge2048.theme', theme);
+    localStorage.setItem('sixfold.locale.v1', locale);
+  }, { theme, locale });
 }
 
 test('all six hub cards open their game screen', async ({ page }) => {
@@ -112,11 +121,22 @@ test('appearance settings update the document and backup downloads', async ({ pa
   expect(download.suggestedFilename()).toMatch(/^sixfold-backup-.*\.json$/);
 });
 
-test('hub, every game and settings have no axe violations in light theme', async ({ page }) => {
-  await expectAllScreensAccessible(page, 'light');
+test('hub, every game and settings have no axe violations in English light theme', async ({ page }) => {
+  await setPreferences(page, 'light', 'en');
+  await expectAllScreensAccessible(page, 'light', 'en');
 });
 
-test('hub, every game and settings have no axe violations in dark theme', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('merge2048.theme', 'dark'));
-  await expectAllScreensAccessible(page, 'dark');
+test('hub, every game and settings have no axe violations in English dark theme', async ({ page }) => {
+  await setPreferences(page, 'dark', 'en');
+  await expectAllScreensAccessible(page, 'dark', 'en');
+});
+
+test('hub, every game and settings have no axe violations in Spanish light theme', async ({ page }) => {
+  await setPreferences(page, 'light', 'es');
+  await expectAllScreensAccessible(page, 'light', 'es');
+});
+
+test('hub, every game and settings have no axe violations in Spanish dark theme', async ({ page }) => {
+  await setPreferences(page, 'dark', 'es');
+  await expectAllScreensAccessible(page, 'dark', 'es');
 });
