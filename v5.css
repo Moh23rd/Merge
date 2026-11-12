@@ -302,7 +302,7 @@
   padding: 4px 7px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--ink) 8%, transparent);
-  color: var(--muted);
+  color: var(--muted-strong);
   font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 800;
