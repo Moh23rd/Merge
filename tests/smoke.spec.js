@@ -144,6 +144,31 @@ test('language switch to Spanish survives a reload', async ({ page }) => {
   await expect(page.locator('[data-locale="es"]')).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('language switch back to English survives a reload', async ({ page }) => {
+  await setPreferences(page, 'light', 'es');
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+  await page.locator('#appearance').click();
+  await expect(page.locator('#sheet')).toBeVisible();
+
+  const switched = page.waitForEvent('load');
+  await page.locator('[data-locale="en"]').click();
+  await switched;
+
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('#daily-title')).toHaveText('Today’s six.');
+  expect(await page.evaluate(() => localStorage.getItem('sixfold.locale.v1'))).toBe('en');
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('#daily-title')).toHaveText('Today’s six.');
+
+  await page.locator('#appearance').click();
+  await expect(page.locator('#sheet')).toBeVisible();
+  await expect(page.locator('[data-locale="en"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-locale="es"]')).toHaveAttribute('aria-pressed', 'false');
+});
+
 test('hub, every game and settings have no axe violations in English light theme', async ({ page }) => {
   await setPreferences(page, 'light', 'en');
   await expectAllScreensAccessible(page, 'light', 'en');
