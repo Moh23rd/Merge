@@ -506,7 +506,10 @@
       button.type = 'button';
       button.className = 'sudoku-pad-key';
       button.dataset.digit = String(digit);
-      button.innerHTML = '<span>' + digit + '</span><small class="sudoku-pad-count"></small>';
+      // The count is a visual echo of the label's "remaining" copy, so it must
+      // not become part of the visible text axe compares with the accessible
+      // name. Screen readers still hear the count through the aria-label.
+      button.innerHTML = '<span>' + digit + '</span><small class="sudoku-pad-count" aria-hidden="true"></small>';
       button.addEventListener('click', function () {
         if (setting('inputMode') === 'digit') {
           armedDigit = armedDigit === digit ? 0 : digit;

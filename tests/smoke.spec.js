@@ -1,14 +1,11 @@
 const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 
-async function waitForHubEntrance(page) {
-  await expect(page.locator('html')).toHaveClass(/home-ready/);
-  // The six cover and the hub cards fade in after the launch screen. Axe has
-  // to measure the settled design; a frame mid-fade reports blended colors.
+async function waitForEntrance(page) {
+  // Screens fade and lift into place. Axe has to measure the settled design; a
+  // frame mid-transition reports blended colors. Infinite marquees are ignored.
   await page.waitForFunction(() => {
-    const hub = document.querySelector('#hub');
-    if (!hub) return true;
-    return !hub.getAnimations({ subtree: true }).some((animation) => {
+    return !document.body.getAnimations({ subtree: true }).some((animation) => {
       const timing = animation.effect && animation.effect.getComputedTiming();
       return timing && timing.endTime !== Infinity && animation.playState === 'running';
     });
@@ -16,6 +13,10 @@ async function waitForHubEntrance(page) {
 }
 
 async function expectNoAxeViolations(page, screen) {
+  // The pointer stays where the last click landed, which can hover an unrelated
+  // control on the next screen. Park it and let the hover transition settle.
+  await page.mouse.move(0, 0);
+  await waitForEntrance(page);
   const results = await new AxeBuilder({ page }).analyze();
   const summary = results.violations
     .map((violation) => violation.id + ' (' + violation.impact + '): ' + violation.nodes.map((node) => node.target.join(' ')).join('; '))
@@ -27,13 +28,15 @@ async function expectAllScreensAccessible(page, theme) {
   await page.goto('/');
   await page.waitForSelector('#daily');
   await expect(page.locator('#boot-splash')).toBeHidden();
-  await waitForHubEntrance(page);
+  await expect(page.locator('html')).toHaveClass(/home-ready/);
+  await waitForEntrance(page);
   await expectNoAxeViolations(page, theme + ' hub');
 
   for (const game of ['merge', 'sudoku', 'ttt', 'mines', 'water', 'fruit']) {
     await page.locator('[data-game="' + game + '"]').click();
     await expect(page.locator(game === 'merge' ? 'main.app' : '#' + game)).toBeVisible();
     await expect(page.locator('body')).toHaveAttribute('data-screen', game);
+    await waitForEntrance(page);
     await expectNoAxeViolations(page, theme + ' ' + game);
 
     if (game === 'merge') await page.locator('#back-to-games').click();
@@ -43,6 +46,7 @@ async function expectAllScreensAccessible(page, theme) {
 
   await page.locator('#appearance').click();
   await expect(page.locator('#sheet')).toBeVisible();
+  await waitForEntrance(page);
   await expectNoAxeViolations(page, theme + ' settings');
 }
 

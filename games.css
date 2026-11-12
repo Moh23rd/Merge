@@ -4057,6 +4057,9 @@ html[data-theme="dark"] #mines { --cart-ink: #1b1815; }
 .app #new-game:hover,
 .play-screen .play-btn--solid:hover {
   background: color-mix(in srgb, var(--cart) 90%, #211d18);
+  /* Darkening the cartridge also darkens the ink, keeping the hover state at
+     the same contrast as the resting button on every palette. */
+  color: #15120f;
 }
 
 @media (orientation: landscape) and (max-height: 520px) {
