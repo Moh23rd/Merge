@@ -1,6 +1,20 @@
 const { test, expect } = require('@playwright/test');
 const AxeBuilder = require('@axe-core/playwright').default;
 
+async function waitForHubEntrance(page) {
+  await expect(page.locator('html')).toHaveClass(/home-ready/);
+  // The six cover and the hub cards fade in after the launch screen. Axe has
+  // to measure the settled design; a frame mid-fade reports blended colors.
+  await page.waitForFunction(() => {
+    const hub = document.querySelector('#hub');
+    if (!hub) return true;
+    return !hub.getAnimations({ subtree: true }).some((animation) => {
+      const timing = animation.effect && animation.effect.getComputedTiming();
+      return timing && timing.endTime !== Infinity && animation.playState === 'running';
+    });
+  });
+}
+
 async function expectNoAxeViolations(page, screen) {
   const results = await new AxeBuilder({ page }).analyze();
   const summary = results.violations
@@ -13,6 +27,7 @@ async function expectAllScreensAccessible(page, theme) {
   await page.goto('/');
   await page.waitForSelector('#daily');
   await expect(page.locator('#boot-splash')).toBeHidden();
+  await waitForHubEntrance(page);
   await expectNoAxeViolations(page, theme + ' hub');
 
   for (const game of ['merge', 'sudoku', 'ttt', 'mines', 'water', 'fruit']) {
