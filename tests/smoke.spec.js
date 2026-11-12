@@ -121,6 +121,29 @@ test('appearance settings update the document and backup downloads', async ({ pa
   expect(download.suggestedFilename()).toMatch(/^sixfold-backup-.*\.json$/);
 });
 
+test('language switch to Spanish survives a reload', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.locator('#appearance').click();
+  await expect(page.locator('#sheet')).toBeVisible();
+
+  const switched = page.waitForEvent('load');
+  await page.locator('[data-locale="es"]').click();
+  await switched;
+
+  await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+  await expect(page.locator('#daily-title')).toHaveText('Los seis de hoy.');
+  expect(await page.evaluate(() => localStorage.getItem('sixfold.locale.v1'))).toBe('es');
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+  await expect(page.locator('#daily-title')).toHaveText('Los seis de hoy.');
+
+  await page.locator('#appearance').click();
+  await expect(page.locator('#sheet')).toBeVisible();
+  await expect(page.locator('[data-locale="es"]')).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('hub, every game and settings have no axe violations in English light theme', async ({ page }) => {
   await setPreferences(page, 'light', 'en');
   await expectAllScreensAccessible(page, 'light', 'en');
