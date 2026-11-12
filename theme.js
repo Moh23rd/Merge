@@ -163,7 +163,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=4.0.0';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=5.1.0';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
@@ -425,13 +425,17 @@
     ? Array.prototype.map.call(helpStepsEl.children, function (item) { return item.textContent; })
     : [];
 
+  function localize(value) {
+    return window.SixfoldI18n ? window.SixfoldI18n.t(value) : value;
+  }
+
   function renderHelp(title, steps) {
     if (!helpTitleEl || !helpStepsEl) return;
-    helpTitleEl.textContent = title || defaultHelpTitle;
+    helpTitleEl.textContent = localize(title || defaultHelpTitle);
     helpStepsEl.textContent = '';
     (steps && steps.length ? steps : defaultHelpSteps).forEach(function (copy) {
       const item = document.createElement('li');
-      item.textContent = copy;
+      item.textContent = localize(copy);
       helpStepsEl.appendChild(item);
     });
   }
@@ -525,9 +529,9 @@
       if (options.onConfirm) options.onConfirm();
       return;
     }
-    resetTitleEl.textContent = 'Reset ' + options.name + '?';
-    resetCopyEl.textContent = options.copy || ('This clears ' + options.name + ' data on this device.');
-    resetConfirmBtn.textContent = 'Reset ' + options.name;
+    resetTitleEl.textContent = localize('Reset ' + options.name + '?');
+    resetCopyEl.textContent = localize(options.copy || ('This clears ' + options.name + ' data on this device.'));
+    resetConfirmBtn.textContent = localize('Reset ' + options.name);
     resetAction = options.onConfirm || null;
     openSheet(resetSheet, options.opener || null);
   }

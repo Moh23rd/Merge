@@ -1,6 +1,6 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-// 4.0: rebuilds the six-piece cover and ships the Sudoku release.
-const VERSION = 'sixfold-4.0.0';
+// 5.1: Spanish localization and the Capacitor native wrapper.
+const VERSION = 'sixfold-5.1.0';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -9,18 +9,21 @@ const CACHE_PREFIX = 'sixfold-';
 // query suffix, so it must be listed separately or offline play would look for
 // files that were never cached.
 const ASSET = '4.0.0';
+const THEME_JS = '5.1.0';
 const GAME_CODE = '4.0.0-w4';
+const SUDOKU_GAME_CODE = '5.1.0';
 const GAMES_CSS = '4.0.0-w10';
 const POLISH_CSS = '4.0.0-w9';
-const GAMES_JS = '4.0.0-w14';
+const GAMES_JS = '5.1.0';
 const SUDOKU_CSS = '4.0.0-w13';
+const V5_CSS = '5.1.0';
 const HOME_CSS = '4.0.0-w4';
 
 const SHELL = [
   './',
   './index.html',
   './styles.css?v=' + ASSET,
-  './theme.js?v=' + ASSET,
+  './theme.js?v=' + THEME_JS,
   './game.js?v=' + GAME_CODE,
   './haptics.js?v=' + ASSET,
   './overscroll.js?v=' + ASSET,
@@ -31,8 +34,15 @@ const SHELL = [
   './home.css?v=' + HOME_CSS,
   './polish.css?v=' + POLISH_CSS,
   './sudoku.css?v=' + SUDOKU_CSS,
-  './sudoku.js?v=' + GAME_CODE,
+  './v5.css?v=' + V5_CSS,
+  './settings.js?v=5.1.0',
+  './sound.js?v=5.1.0',
+  './sudoku.js?v=' + SUDOKU_GAME_CODE,
   './games.js?v=' + GAMES_JS,
+  './daily.js?v=5.1.0',
+  './update.js?v=5.1.0',
+  './i18n.js?v=5.1.0',
+  './native.js?v=5.1.0',
   './wordle-loader.js?v=' + GAME_CODE,
   // The hidden word game is loaded on demand, but it still belongs in the
   // offline shell so unlocking it works with no connection.

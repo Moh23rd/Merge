@@ -1,0 +1,31 @@
+{
+  "name": "sixfold",
+  "version": "5.1.0",
+  "private": true,
+  "description": "Sixfold \u2014 an offline pocket arcade of six games.",
+  "scripts": {
+    "serve": "python3 -m http.server 8000 --bind 127.0.0.1",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "native:build": "node scripts/build-native.mjs",
+    "native:sync": "npm run native:build && npx cap sync",
+    "native:android": "npm run native:build && npx cap sync android",
+    "native:ios": "npm run native:build && npx cap sync ios",
+    "native:assets": "npx capacitor-assets generate --ios && npx capacitor-assets generate --android"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.0",
+    "@playwright/test": "^1.55.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  }
+}

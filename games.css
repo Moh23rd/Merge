@@ -3375,7 +3375,7 @@ html[data-theme="dark"] .reset-confirm:hover {
   padding: 0 5px;
   border-radius: 7px;
   background: color-mix(in srgb, var(--ink) 8%, transparent);
-  color: var(--muted);
+  color: var(--muted-strong);
   font-size: 8.5px;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -4002,6 +4002,7 @@ html[data-theme="dark"] .reset-confirm:hover {
 #fruit { --cart: var(--g2, #e3a92f); --cart-ink: var(--home-accent-ink, #211d18); }
 #ttt { --cart: var(--g3, #8bbd54); --cart-ink: var(--home-accent-ink, #211d18); }
 #mines { --cart: var(--g5, #5b8fd5); --cart-ink: var(--home-accent-ink, #211d18); }
+html[data-theme="dark"] #mines { --cart-ink: #1b1815; }
 
 .play-cart-row {
   display: flex;

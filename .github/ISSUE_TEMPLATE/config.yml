@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and general feedback
+    url: https://github.com/Moh23rd/Sixfold/discussions
+    about: Ask a question, share a score or suggest something without filing a bug.

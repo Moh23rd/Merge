@@ -1,0 +1,575 @@
+/* ==========================================================================
+   Sixfold 5.0 — Daily Sixfold, learning, accessibility and update surfaces.
+   Loaded last so the 4.0 layouts stay intact underneath.
+   ========================================================================== */
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Daily Sixfold ---------- */
+
+.daily {
+  position: relative;
+  margin: 42px 0 8px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 92% 8%, color-mix(in srgb, var(--g1) 18%, transparent), transparent 34%),
+    var(--card);
+  box-shadow: 0 18px 44px -34px color-mix(in srgb, var(--ink) 60%, transparent);
+}
+
+.daily-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.daily-kicker {
+  margin: 0 0 7px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.daily h2 {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 34px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+
+.daily-date {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.daily-streak {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--g1) 10%, var(--panel));
+  white-space: nowrap;
+}
+
+.daily-streak strong { font-size: 26px; line-height: 1; }
+.daily-streak span { color: var(--muted-strong); font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.daily-streak small { color: var(--muted-strong); font-size: 9px; }
+
+.daily-progress {
+  height: 5px;
+  margin: 18px 0 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+}
+
+.daily-progress::before {
+  content: "";
+  display: block;
+  width: var(--daily-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--g1), var(--g3));
+  transition: width 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.daily-summary {
+  margin: 0 0 13px;
+  font-size: 12.5px;
+  font-weight: 650;
+}
+
+.daily-games {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.daily-game {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 1px 6px;
+  align-items: center;
+  min-width: 0;
+  min-height: 66px;
+  padding: 8px 9px;
+  border: 1px solid color-mix(in srgb, var(--ink) 11%, transparent);
+  border-radius: 11px;
+  background: var(--panel);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.daily-game:hover { background: color-mix(in srgb, var(--panel) 70%, var(--card)); }
+.daily-game:active { transform: translateY(1px) scale(0.985); }
+.daily-game:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.daily-game-num {
+  grid-row: 1 / 3;
+  align-self: start;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.daily-game strong {
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.daily-game small {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 8.5px;
+  line-height: 1.2;
+}
+
+.daily-game i {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  color: var(--muted);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.daily-game.is-done {
+  border-color: color-mix(in srgb, #4f8f4b 36%, transparent);
+  background: color-mix(in srgb, #4f8f4b 9%, var(--panel));
+}
+
+.daily-game.is-done i { color: #4f8f4b; font-size: 13px; }
+
+.daily-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.daily-actions .btn,
+.daily-actions .contact-link { margin-top: 0; }
+
+.daily-archive-link {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ---------- Daily calendar ---------- */
+
+.daily-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 14px;
+}
+
+.daily-day {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 5px 2px;
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  border-radius: 8px;
+  background: var(--seg-bg, var(--panel));
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.daily-day > span { font-family: var(--font-mono); font-size: 10px; font-weight: 750; }
+.daily-day.is-started { border-color: color-mix(in srgb, var(--ink) 28%, transparent); }
+.daily-day.is-full { background: color-mix(in srgb, var(--g3) 20%, var(--panel)); border-color: color-mix(in srgb, var(--g3) 50%, transparent); }
+.daily-day.is-today { box-shadow: inset 0 0 0 2px var(--ink); }
+.daily-day:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.daily-day-dots {
+  display: flex;
+  gap: 1.5px;
+  align-items: center;
+  justify-content: center;
+}
+
+.daily-day-dots b {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+.daily-day-dots b.on { background: var(--g1); }
+
+.daily-day-detail {
+  margin-top: 16px;
+  padding: 13px 14px;
+  border-radius: 11px;
+  background: var(--seg-bg, var(--panel));
+}
+
+.daily-day-detail h3 { margin: 0 0 4px; font-size: 13px; }
+.daily-day-detail p { margin: 0 0 10px; color: var(--muted); font-size: 11.5px; line-height: 1.4; }
+
+@media (max-width: 760px) {
+  .daily-games { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .daily-game { min-height: 62px; }
+}
+
+@media (max-width: 390px) {
+  .daily { padding: 16px; margin-top: 34px; }
+  .daily-head { gap: 9px; }
+  .daily-streak { padding: 7px 9px; }
+  .daily-streak strong { font-size: 22px; }
+  .daily-games { gap: 5px; }
+  .daily-game { padding: 7px 6px; }
+  .daily-game strong { font-size: 10.5px; }
+  .daily-game small { font-size: 8px; }
+  .daily-calendar-grid { gap: 3px; }
+  .daily-day { min-height: 43px; }
+}
+
+/* ---------- settings ---------- */
+
+.settings-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 11px;
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  border-radius: 10px;
+  background: var(--seg-bg, var(--panel));
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.setting-row:hover { background: color-mix(in srgb, var(--panel) 70%, var(--card)); }
+.setting-row:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.setting-copy { display: grid; gap: 2px; min-width: 0; }
+.setting-copy strong { font-size: 12px; }
+.setting-copy small { color: var(--muted-strong); font-size: 10px; line-height: 1.25; }
+
+.setting-state {
+  flex: none;
+  min-width: 34px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.setting-row[aria-pressed="true"] .setting-state {
+  background: color-mix(in srgb, var(--g1) 20%, transparent);
+  color: var(--ink);
+}
+
+.setting-row--seg { flex-wrap: wrap; }
+.setting-row--seg .seg { flex: 1; min-width: 150px; margin: 0; }
+.setting-row--seg .seg button { min-height: 36px; }
+
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.backup-actions .btn { margin-top: 0; }
+
+/* ---------- contrast and reading options ---------- */
+
+html[data-contrast="high"] {
+  --ink: #070707;
+  --muted: #333;
+  --page: #fff;
+  --card: #fff;
+  --panel: #fff;
+  --line: #333;
+  --seg-bg: #fff;
+}
+
+html[data-theme="dark"][data-contrast="high"] {
+  --ink: #fff;
+  --muted: #e5e5e5;
+  --page: #000;
+  --card: #000;
+  --panel: #080808;
+  --line: #ddd;
+  --seg-bg: #080808;
+}
+
+html[data-contrast="high"] .sudoku-board,
+html[data-contrast="high"] .sudoku-cell,
+html[data-contrast="high"] .setting-row,
+html[data-contrast="high"] .daily-game,
+html[data-contrast="high"] .sheet-card { border-color: currentColor; }
+
+html[data-contrast="high"] .sudoku-cell { border-right-width: 1px; border-bottom-width: 1px; }
+html[data-contrast="high"] .sudoku-cell.is-edge-right { border-right-width: 2px; }
+html[data-contrast="high"] .sudoku-row:nth-child(3n) .sudoku-cell { border-bottom-width: 2px; }
+
+html[data-hide-timer="on"] #sudoku .play-stats .play-stat:first-child { display: none; }
+
+html[data-large-digits="on"] #sudoku .sudoku-cell {
+  font-size: clamp(21px, 4.6dvh, 37px);
+}
+
+html[data-large-digits="on"] #sudoku .sudoku-notes {
+  font-size: clamp(8px, 1.55dvh, 12px);
+}
+
+/* Wordle keeps its letter states legible without relying on hue. */
+html[data-colorblind="on"] .wordle-tile[data-state="correct"] {
+  background: #1c64c8;
+  color: #fff;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+html[data-colorblind="on"] .wordle-tile[data-state="present"] {
+  background: #a35d00;
+  color: #fff;
+  box-shadow: inset 0 -5px 0 rgba(255, 255, 255, 0.95);
+}
+html[data-colorblind="on"] .wordle-tile[data-state="absent"] {
+  background: #505050;
+  color: #fff;
+  box-shadow: inset 0 0 0 1px #fff;
+}
+html[data-colorblind="on"] .wordle-key[data-state="correct"] { background: #1c64c8; color: #fff; box-shadow: inset 0 0 0 2px #fff; }
+html[data-colorblind="on"] .wordle-key[data-state="present"] { background: #a35d00; color: #fff; box-shadow: inset 0 -4px 0 rgba(255, 255, 255, 0.9); }
+html[data-colorblind="on"] .wordle-key[data-state="absent"] { background: #505050; color: #fff; }
+html[data-colorblind="on"] .sudoku-cell.is-conflict {
+  background: color-mix(in srgb, #b83828 10%, transparent);
+  text-decoration: underline wavy #b83828 2px;
+  text-underline-offset: 3px;
+}
+
+/* Left-handed Sudoku: mirror the board and the control rail in landscape. */
+@media (orientation: landscape) {
+  html[data-left-handed="on"] .sudoku-shell {
+    grid-template-columns: clamp(300px, 34vw, 470px) minmax(0, 1fr);
+    grid-template-areas:
+      "head board"
+      "status board"
+      "pad board"
+      "tools board"
+      "foot board";
+  }
+  html[data-left-handed="on"] .sudoku-shell .board-stage {
+    justify-self: end;
+  }
+  html[data-left-handed="on"] .sudoku-shell .play-feedback,
+  html[data-left-handed="on"] .sudoku-shell .sudoku-pad,
+  html[data-left-handed="on"] .sudoku-shell .sudoku-tools,
+  html[data-left-handed="on"] .sudoku-shell .play-head,
+  html[data-left-handed="on"] .sudoku-shell .play-foot { justify-self: stretch; }
+}
+
+@media (orientation: landscape) and (max-width: 620px) {
+  html[data-left-handed="on"] .sudoku-shell {
+    grid-template-columns: minmax(150px, 184px) minmax(0, 1fr);
+  }
+}
+
+/* ---------- Sudoku learning ---------- */
+
+#sudoku .sudoku-tools { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+#sudoku .sudoku-pad-key.is-armed {
+  border-color: var(--cart);
+  background: color-mix(in srgb, var(--cart) 20%, var(--panel));
+  box-shadow: inset 0 0 0 2px var(--cart);
+}
+
+.sudoku-hint-panel {
+  width: min(100%, 430px);
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--cart) 38%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cart) 8%, var(--card));
+}
+
+.sudoku-hint-panel strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--cart);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
+.sudoku-hint-panel p {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.sudoku-hint-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sudoku-hint-actions button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--cart) 40%, transparent);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sudoku-hint-actions button:first-child {
+  background: var(--cart);
+  color: var(--cart-ink);
+}
+
+.sudoku-hint-actions button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.sudoku-cell.is-learn-target {
+  z-index: 2;
+  box-shadow: inset 0 0 0 3px var(--cart), 0 0 0 3px color-mix(in srgb, var(--cart) 28%, transparent);
+}
+
+.sudoku-cell.is-wrong {
+  color: #b83828;
+  background: color-mix(in srgb, #b83828 16%, transparent);
+  text-decoration: underline wavy #b83828 2px;
+  text-underline-offset: 3px;
+}
+
+.sudoku-paused {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--page) 92%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  text-align: center;
+}
+
+.sudoku-paused p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.sudoku-paused button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--cart);
+  color: var(--cart-ink);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sudoku-guide-list { display: grid; gap: 10px; margin: 14px 0 0; padding: 0; list-style: none; }
+.sudoku-guide-list li { padding: 10px 12px; border-radius: 9px; background: var(--seg-bg, var(--panel)); }
+.sudoku-guide-list strong { display: block; margin-bottom: 3px; font-size: 12px; }
+.sudoku-guide-list p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+
+/* ---------- update ---------- */
+
+.update-banner {
+  position: fixed;
+  left: 50%;
+  bottom: calc(max(env(safe-area-inset-bottom, 0px), 14px) + 8px);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(calc(100% - 24px), 520px);
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 16px 38px -22px color-mix(in srgb, var(--ink) 72%, transparent);
+  transform: translateX(-50%);
+}
+
+.update-banner p { flex: 1; margin: 0; font-size: 11.5px; line-height: 1.35; }
+.update-banner button { min-height: 36px; padding: 0 10px; border: 0; border-radius: 8px; font: inherit; font-size: 10px; font-weight: 800; cursor: pointer; }
+.update-banner .update-reload { background: var(--ink); color: var(--page); }
+.update-banner .update-later { background: var(--seg-bg, var(--panel)); color: var(--ink); }
+
+@media (max-width: 420px) {
+  .update-banner { flex-wrap: wrap; }
+  .update-banner p { flex-basis: 100%; }
+}
+
+/* Short phones: keep the learning panel compact. */
+@media (max-height: 620px) {
+  .sudoku-hint-panel { padding: 7px 9px; }
+  .sudoku-hint-panel p { font-size: 10.5px; }
+  .sudoku-hint-actions { margin-top: 5px; }
+  .sudoku-hint-actions button { min-height: 28px; font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .daily-progress::before { transition: none; }
+}
