@@ -479,8 +479,10 @@
       const digit = Number(button.dataset.digit);
       const used = placed[digit] || 0;
       const remaining = Math.max(0, N - used);
-      const count = button.querySelector('.sudoku-pad-count');
-      if (count) count.textContent = remaining > 0 ? String(remaining) : '';
+      // The count is painted through CSS content, not a DOM text node. Axe
+      // treats a visible count as part of the button's text even when it is
+      // aria-hidden, which would stop it matching the aria-label.
+      button.dataset.remaining = remaining > 0 ? String(remaining) : '';
       button.disabled = remaining === 0;
       button.classList.toggle('is-armed', armedDigit === digit);
       button.setAttribute('aria-label', 'Enter ' + digit + ', ' + remaining + ' remaining');
@@ -506,10 +508,7 @@
       button.type = 'button';
       button.className = 'sudoku-pad-key';
       button.dataset.digit = String(digit);
-      // The count is a visual echo of the label's "remaining" copy, so it must
-      // not become part of the visible text axe compares with the accessible
-      // name. Screen readers still hear the count through the aria-label.
-      button.innerHTML = '<span>' + digit + '</span><small class="sudoku-pad-count" aria-hidden="true"></small>';
+      button.innerHTML = '<span>' + digit + '</span>';
       button.addEventListener('click', function () {
         if (setting('inputMode') === 'digit') {
           armedDigit = armedDigit === digit ? 0 : digit;

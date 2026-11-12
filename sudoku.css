@@ -156,7 +156,8 @@
   touch-action: manipulation;
 }
 
-.sudoku-pad-key small {
+.sudoku-pad-key::after {
+  content: attr(data-remaining);
   min-height: 8px;
   color: var(--muted);
   font-size: clamp(7px, 1dvh, 8.5px);
