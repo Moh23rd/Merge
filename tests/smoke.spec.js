@@ -145,8 +145,11 @@ test('language switch to Spanish survives a reload', async ({ page }) => {
 });
 
 test('language switch back to English survives a reload', async ({ page }) => {
-  await setPreferences(page, 'light', 'es');
+  // Seed Spanish once. addInitScript re-runs on every navigation and would
+  // overwrite the English choice that this test is verifying.
   await page.goto('/');
+  await page.evaluate(() => localStorage.setItem('sixfold.locale.v1', 'es'));
+  await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   await page.locator('#appearance').click();
   await expect(page.locator('#sheet')).toBeVisible();
