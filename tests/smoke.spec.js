@@ -12,6 +12,7 @@ async function expectNoAxeViolations(page, screen) {
 async function expectAllScreensAccessible(page, theme) {
   await page.goto('/');
   await page.waitForSelector('#daily');
+  await expect(page.locator('#boot-splash')).toBeHidden();
   await expectNoAxeViolations(page, theme + ' hub');
 
   for (const game of ['merge', 'sudoku', 'ttt', 'mines', 'water', 'fruit']) {
