@@ -16,6 +16,12 @@
     return weight + ' ' + px + 'px ' + FONT;
   }
 
+  function number(value) {
+    return window.SixfoldI18n && window.SixfoldI18n.number
+      ? window.SixfoldI18n.number(String(value))
+      : String(value);
+  }
+
   function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
     ctx.moveTo(x + r, y);
@@ -82,7 +88,7 @@
     ctx.fillText(String(data.game || 'Sixfold').toUpperCase(), W - 80, markY + 19);
     ctx.fillStyle = MUTED;
     ctx.font = font(700, 10);
-    ctx.fillText([data.number, data.kind].filter(Boolean).join('  ·  '), W - 80, markY + 39);
+    ctx.fillText([data.number, data.kind].filter(Boolean).map(number).join('  ·  '), W - 80, markY + 39);
     ctx.textAlign = 'left';
 
     ctx.fillStyle = LINE;
@@ -100,7 +106,7 @@
     ctx.font = font(800, 64);
     ctx.fillText(String(data.title || 'Result'), 80, 306);
 
-    const score = String(data.score == null ? '0' : data.score);
+    const score = number(data.score == null ? '0' : data.score);
     const size = score.length <= 2 ? 224 : score.length === 3 ? 200 : score.length === 4 ? 168 : 138;
     ctx.font = font(800, size);
     ctx.fillText(score, 72, 512);
@@ -115,7 +121,7 @@
     if (data.meta && data.meta.length) {
       ctx.fillStyle = INK;
       ctx.font = font(600, 26);
-      ctx.fillText(data.meta.join('   ·   '), 80, 648);
+      ctx.fillText(data.meta.map(number).join('   ·   '), 80, 648);
     }
 
     // Six-piece footer strip, anchored by the same tiles as the app mark.

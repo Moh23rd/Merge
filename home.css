@@ -169,9 +169,12 @@ html[data-theme="dark"] {
 
 .hub-look-copy strong {
   display: block;
-  max-width: 7ch;
+  max-width: 12ch;
+  overflow: visible;
   font-size: 10px;
+  line-height: 1.2;
   letter-spacing: 0;
+  white-space: nowrap;
 }
 
 .hub-look-chevron {
@@ -281,6 +284,8 @@ html[data-theme="dark"] {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.09em;
+  white-space: nowrap;
+  flex: none;
   line-height: 1;
   text-decoration: none;
   text-transform: uppercase;
@@ -759,15 +764,12 @@ html.home-ready .home-six-caption {
 }
 
 .home-game-desc {
-  display: -webkit-box;
+  display: block;
   max-width: 31ch;
   margin-top: 7px;
-  overflow: hidden;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.4;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .home-game-meta {
@@ -987,7 +989,7 @@ html.home-ready .home-six-caption {
 @media (max-width: 480px) {
   .hub-tagline { display: none; }
   .hub-look-copy span { display: none; }
-  .hub-look-copy strong { max-width: 6ch; font-size: 9.5px; }
+  .hub-look-copy strong { max-width: 12ch; font-size: 9.5px; }
   .hub-look-chevron { display: none; }
 }
 

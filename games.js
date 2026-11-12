@@ -84,9 +84,16 @@
     }, 2300);
   }
 
+  function localizeShare(text) {
+    return window.SixfoldI18n && window.SixfoldI18n.number
+      ? window.SixfoldI18n.number(String(text))
+      : String(text);
+  }
+
   function copyShare(text) {
     const url = shareUrl();
-    const full = url ? text + ' ' + url : text;
+    const localized = localizeShare(text);
+    const full = url ? localized + ' ' + url : localized;
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
       toast('Copy is not available in this browser.');
       return;
@@ -100,8 +107,9 @@
 
   function share(title, text) {
     const url = shareUrl();
+    const localized = localizeShare(text);
     if (navigator.share) {
-      navigator.share({ title: title || SHARE_TITLE, text: text, url: url || undefined }).catch(function (err) {
+      navigator.share({ title: title || SHARE_TITLE, text: localized, url: url || undefined }).catch(function (err) {
         // Closing the share sheet is a choice, not a failure.
         if (err && err.name === 'AbortError') return;
         copyShare(text);

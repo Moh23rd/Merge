@@ -19,6 +19,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Audit localization catalogs
+        run: npm run test:i18n
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - if: failure()

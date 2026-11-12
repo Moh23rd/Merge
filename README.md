@@ -2,7 +2,7 @@
 
 ![Sixfold — six games. no filler.](og-image.png)
 
-Sixfold is a small, installable pocket arcade: six satisfying puzzle games in one offline web app. No accounts, no ads, no tracking — and it keeps working without a connection. The interface is available in English and Spanish.
+Sixfold is a small, installable pocket arcade: six satisfying puzzle games in one offline web app. No accounts, no ads, no tracking — and it keeps working without a connection. The interface is available in eleven languages: English, Spanish, French, German, Simplified and Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic.
 
 **[Play Sixfold →](https://moh23rd.github.io/Sixfold/)**
 
@@ -21,20 +21,22 @@ Every game saves its own board, best score and progress on the device, so closin
 
 ## Daily Sixfold and Learn mode
 
-- **Daily Sixfold** gives every game a date-seeded challenge: a seeded Merge board, Sudoku grid, Tic Tac Toe computer, Minesweeper field, Water Sort level and Fruit Merge run, plus a local streak and a 30-day calendar. It works offline and never needs an account or a server.
+- **Daily Sixfold** gives every game a date-seeded challenge: a seeded Merge board, Sudoku grid, Tic Tac Toe computer, Minesweeper field, Water Sort level and Fruit Merge run, plus a local streak and a 30-day calendar. It works offline and never needs an account or a server, and the hub section can be hidden from **Look & feel**.
 - **Daily boards are separate from normal saves.** A daily run never replaces the board or level you were already playing.
 - **Daily Sudoku** is the same grid for everyone on that local date. Past days can be replayed from the calendar.
 - **Sudoku Learn mode** explains naked and hidden singles, fills auto-notes, can mark mistakes, and includes a short guide to pairs, pointing pairs and box-line reduction.
 - **Daily share** produces a spoiler-free link, so a friend can open the same daily puzzle without seeing the answer.
 - **Backup and restore** exports every board, score, streak and setting as a JSON file. `navigator.storage.persist()` asks the browser to keep the data.
 
-## English and Spanish
+## Languages
 
-The interface can switch between **English** and **Español** in
-**Look & feel → Language**. The first visit follows the device language; the
-choice is saved on the device, game dates use the selected locale, and daily
-share text follows it too. The catalog is source-string based, so a new
-language can be added without rewriting the markup.
+The interface can switch between **English**, **Español**, **Français**,
+**Deutsch**, **简体中文**, **繁體中文**, **日本語**, **한국어**, **Português
+(Brasil)**, **हिन्दी** and **العربية** in **Look & feel → Language**. Arabic
+switches the whole interface to right-to-left. The first visit follows the
+device language; the choice is saved on the device, game dates use the selected
+locale, and daily share text follows it too. The catalogs are source-string
+based, so another language can be added without rewriting the markup.
 
 ## Native apps
 
@@ -52,9 +54,9 @@ machine, Xcode and the store accounts. See [native/README.md](native/README.md).
 - **Made for a phone, comfortable on a desk.** The hub and every game layout adapt from a 320px screen up to a wide desktop.
 - **One look for the collection.** Light, dark or auto, with six colour palettes. The page and the browser chrome always match.
 - **Quiet motion.** Springy entrances, tactile result cards and a stamped seal when a round is cleared, with a still fallback for reduced motion.
-- **Play how you like.** Touch, mouse and full keyboard controls, plus screen-reader labels throughout. High contrast, colour-blind cues, larger Sudoku digits, left-handed landscape and optional sounds are in Look & feel.
+- **Play how you like.** Touch, mouse and full keyboard controls, plus screen-reader labels throughout. High contrast, colour-blind cues and optional sounds are in Look & feel. Larger Sudoku digits, left-handed landscape, timer visibility, mistake checking and input order live in **Sudoku settings**, opened from the Sudoku screen.
 - **Installable.** Add Sixfold to a home screen for an app-like window and offline play.
-- **English and Spanish.** The complete interface, aria labels and dates follow the selected language.
+- **Eleven languages.** English, Spanish, French, German, Simplified and Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic cover the complete interface, aria labels, game status lines and dates. Bundled script fonts keep Chinese, Japanese, Korean, Devanagari and Arabic text consistent offline.
 - **Native shells included.** Capacitor projects for Android and iOS live alongside the web app.
 - **Updatable without a hard refresh.** A ready service-worker update appears as a small Reload prompt.
 
@@ -63,10 +65,13 @@ machine, Xcode and the store accounts. See [native/README.md](native/README.md).
 ```sh
 npm install
 npx playwright install chromium
+npm run test:i18n
 npm test
 ```
 
-The Playwright suite covers the six game screens, Daily Sixfold, Sudoku Learn hints, settings and backup download. Axe scans the hub, all six games and settings in both light and dark themes and in both English and Spanish, with no rule exceptions. CI runs the same suite on every push and pull request, and can be run manually from the Actions tab.
+`npm run test:i18n` checks every translated catalog against the English source: no missing or unknown keys, no empty copy, and matching numbered placeholders. It also verifies the shared dynamic-copy templates.
+
+The Playwright suite covers the six game screens, Daily Sixfold, Sudoku Learn hints, settings and backup download. Axe scans the hub, all six games and settings in both light and dark themes in all eleven languages, with no rule exceptions. A 320px layout pass checks each locale for clipped or overflowing text. CI runs the catalog audit and the same Playwright suite on every push and pull request, and can be run manually from the Actions tab.
 
 ## Install
 
@@ -127,7 +132,10 @@ game.js                    Merge (2048)
 games.js                   Water Sort, Sudoku adapter, Fruit Merge, Tic Tac Toe, Minesweeper
 sudoku.js                  Sudoku generator, solver, controls and saved progress
 sudoku.css                 Sudoku board, pad, result and difficulty styles
-i18n.js                    English/Spanish catalog, locale-aware rendering and the language switch
+i18n.js                    locale registry, English catalog, locale-aware rendering and the language switch
+i18n-fr.js, i18n-de.js     Complete French and German message and game-status catalogs
+i18n-zh-hans.js … i18n-ar.js  Complete Chinese, Japanese, Korean, Portuguese, Hindi and Arabic catalogs
+i18n-patterns.js           shared templates for game-status and dynamic copy
 native.js                  native splash, system bars and Android back navigation
 capacitor.config.json      Capacitor app id, web bundle and splash settings
 native/                    wrapper build notes, store listings, review notes and privacy policy

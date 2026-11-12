@@ -6,8 +6,22 @@
   'use strict';
 
   var KEY = 'sixfold.locale.v1';
-  var SUPPORTED = { en: 'English', es: 'Español' };
+  var SUPPORTED = {
+    en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch',
+    'zh-Hans': '简体中文', 'zh-Hant': '繁體中文', ja: '日本語', ko: '한국어',
+    'pt-BR': 'Português (Brasil)', hi: 'हिन्दी', ar: 'العربية'
+  };
+  var RTL = { ar: true };
+  // Arabic and Hindi use their own digit shapes in the interface. Formatting
+  // through Intl alone can still yield Latin digits on some engines, so the
+  // final text pass maps every ASCII digit explicitly.
+  var NUMERALS = {
+    ar: ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
+    hi: ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
+  };
+  var NUMBER_LOCALES = { ar: 'ar-u-nu-arab', hi: 'hi-u-nu-deva' };
   var locale = 'en';
+  var catalog = { messages: {}, patterns: [] };
 
   var ES = {
     'Sixfold — Six games. No filler.': 'Sixfold — Seis juegos. Sin relleno.',
@@ -26,8 +40,10 @@
     'Warm': 'Cálido',
     'What’s new in 5.1': 'Novedades de 5.1',
     'Spanish localization: the complete interface, game labels, dates and accessibility copy can switch between English and Español': 'Localización en español: toda la interfaz, las etiquetas de juego, las fechas y los textos de accesibilidad pueden cambiar entre English y Español',
+    'Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch': 'Localización: toda la interfaz, las etiquetas de juego, las fechas y los textos de accesibilidad pueden cambiar entre English, Español, Français y Deutsch',
     'Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy': 'Contenedor nativo para tiendas: proyectos Capacitor 8 para Android e iOS, con iconos de marca, pantallas de inicio, notas para la tienda y texto de privacidad',
     'Daily Sixfold: a date-seeded challenge in every game, a streak and a 30-day calendar that work offline': 'Sixfold diario: un reto con semilla por fecha en cada juego, una racha y un calendario de 30 días que funcionan sin conexión',
+    'New interface languages: Simplified Chinese, Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic': 'Nuevos idiomas de interfaz: chino simplificado, chino tradicional, japonés, coreano, portugués (Brasil), hindi y árabe',
     'Sudoku Learn mode: technique hints, auto-notes, optional mistake checking and a short technique guide': 'Modo Aprender de Sudoku: pistas de técnica, notas automáticas, comprobación opcional de errores y una breve guía de técnicas',
     'Accessibility and safety: high contrast, colour-blind cues, larger digits, left-handed Sudoku, backup and restore': 'Accesibilidad y seguridad: alto contraste, señales para daltonismo, dígitos grandes, Sudoku para zurdos, copia y restauración',
     'Six games.': 'Seis juegos.',
@@ -259,6 +275,10 @@
     'Type on your keyboard or tap the letters.': 'Escribe en el teclado o toca las letras.',
     'Look & feel': 'Aspecto y ajustes',
     'Language': 'Idioma',
+    'Home': 'Inicio',
+    'Show today’s six games on the hub.': 'Muestra los seis juegos de hoy en la pantalla de inicio.',
+    'Sudoku settings': 'Ajustes de Sudoku',
+    'Saved on this device for every Sudoku puzzle.': 'Guardado en este dispositivo para cada Sudoku.',
     'Done': 'Hecho',
     'One look for every game. Saved on this device.': 'Un aspecto para todos los juegos. Guardado en este dispositivo.',
     'Theme': 'Tema',
@@ -642,13 +662,48 @@
     [/^Paused\.$/, 'En pausa.']
   ];
 
+  function catalogs() {
+    var all = window.SixfoldCatalogs || {};
+    all.es = {
+      messages: ES,
+      patterns: PATTERNS,
+      meta: {
+        title: 'Sixfold — Seis juegos. Sin relleno.',
+        description: 'Seis juegos. Sin relleno. Un arcade de bolsillo sin conexión: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort y Fruit Merge. Sin cuentas y sin anuncios.',
+        ogDescription: 'Seis juegos. Sin relleno. Un arcade de bolsillo sin conexión: seis puzles, sin cuentas y sin anuncios.'
+      }
+    };
+    Object.keys(all).forEach(function (code) {
+      if (!all[code].patterns) all[code].patterns = [];
+      if (all[code].templates && !all[code].patterns.length && window.SixfoldPatterns) {
+        all[code].patterns = window.SixfoldPatterns.build(all[code]);
+      }
+    });
+    return all;
+  }
+
+  // Match a browser language tag to one of our catalogs. Chinese needs script
+  // resolution because zh-CN and zh-TW are not interchangeable; Portuguese is
+  // Brazilian in this collection, so every Portuguese tag maps to pt-BR.
+  function normalize(tag) {
+    var value = String(tag || '').toLowerCase().replace(/_/g, '-');
+    if (!value) return '';
+    if (value.indexOf('zh') === 0) {
+      return /(^|-)hant($|-)|-(tw|hk|mo)($|-)/.test(value) ? 'zh-Hant' : 'zh-Hans';
+    }
+    if (value === 'pt' || value.indexOf('pt-') === 0) return 'pt-BR';
+    var code = value.split('-')[0];
+    return SUPPORTED[code] ? code : '';
+  }
+
   function detect() {
     try {
-      var saved = localStorage.getItem(KEY);
-      if (saved && SUPPORTED[saved]) return saved;
+      var saved = normalize(localStorage.getItem(KEY));
+      if (saved) return saved;
       var languages = navigator.languages || [navigator.language || 'en'];
       for (var i = 0; i < languages.length; i += 1) {
-        if (String(languages[i]).toLowerCase().indexOf('es') === 0) return 'es';
+        var match = normalize(languages[i]);
+        if (match) return match;
       }
     } catch (err) {}
     return 'en';
@@ -657,26 +712,32 @@
   function word(value) {
     var text = String(value || '');
     var key = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-    return ES[key] || ES[text.toLowerCase()] || value;
+    return catalog.messages[key] || catalog.messages[text.toLowerCase()] || value;
   }
 
   function lookup(value) {
-    if (locale !== 'es' || !value) return value;
-    var direct = ES[value];
+    if (locale === 'en' || !value) return value;
+    var direct = catalog.messages[value];
     if (direct) return direct;
-    for (var i = 0; i < PATTERNS.length; i += 1) {
-      if (PATTERNS[i][0].test(value)) {
-        return value.replace(PATTERNS[i][0], PATTERNS[i][1]);
+    for (var i = 0; i < catalog.patterns.length; i += 1) {
+      if (catalog.patterns[i][0].test(value)) {
+        return value.replace(catalog.patterns[i][0], catalog.patterns[i][1]);
       }
     }
     return value;
+  }
+
+  function localizeDigits(value) {
+    var digits = NUMERALS[locale];
+    if (!digits) return String(value);
+    return String(value).replace(/[0-9]/g, function (digit) { return digits[Number(digit)]; });
   }
 
   function translateValue(value) {
     var match = String(value).match(/^(\s*)(.*?)(\s*)$/s);
     if (!match || !match[2]) return value;
     var core = match[2].replace(/\s+/g, ' ');
-    return match[1] + lookup(core) + match[3];
+    return match[1] + localizeDigits(lookup(core)) + match[3];
   }
 
   function skip(node) {
@@ -708,26 +769,30 @@
   }
 
   function translateHead() {
-    if (locale !== 'es') return;
-    document.title = translateValue(document.title);
+    if (locale === 'en') return;
+    var meta = catalog.meta || {};
+    var title = meta.title || catalog.messages['Sixfold — Six games. No filler.'];
+    if (title) document.title = title;
     var description = document.querySelector('meta[name="description"]');
-    if (description) {
-      var text = 'Seis juegos. Sin relleno. Un arcade de bolsillo sin conexión: Merge, Sudoku, Tic Tac Toe, Minesweeper, Water Sort y Fruit Merge. Sin cuentas y sin anuncios.';
-      description.setAttribute('content', text);
-    }
+    if (description && meta.description) description.setAttribute('content', meta.description);
     ['og:title', 'twitter:title'].forEach(function (property) {
-      var meta = document.querySelector('meta[property="' + property + '"], meta[name="' + property + '"]');
-      if (meta) meta.setAttribute('content', 'Sixfold — Seis juegos. Sin relleno.');
+      var tag = document.querySelector('meta[property="' + property + '"], meta[name="' + property + '"]');
+      if (tag && title) tag.setAttribute('content', title);
     });
     ['og:description', 'twitter:description'].forEach(function (property) {
-      var meta = document.querySelector('meta[property="' + property + '"], meta[name="' + property + '"]');
-      if (meta) meta.setAttribute('content', 'Seis juegos. Sin relleno. Un arcade de bolsillo sin conexión: seis puzles, sin cuentas y sin anuncios.');
+      var tag = document.querySelector('meta[property="' + property + '"], meta[name="' + property + '"]');
+      if (tag && meta.ogDescription) tag.setAttribute('content', meta.ogDescription);
     });
   }
 
   function bindLanguage() {
     var wrap = document.getElementById('language-seg');
     if (!wrap) return;
+    var current = document.getElementById('language-current');
+    if (current) {
+      current.textContent = SUPPORTED[locale] || 'English';
+      current.setAttribute('lang', locale);
+    }
     wrap.querySelectorAll('[data-locale]').forEach(function (button) {
       button.setAttribute('aria-pressed', button.dataset.locale === locale ? 'true' : 'false');
       button.addEventListener('click', function () {
@@ -741,6 +806,7 @@
 
   function setLang() {
     document.documentElement.lang = locale;
+    document.documentElement.dir = RTL[locale] ? 'rtl' : 'ltr';
     try { localStorage.setItem(KEY, locale); } catch (err) {}
   }
 
@@ -771,10 +837,13 @@
   // Resolve the locale as soon as the script runs. Game modules render on
   // DOMContentLoaded and need the locale before that event reaches them.
   locale = detect();
+  catalog = catalogs()[locale] || { messages: {}, patterns: [] };
   setLang();
 
   window.SixfoldI18n = {
     locale: function () { return locale; },
+    formatLocale: function () { return NUMBER_LOCALES[locale] || locale; },
+    number: function (value) { return localizeDigits(value); },
     supported: SUPPORTED,
     t: function (value) { return locale === 'en' ? value : lookup(String(value)); },
     refresh: function (root) { translateTree(root || document.body); }

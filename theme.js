@@ -413,6 +413,8 @@
   const aboutSheet = document.getElementById('about');
   const aboutBtn = document.getElementById('hub-about');
   const resetSheet = document.getElementById('reset-sheet');
+  const sudokuSettingsSheet = document.getElementById('sudoku-settings');
+  const sudokuSettingsBtn = document.getElementById('sudoku-settings-open');
   const wipeSheet = document.getElementById('wipe-sheet');
   const wipeBtn = document.getElementById('wipe-open');
   const wipeConfirmBtn = document.getElementById('wipe-confirm');
@@ -461,6 +463,7 @@
   wireSheet(sizeSheet, sizeBtn);
   wireSheet(helpSheet, helpBtn);
   wireSheet(aboutSheet, aboutBtn);
+  wireSheet(sudokuSettingsSheet, sudokuSettingsBtn);
 
   // Erasing everything is deliberately two separate taps: the quiet button in
   // Look & feel opens a warning sheet, and only its red button clears data.
@@ -545,6 +548,7 @@
     if (sizeSheet && !sizeSheet.hidden) return sizeSheet;
     if (helpSheet && !helpSheet.hidden) return helpSheet;
     if (aboutSheet && !aboutSheet.hidden) return aboutSheet;
+    if (sudokuSettingsSheet && !sudokuSettingsSheet.hidden) return sudokuSettingsSheet;
     if (wipeSheet && !wipeSheet.hidden) return wipeSheet;
     if (resetSheet && !resetSheet.hidden) return resetSheet;
     return null;

@@ -64,15 +64,23 @@
     try { return window.SixfoldI18n ? window.SixfoldI18n.locale() : undefined; } catch (err) { return undefined; }
   }
 
+  function formatLocale() {
+    try { return window.SixfoldI18n ? window.SixfoldI18n.formatLocale() : undefined; } catch (err) { return undefined; }
+  }
+
   function tr(value) {
     try { return window.SixfoldI18n ? window.SixfoldI18n.t(value) : value; } catch (err) { return value; }
+  }
+
+  function number(value) {
+    try { return window.SixfoldI18n ? window.SixfoldI18n.number(value) : String(value); } catch (err) { return String(value); }
   }
 
   function pretty(key) {
     const d = dateFromKey(key);
     if (!d) return '';
     try {
-      return d.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' });
+      return d.toLocaleDateString(formatLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
     } catch (err) {
       return key;
     }
@@ -82,7 +90,7 @@
     const d = dateFromKey(key);
     if (!d) return '';
     try {
-      return d.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' });
+      return d.toLocaleDateString(formatLocale(), { weekday: 'short', day: 'numeric', month: 'short' });
     } catch (err) {
       return key;
     }
@@ -222,8 +230,8 @@
     url.search = '';
     url.hash = '';
     url.searchParams.set('daily', key);
-    const text = tr('Sixfold Daily') + ' · ' + pretty(key) + '\n' +
-      done + tr('/6 games · ') + streak() + tr('-day streak.') + '\n' + tr('No spoilers — play today’s set:');
+    const text = number(tr('Sixfold Daily') + ' · ' + pretty(key) + '\n' +
+      done + tr('/6 games · ') + streak() + tr('-day streak.') + '\n' + tr('No spoilers — play today’s set:'));
     const payload = { title: 'Sixfold Daily', text: text, url: url.toString() };
     const live = $('daily-live');
     if (navigator.share) {
@@ -270,10 +278,13 @@
         button.type = 'button';
         button.className = 'daily-game' + (isDone(key, game) ? ' is-done' : '');
         button.dataset.dailyGame = game;
-        button.setAttribute('aria-label', tr((isDone(key, game) ? 'Replay ' : 'Play ') + GAMES[game].label + ' for today'));
-        button.innerHTML = '<span class="daily-game-num">0' + (index + 1) + '</span>' +
-          '<strong>' + GAMES[game].label + '</strong>' +
-          '<small>' + tr(isDone(key, game) ? 'Done' : GAMES[game].goal) + '</small>' +
+        const numberText = number('0' + (index + 1));
+        const labelText = tr(GAMES[game].label);
+        const goalText = tr(isDone(key, game) ? 'Done' : GAMES[game].goal);
+        button.innerHTML = '<span class="sr-only">' + tr('Play') + ' </span>' +
+          '<span class="daily-game-num">' + numberText + '</span>' +
+          '<strong>' + labelText + '</strong>' +
+          '<small>' + goalText + '</small>' +
           '<i aria-hidden="true">' + (isDone(key, game) ? '✓' : '›') + '</i>';
         button.addEventListener('click', function () { play(game); });
         gamesEl.appendChild(button);

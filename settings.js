@@ -1,5 +1,5 @@
-/* Optional device settings: accessibility, Sudoku input and local backup.
-   Everything is stored in localStorage and never leaves the device. */
+/* Optional device settings: accessibility, daily visibility, Sudoku input and
+   local backup. Everything is stored in localStorage and never leaves the device. */
 (function () {
   'use strict';
 
@@ -12,7 +12,8 @@
     hideTimer: false,
     checkMistakes: false,
     inputMode: 'cell',
-    sound: true
+    sound: true,
+    dailyPuzzle: true
   };
   const $ = function (id) { return document.getElementById(id); };
   let values = load();
@@ -46,7 +47,8 @@
       'left-handed': values.leftHanded ? 'on' : '',
       'hide-timer': values.hideTimer ? 'on' : '',
       'check-mistakes': values.checkMistakes ? 'on' : '',
-      'input-mode': values.inputMode
+      'input-mode': values.inputMode,
+      daily: values.dailyPuzzle ? 'on' : 'off'
     };
     Object.keys(attrs).forEach(function (name) {
       if (attrs[name]) root.setAttribute('data-' + name, attrs[name]);

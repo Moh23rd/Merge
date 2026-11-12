@@ -1,6 +1,7 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-// 5.1: Spanish localization and the Capacitor native wrapper.
-const VERSION = 'sixfold-5.1.0';
+// 5.2: localized digits, a flatter daily panel, a collapsible language picker
+// and Sudoku settings inside the Sudoku screen.
+const VERSION = 'sixfold-5.2.0-l10n1';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -9,20 +10,23 @@ const CACHE_PREFIX = 'sixfold-';
 // query suffix, so it must be listed separately or offline play would look for
 // files that were never cached.
 const ASSET = '4.0.0';
-const THEME_JS = '5.1.0';
+const STYLE_ASSET = '5.2.0';
+const FONT_ASSET = '4.0.1';
+const THEME_JS = '5.2.0';
 const GAME_CODE = '4.0.0-w4';
-const SUDOKU_GAME_CODE = '5.1.0';
-const GAMES_CSS = '4.0.0-w10';
+const SUDOKU_GAME_CODE = '5.2.0';
+const LOCALE_FONT = '5.1.3';
+const GAMES_CSS = '4.0.0-w13';
 const POLISH_CSS = '4.0.0-w9';
 const GAMES_JS = '5.1.0';
 const SUDOKU_CSS = '4.0.0-w13';
-const V5_CSS = '5.1.0';
-const HOME_CSS = '4.0.0-w4';
+const V5_CSS = '5.2.0';
+const HOME_CSS = '4.0.0-w5';
 
 const SHELL = [
   './',
   './index.html',
-  './styles.css?v=' + ASSET,
+  './styles.css?v=' + STYLE_ASSET,
   './theme.js?v=' + THEME_JS,
   './game.js?v=' + GAME_CODE,
   './haptics.js?v=' + ASSET,
@@ -35,13 +39,23 @@ const SHELL = [
   './polish.css?v=' + POLISH_CSS,
   './sudoku.css?v=' + SUDOKU_CSS,
   './v5.css?v=' + V5_CSS,
-  './settings.js?v=5.1.0',
+  './settings.js?v=5.2.0',
   './sound.js?v=5.1.0',
   './sudoku.js?v=' + SUDOKU_GAME_CODE,
   './games.js?v=' + GAMES_JS,
-  './daily.js?v=5.1.0',
+  './daily.js?v=5.2.0',
   './update.js?v=5.1.0',
-  './i18n.js?v=5.1.0',
+  './i18n-fr.js?v=5.2.0',
+  './i18n-de.js?v=5.2.0',
+  './i18n-zh-hans.js?v=5.2.0',
+  './i18n-zh-hant.js?v=5.2.0',
+  './i18n-ja.js?v=5.2.0',
+  './i18n-ko.js?v=5.2.0',
+  './i18n-pt-br.js?v=5.2.0',
+  './i18n-hi.js?v=5.2.0',
+  './i18n-ar.js?v=5.2.0',
+  './i18n-patterns.js?v=5.1.1',
+  './i18n.js?v=5.2.0',
   './native.js?v=5.1.0',
   './wordle-loader.js?v=' + GAME_CODE,
   // The hidden word game is loaded on demand, but it still belongs in the
@@ -54,7 +68,13 @@ const SHELL = [
   './icons/icon-1024.png',
   './icons/icon-maskable-512.png',
   './icons/icon-maskable-1024.png',
-  './fonts/google-sans-flex.woff2?v=' + ASSET
+  './fonts/google-sans-flex.woff2?v=' + FONT_ASSET,
+  './fonts/sixfold-sc.woff2?v=' + LOCALE_FONT,
+  './fonts/sixfold-tc.woff2?v=' + LOCALE_FONT,
+  './fonts/sixfold-jp.woff2?v=' + LOCALE_FONT,
+  './fonts/sixfold-kr.woff2?v=' + LOCALE_FONT,
+  './fonts/sixfold-devanagari.woff2?v=' + LOCALE_FONT,
+  './fonts/sixfold-arabic.woff2?v=' + LOCALE_FONT
 ];
 
 self.addEventListener('install', (event) => {

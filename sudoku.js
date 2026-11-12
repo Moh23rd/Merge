@@ -124,6 +124,10 @@
     return Number.isFinite(value) && value > 0 ? value : null;
   }
 
+  function formatNumber(value) {
+    return window.SixfoldI18n ? window.SixfoldI18n.number(value) : String(value);
+  }
+
   function formatTime(seconds) {
     const total = Math.max(0, Math.round(Number(seconds) || 0));
     const hours = Math.floor(total / 3600);
@@ -482,7 +486,7 @@
       // The count is painted through CSS content, not a DOM text node. Axe
       // treats a visible count as part of the button's text even when it is
       // aria-hidden, which would stop it matching the aria-label.
-      button.dataset.remaining = remaining > 0 ? String(remaining) : '';
+      button.dataset.remaining = remaining > 0 ? formatNumber(remaining) : '';
       button.disabled = remaining === 0;
       button.classList.toggle('is-armed', armedDigit === digit);
       button.setAttribute('aria-label', 'Enter ' + digit + ', ' + remaining + ' remaining');
@@ -1027,7 +1031,7 @@
     if (parts.length !== 3) return key;
     const date = new Date(parts[0], parts[1] - 1, parts[2], 12);
     try {
-      const locale = window.SixfoldI18n ? window.SixfoldI18n.locale() : undefined;
+      const locale = window.SixfoldI18n ? window.SixfoldI18n.formatLocale() : undefined;
       return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
     } catch (err) {
       return key;
@@ -1265,6 +1269,9 @@
       }
     });
     window.addEventListener('pagehide', saveState);
+    window.addEventListener('sixfold:settings', function () {
+      if (state) render();
+    });
     saveId = window.setInterval(function () {
       if (document.body.dataset.screen === 'sudoku' && state && !state.solved) saveState();
     }, 5000);

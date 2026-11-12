@@ -980,10 +980,17 @@
     }, 1600);
   }
 
+  function localizeShare(value) {
+    return window.SixfoldI18n && window.SixfoldI18n.number
+      ? window.SixfoldI18n.number(String(value))
+      : String(value);
+  }
+
   // Somewhere without a share sheet (most desktops) copies the same line instead.
   function copyResult(message) {
     const url = shareUrl();
-    const text = url ? message + ' ' + url : message;
+    const localized = localizeShare(message);
+    const text = url ? localized + ' ' + url : localized;
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
       flashShare('Couldn’t copy');
       return;
@@ -1006,7 +1013,7 @@
 
   function shareText(message, url) {
     if (navigator.share) {
-      navigator.share({ title: 'Sixfold — Merge', text: message, url: url || undefined }).catch(function (err) {
+      navigator.share({ title: 'Sixfold — Merge', text: localizeShare(message), url: url || undefined }).catch(function (err) {
         // Closing the share sheet is a choice, not a failure.
         if (err && err.name === 'AbortError') return;
         copyResult(message);
@@ -1017,10 +1024,11 @@
   }
 
   function shareFile(file, message, url) {
+    const localized = localizeShare(message);
     navigator.share({
       files: [file],
       title: 'Sixfold — Merge',
-      text: url ? message + ' ' + url : message
+      text: url ? localized + ' ' + url : localized
     }).catch(function (err) {
       if (err && err.name === 'AbortError') return;
       shareText(message, url);
@@ -1417,7 +1425,7 @@
             }
           }
         }
-        const face = new FontFace(family, 'url("fonts/google-sans-flex.woff2?v=4.0.0")', {
+        const face = new FontFace(family, 'url("fonts/google-sans-flex.woff2?v=4.0.1")', {
           weight: '100 1000',
           display: 'swap'
         });
