@@ -104,6 +104,6 @@ The games were checked against their original rules: Gabriele Cirulli’s 2048, 
 
 ## Credits and licence
 
-Game code is released under the [GNU General Public License v3.0](LICENSE) (`GPL-3.0-only`). The Google Sans Flex typeface is included under the [SIL Open Font License 1.1](fonts/OFL.txt).
+Game code is released under the [GNU General Public License v3.0](LICENSE) (`GPL-3.0-only`). A separate [Apple App Store additional permission](APPSTORE-EXCEPTION.md) applies to App Store distribution. The Google Sans Flex typeface is included under the [SIL Open Font License 1.1](fonts/OFL.txt).
 
 Questions or bug reports: [mohrd9685@gmail.com](mailto:mohrd9685@gmail.com).
