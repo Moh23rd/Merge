@@ -79,6 +79,7 @@
     "Update Chrome": "更新 Chrome",
     "Install app": "安裝應用程式",
     "About & privacy": "關於與隱私權",
+    "Licenses & source": "授權與原始碼",
     "Slide the tiles. Match numbers to double them.": "滑動方塊。合併相同數字讓它們加倍。",
     "Score": "得分",
     "Best": "最佳",

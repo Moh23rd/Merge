@@ -96,6 +96,7 @@
     'Update Chrome': 'Actualizar Chrome',
     'Install app': 'Instalar app',
     'About & privacy': 'Acerca de y privacidad',
+    'Licenses & source': 'Licencias y código fuente',
     'Slide the tiles. Match numbers to double them.': 'Desliza las fichas. Une números iguales para doblarlos.',
     'Score': 'Puntos',
     'Best': 'Mejor',

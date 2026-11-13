@@ -79,6 +79,7 @@
     "Update Chrome": "Chrome अपडेट करें",
     "Install app": "ऐप इंस्टॉल करें",
     "About & privacy": "जानकारी और गोपनीयता",
+    "Licenses & source": "लाइसेंस और स्रोत",
     "Slide the tiles. Match numbers to double them.": "टाइल्स स्लाइड करें। अंक मिलाकर उन्हें दोगुना करें।",
     "Score": "स्कोर",
     "Best": "सर्वश्रेष्ठ",

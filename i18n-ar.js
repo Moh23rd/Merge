@@ -79,6 +79,7 @@
     "Update Chrome": "حدّث Chrome",
     "Install app": "ثبّت التطبيق",
     "About & privacy": "حول التطبيق والخصوصية",
+    "Licenses & source": "التراخيص والمصدر",
     "Slide the tiles. Match numbers to double them.": "اسحب البلاطات. طابق الأرقام لتضاعفها.",
     "Score": "النتيجة",
     "Best": "الأفضل",

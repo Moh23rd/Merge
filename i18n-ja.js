@@ -79,6 +79,7 @@
     "Update Chrome": "Chrome を更新",
     "Install app": "アプリをインストール",
     "About & privacy": "このアプリとプライバシー",
+    "Licenses & source": "ライセンスとソース",
     "Slide the tiles. Match numbers to double them.": "タイルをスライドし、同じ数字を合わせて2倍にします。",
     "Score": "スコア",
     "Best": "ベスト",

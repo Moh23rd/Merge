@@ -79,6 +79,7 @@
     "Update Chrome": "Chrome 업데이트",
     "Install app": "앱 설치",
     "About & privacy": "정보 및 개인정보",
+    "Licenses & source": "라이선스 및 소스",
     "Slide the tiles. Match numbers to double them.": "타일을 밀어 같은 숫자를 합쳐 두 배로 만드세요.",
     "Score": "점수",
     "Best": "최고",

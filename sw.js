@@ -1,7 +1,7 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
 // 5.2: localized digits, a flatter daily panel, a collapsible language picker
 // and Sudoku settings inside the Sudoku screen.
-const VERSION = 'sixfold-5.2.0-l10n1';
+const VERSION = 'sixfold-5.2.0-licenses';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -26,6 +26,9 @@ const HOME_CSS = '4.0.0-w5';
 const SHELL = [
   './',
   './index.html',
+  './licenses.html',
+  './LICENSE',
+  './APPSTORE-EXCEPTION.md',
   './styles.css?v=' + STYLE_ASSET,
   './theme.js?v=' + THEME_JS,
   './game.js?v=' + GAME_CODE,
@@ -141,8 +144,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Pages: freshest version when online, the saved copy when not.
+  // Pages: freshest version when online, the saved copy when not. The
+  // licenses page is a separate document, so keep its own offline fallback.
   if (request.mode === 'navigate') {
+    const page = url.pathname.endsWith('/licenses.html') ? './licenses.html' : './index.html';
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -153,13 +158,15 @@ self.addEventListener('fetch', (event) => {
             const copy = response.clone();
             caches
               .open(VERSION)
-              .then((cache) => cache.put('./index.html', copy))
+              .then((cache) => cache.put(page, copy))
               .catch(() => {});
           }
           return response;
         })
         .catch(() =>
-          caches.match('./index.html').then((cached) => cached || caches.match('./'))
+          caches.match(page)
+            .then((cached) => cached || caches.match('./index.html'))
+            .then((cached) => cached || caches.match('./'))
         )
     );
     return;

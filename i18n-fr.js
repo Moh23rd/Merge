@@ -75,6 +75,7 @@
     "Update Chrome": "Mettre Chrome à jour",
     "Install app": "Installer l’appli",
     "About & privacy": "À propos et confidentialité",
+    "Licenses & source": "Licences et code source",
     "Slide the tiles. Match numbers to double them.": "Faites glisser les tuiles. Associez les nombres pour les doubler.",
     "Score": "Score",
     "Best": "Record",
