@@ -1,12 +1,14 @@
 /* The hidden word game behind the six-piece cover. Standard Wordle rules:
    five letters, six guesses, and duplicate letters only score as often as they
-   occur in the answer. Progress, stats and the current word stay on-device. */
+   occur in the answer. The board uses the active interface language's word
+   pack; scripts without a practical on-screen layout use a native IME input.
+   Progress, stats and the current word stay on-device. */
 (function () {
   'use strict';
 
   const root = document.getElementById('wordle');
-  const words = window.SixfoldWordleWords;
-  if (!root || !words || !words.answers || !words.valid) return;
+  const englishWords = window.SixfoldWordleWords;
+  if (!root || !englishWords || !englishWords.answers || !englishWords.valid) return;
 
   const $ = function (id) { return document.getElementById(id); };
   const boardEl = $('wordle-board');
@@ -24,29 +26,96 @@
   const titleEl = $('wordle-title');
   if (!boardEl || !keyboardEl || !statusEl || !resultEl || !titleEl) return;
 
+  const I18N = window.SixfoldI18n;
+  const LOCALE = I18N ? I18N.locale() : 'en';
+  const PACKS = window.SixfoldWordleLocales || {};
+  const pack = PACKS[LOCALE];
+  const words = pack && Array.isArray(pack.answers) && pack.answers.length ? pack : englishWords;
+  const IME = Boolean(pack && pack.ime);
+  const ALL_STRINGS = window.SixfoldWordleStrings || {};
+  const STRINGS = ALL_STRINGS[LOCALE] || ALL_STRINGS.en || {};
+
   const ROWS = 6;
   const COLS = 5;
-  const GAME_KEY = 'sixfold.wordle.game.v1';
+  const GAME_KEY = 'sixfold.wordle.game.v1' + (LOCALE === 'en' ? '' : '::' + LOCALE);
   const STATS_KEY = 'sixfold.wordle.stats.v1';
-  const ANSWER_SET = new Set(words.answers);
-  const VALID_SET = new Set(words.valid.concat(words.answers));
-  const KEY_ROWS = [
+  const ANSWER_SET = new Set(words.answers.map(normalize));
+  const VALID_SET = new Set(words.valid.concat(words.answers).map(normalize));
+  const BASE_KEY_ROWS = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
     ['Backspace', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Enter']
   ];
+  const KEY_ROWS = IME ? [] : (Array.isArray(pack && pack.rows) && pack.rows.length
+    ? pack.rows.map(function (row) { return Array.from(row); })
+    : BASE_KEY_ROWS.map(function (row) { return row.slice(); }));
+  if (!IME && pack && Array.isArray(pack.rows) && pack.rows.length) {
+    const lastRow = KEY_ROWS[KEY_ROWS.length - 1];
+    lastRow.unshift('Backspace');
+    lastRow.push('Enter');
+  }
+  const KEY_CHARS = new Set();
+  KEY_ROWS.forEach(function (row) {
+    row.forEach(function (letter) {
+      if (letter !== 'Backspace' && letter !== 'Enter') KEY_CHARS.add(normalize(letter));
+    });
+  });
   const STATE_RANK = { absent: 1, present: 2, correct: 3 };
   const EMPTY_STATS = { played: 0, wins: 0, streak: 0, max: 0, dist: [0, 0, 0, 0, 0, 0] };
+  let segmenter = null;
+  try {
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      segmenter = new Intl.Segmenter(LOCALE, { granularity: 'grapheme' });
+    }
+  } catch (err) {
+    segmenter = null;
+  }
 
   let stats = readStats();
   let state = restoreState();
   let input = '';
   let busy = false;
+  let composing = false;
+  let imeInput = null;
   let revealTimer = 0;
   let messageTimer = 0;
   let rowEls = [];
   let tileEls = [];
   let keyEls = {};
+
+  function tr(key, values) {
+    const template = STRINGS[key] || (ALL_STRINGS.en && ALL_STRINGS.en[key]) || key;
+    const text = template.replace(/\{(\w+)\}/g, function (match, name) {
+      return values && values[name] !== undefined ? String(values[name]) : match;
+    });
+    return I18N && I18N.number ? I18N.number(text) : text;
+  }
+
+  function normalize(value) {
+    return String(value || '').normalize('NFC').toLocaleLowerCase(LOCALE);
+  }
+
+  function pieces(value) {
+    const text = String(value || '').normalize('NFC');
+    if (!text) return [];
+    if (segmenter) return Array.from(segmenter.segment(text), function (part) { return part.segment; });
+    return Array.from(text);
+  }
+
+  function isFive(value) {
+    return pieces(value).length === COLS;
+  }
+
+  function isGuess(value) {
+    const word = normalize(value);
+    return isFive(word) && VALID_SET.has(word);
+  }
+
+  function displayWord(value) {
+    // German uppercase ß expands to SS, which would put two letters in one
+    // tile. Use the capital sharp S so a five-letter answer stays five tiles.
+    return String(value || '').replace(/ß/g, 'ẞ').toLocaleUpperCase(LOCALE);
+  }
 
   function load(key, fallback) {
     try {
@@ -88,7 +157,7 @@
     if (!words.answers.length) return 'crane';
     let answer = previous;
     for (let tries = 0; tries < 20 && answer === previous; tries += 1) {
-      answer = words.answers[Math.floor(Math.random() * words.answers.length)];
+      answer = normalize(words.answers[Math.floor(Math.random() * words.answers.length)]);
     }
     return answer;
   }
@@ -104,10 +173,11 @@
 
   function restoreState() {
     const saved = load(GAME_KEY, null);
-    const next = saved && typeof saved === 'object' && ANSWER_SET.has(saved.answer) ? Object.assign({}, saved) : freshState();
-    next.guesses = Array.isArray(next.guesses) ? next.guesses.filter(function (word) {
-      return typeof word === 'string' && /^[a-z]{5}$/.test(word) && VALID_SET.has(word);
-    }).slice(0, ROWS) : [];
+    const savedAnswer = saved && typeof saved === 'object' ? normalize(saved.answer) : '';
+    const next = saved && typeof saved === 'object' && ANSWER_SET.has(savedAnswer)
+      ? Object.assign({}, saved, { answer: savedAnswer })
+      : freshState();
+    next.guesses = Array.isArray(next.guesses) ? next.guesses.filter(isGuess).slice(0, ROWS) : [];
     if (next.guesses.indexOf(next.answer) !== -1) next.status = 'won';
     else if (next.guesses.length >= ROWS) next.status = 'lost';
     else next.status = 'playing';
@@ -139,20 +209,22 @@
   }
 
   function scoreGuess(guess, answer) {
-    const result = ['absent', 'absent', 'absent', 'absent', 'absent'];
+    const guessParts = pieces(guess);
+    const answerParts = pieces(answer);
+    const result = new Array(COLS).fill('absent');
     const remaining = {};
     for (let i = 0; i < COLS; i += 1) {
-      remaining[answer[i]] = (remaining[answer[i]] || 0) + 1;
+      remaining[answerParts[i]] = (remaining[answerParts[i]] || 0) + 1;
     }
     for (let i = 0; i < COLS; i += 1) {
-      if (guess[i] === answer[i]) {
+      if (guessParts[i] === answerParts[i]) {
         result[i] = 'correct';
-        remaining[guess[i]] -= 1;
+        remaining[guessParts[i]] -= 1;
       }
     }
     for (let i = 0; i < COLS; i += 1) {
       if (result[i] === 'correct') continue;
-      const letter = guess[i];
+      const letter = guessParts[i];
       if (remaining[letter] > 0) {
         result[i] = 'present';
         remaining[letter] -= 1;
@@ -174,7 +246,7 @@
         const tile = document.createElement('div');
         tile.className = 'wordle-tile';
         tile.setAttribute('role', 'gridcell');
-        tile.setAttribute('aria-label', 'Row ' + (row + 1) + ', column ' + (col + 1) + ', empty');
+        tile.setAttribute('aria-label', tr('row', { row: row + 1, col: col + 1, state: tr('empty') }));
         rowEl.appendChild(tile);
         rowTiles.push(tile);
       }
@@ -185,26 +257,32 @@
   }
 
   function paintTile(tile, letter, score, row, col) {
-    tile.textContent = letter ? letter.toUpperCase() : '';
-    tile.dataset.filled = letter ? 'true' : 'false';
+    const shown = letter || '';
+    tile.textContent = shown ? displayWord(shown) : '';
+    tile.dataset.filled = shown ? 'true' : 'false';
     if (score) tile.dataset.state = score;
     else tile.removeAttribute('data-state');
-    const spoken = letter ? letter.toUpperCase() + ', ' + score : 'empty';
-    tile.setAttribute('aria-label', 'Row ' + (row + 1) + ', column ' + (col + 1) + ', ' + spoken);
+    const spoken = shown
+      ? displayWord(shown) + ', ' + (score ? tr(score) : tr('typed'))
+      : tr('empty');
+    tile.setAttribute('aria-label', tr('row', { row: row + 1, col: col + 1, state: spoken }));
   }
 
   function render(revealRow) {
+    const inputParts = pieces(input);
     for (let row = 0; row < ROWS; row += 1) {
       const rowEl = rowEls[row];
       const guess = state.guesses[row];
-      rowEl.classList.toggle('is-current', !guess && row === state.guesses.length && state.status === 'playing');
+      const current = !guess && row === state.guesses.length && state.status === 'playing';
+      rowEl.classList.toggle('is-current', current);
       rowEl.classList.remove('is-shaking');
+      const guessParts = guess ? pieces(guess) : [];
       const scores = guess ? scoreGuess(guess, state.answer) : null;
       for (let col = 0; col < COLS; col += 1) {
         const tile = tileEls[row][col];
         tile.classList.remove('is-revealing');
         tile.style.removeProperty('--i');
-        const letter = guess ? guess[col] : (row === state.guesses.length && state.status === 'playing' ? input[col] || '' : '');
+        const letter = guess ? guessParts[col] : (current ? inputParts[col] || '' : '');
         paintTile(tile, letter, scores ? scores[col] : '', row, col);
         if (scores && row === revealRow) {
           tile.style.setProperty('--i', String(col));
@@ -212,31 +290,83 @@
         }
       }
     }
-    boardEl.setAttribute('aria-label', 'Wordle board, ' + state.guesses.length + ' of ' + ROWS + ' guesses used');
+    boardEl.setAttribute('aria-label', tr('board', { used: state.guesses.length }));
   }
 
   function buildKeyboard() {
     keyboardEl.innerHTML = '';
+    keyboardEl.classList.toggle('wordle-keyboard--ime', IME);
+    keyboardEl.setAttribute('aria-label', tr('keyboard'));
     keyEls = {};
+    imeInput = null;
+
+    if (IME) {
+      const form = document.createElement('form');
+      form.className = 'wordle-ime';
+      form.noValidate = true;
+
+      const field = document.createElement('input');
+      field.type = 'text';
+      field.id = 'wordle-ime-input';
+      field.className = 'wordle-ime-input';
+      field.autocomplete = 'off';
+      field.autocapitalize = 'off';
+      field.spellcheck = false;
+      field.enterKeyHint = 'done';
+      field.maxLength = 40;
+      field.dir = document.documentElement.dir || 'auto';
+      field.setAttribute('aria-label', tr('yourGuess'));
+      field.setAttribute('placeholder', tr('typePrompt'));
+
+      const submit = document.createElement('button');
+      submit.type = 'submit';
+      submit.className = 'wordle-key wordle-key--wide wordle-key--enter';
+      submit.textContent = tr('enter');
+      submit.setAttribute('aria-label', tr('enter'));
+
+      field.addEventListener('compositionstart', function () { composing = true; });
+      field.addEventListener('compositionend', function () {
+        composing = false;
+        syncFromIme();
+      });
+      field.addEventListener('input', function () {
+        if (!composing) syncFromIme();
+      });
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (composing) return;
+        syncFromIme();
+        submitGuess();
+      });
+
+      form.appendChild(field);
+      form.appendChild(submit);
+      keyboardEl.appendChild(form);
+      imeInput = field;
+      return;
+    }
+
     KEY_ROWS.forEach(function (letters) {
       const row = document.createElement('div');
       row.className = 'wordle-key-row';
       letters.forEach(function (letter) {
         const key = document.createElement('button');
-        const label = letter === 'Backspace' ? '⌫' : letter === 'Enter' ? 'Enter' : letter.toUpperCase();
+        const action = letter === 'Backspace' || letter === 'Enter';
+        const label = letter === 'Backspace' ? '⌫' : letter === 'Enter' ? tr('enter') : displayWord(letter);
         key.type = 'button';
         key.className = 'wordle-key';
         key.dataset.key = letter;
         key.textContent = label;
         if (letter === 'Backspace') {
           key.classList.add('wordle-key--wide');
-          key.setAttribute('aria-label', 'Backspace');
+          key.setAttribute('aria-label', tr('backspace'));
         } else if (letter === 'Enter') {
           key.classList.add('wordle-key--wide', 'wordle-key--enter');
-          key.setAttribute('aria-label', 'Enter');
+          key.setAttribute('aria-label', tr('enter'));
         } else {
-          key.setAttribute('aria-label', letter.toUpperCase());
+          key.setAttribute('aria-label', label);
         }
+        if (!action) key.setAttribute('lang', LOCALE);
         row.appendChild(key);
         keyEls[letter] = key;
       });
@@ -244,12 +374,29 @@
     });
   }
 
+  function syncFromIme() {
+    if (!imeInput) return;
+    const next = pieces(imeInput.value).slice(0, COLS).join('');
+    imeInput.value = next;
+    if (next !== input) {
+      input = next;
+      setStatus('');
+      render();
+    }
+  }
+
+  function syncImeValue() {
+    if (imeInput) imeInput.value = input;
+  }
+
   function updateKeyboard() {
+    if (IME) return;
     const best = {};
     state.guesses.forEach(function (guess) {
+      const guessParts = pieces(guess);
       const scores = scoreGuess(guess, state.answer);
       for (let i = 0; i < COLS; i += 1) {
-        const letter = guess[i];
+        const letter = guessParts[i];
         if (!best[letter] || STATE_RANK[scores[i]] > STATE_RANK[best[letter]]) {
           best[letter] = scores[i];
         }
@@ -263,8 +410,8 @@
   }
 
   function updateStats() {
-    if (playedEl) playedEl.textContent = String(stats.played);
-    if (streakEl) streakEl.textContent = String(stats.streak);
+    if (playedEl) playedEl.textContent = I18N ? I18N.number(stats.played) : String(stats.played);
+    if (streakEl) streakEl.textContent = I18N ? I18N.number(stats.streak) : String(stats.streak);
   }
 
   function setStatus(message) {
@@ -275,9 +422,7 @@
     window.clearTimeout(messageTimer);
     setStatus(message);
     messageTimer = window.setTimeout(function () {
-      if (state.status === 'playing' && !busy) {
-        setStatus('Type a five-letter word, then press Enter.');
-      }
+      if (state.status === 'playing' && !busy) setStatus(tr('typePrompt'));
     }, 2200);
   }
 
@@ -291,42 +436,46 @@
   }
 
   function addLetter(letter) {
-    if (busy || state.status !== 'playing' || input.length >= COLS) return;
-    input += letter.toLowerCase();
+    if (IME || busy || state.status !== 'playing' || pieces(input).length >= COLS) return;
+    const next = normalize(letter);
+    if (!KEY_CHARS.has(next)) return;
+    input = pieces(input + next).join('');
     setStatus('');
     render();
   }
 
   function removeLetter() {
     if (busy || state.status !== 'playing' || !input.length) return;
-    input = input.slice(0, -1);
+    input = pieces(input).slice(0, -1).join('');
+    syncImeValue();
     setStatus('');
     render();
   }
 
   function submitGuess() {
     if (busy || state.status !== 'playing') return;
-    if (input.length < COLS) {
-      flashStatus('Not enough letters.');
+    if (pieces(input).length < COLS) {
+      flashStatus(tr('notEnough'));
       shake();
       return;
     }
-    const guess = input.toLowerCase();
-    if (!VALID_SET.has(guess)) {
-      flashStatus('That word is not in the list.');
+    const guess = normalize(input);
+    if (!isGuess(guess)) {
+      flashStatus(tr('notInList'));
       shake();
       return;
     }
 
     state.guesses.push(guess);
     input = '';
+    syncImeValue();
     busy = true;
     saveState();
     render(state.guesses.length - 1);
     updateKeyboard();
     const won = guess === state.answer;
     const lost = !won && state.guesses.length >= ROWS;
-    setStatus(won ? 'You found it.' : lost ? 'No more guesses.' : 'Checking…');
+    setStatus(won ? tr('found') : lost ? tr('noMore') : tr('checking'));
     if (window.MergeHaptics && window.MergeHaptics.merge) window.MergeHaptics.merge(24);
 
     window.clearTimeout(revealTimer);
@@ -336,7 +485,7 @@
       else if (lost) finish(false);
       else {
         render();
-        setStatus('Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.');
+        setStatus(tr('guessOf', { guess: state.guesses.length + 1 }));
       }
     }, 5 * 82 + 360);
   }
@@ -373,15 +522,28 @@
     void resultEl.offsetWidth;
     resultEl.classList.add('is-revealed');
     resultEl.dataset.state = won ? 'won' : 'lost';
-    resultTitle.textContent = won ? (tries === 1 ? 'One guess.' : 'Solved in ' + tries + '.') : 'Not this time.';
+    resultTitle.textContent = won
+      ? (tries === 1 ? tr('oneGuess') : tr('solvedIn', { tries: tries }))
+      : tr('notThisTime');
     resultCopy.textContent = won
-      ? 'The word was ' + state.answer.toUpperCase() + '.'
-      : 'The word was ' + state.answer.toUpperCase() + '. The next one is waiting.';
+      ? tr('wordWas', { word: displayWord(state.answer) })
+      : tr('nextOne', { word: displayWord(state.answer) });
     if (resultStats) {
       const rate = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
-      resultStats.textContent = stats.played + ' played · ' + rate + '% won · streak ' + stats.streak + ' · best ' + stats.max;
+      resultStats.textContent = tr('stats', {
+        played: stats.played,
+        rate: rate,
+        streak: stats.streak,
+        best: stats.max
+      });
     }
-    if (resultShare) resultShare.hidden = false;
+    if (resultNew) resultNew.textContent = tr('newGame');
+    if (resultShare) {
+      const shareLabel = I18N ? I18N.t('Share result') : 'Share result';
+      resultShare.hidden = false;
+      resultShare.setAttribute('aria-label', shareLabel);
+      resultShare.setAttribute('title', shareLabel);
+    }
     if (document.body.dataset.screen === 'wordle') {
       // Focus the dialog, not the New word button, so Enter cannot start a
       // fresh round before the result has been seen.
@@ -403,11 +565,12 @@
     busy = false;
     hideResult();
     saveState();
+    syncImeValue();
     render();
     updateKeyboard();
     updateStats();
-    setStatus('Six tries. Five letters. Find the word.');
-    try { boardEl.focus({ preventScroll: true }); } catch (err) {}
+    setStatus(tr('prompt'));
+    try { (imeInput || boardEl).focus({ preventScroll: true }); } catch (err) {}
   }
 
   function shareResult() {
@@ -419,15 +582,15 @@
     const score = state.status === 'won' ? String(state.guesses.length) : 'X';
     const text = 'Sixfold — Wordle ' + score + '/6\n\n' + pattern;
     const win = state.status === 'won';
-    const streak = stats.streak ? stats.streak + '-day streak' : 'No streak yet';
+    const streak = stats.streak ? tr('dayStreak', { n: stats.streak }) : tr('noStreak');
     // Keep the emoji grid in the shared text, but give Wordle the same image
     // card as every other finished game when file sharing is available.
     if (window.MergeShare && window.MergeShare.result) {
       window.MergeShare.result('Sixfold — Wordle', text, {
-        game: 'Wordle', number: '??', kind: 'WORDS',
-        title: win ? 'Solved' : 'Out of guesses',
-        score: score + '/6', label: 'GUESSES',
-        meta: ['The word was ' + state.answer.toUpperCase(), streak],
+        game: 'Wordle', number: '??', kind: tr('shareGuesses'),
+        title: win ? tr('shareSolved') : tr('shareLost'),
+        score: score + '/6', label: tr('shareGuesses'),
+        meta: [tr('wordWas', { word: displayWord(state.answer) }), streak],
         accent: '#9a6bb5'
       });
     } else if (window.MergeShare && window.MergeShare.share) {
@@ -440,7 +603,7 @@
   function handleKey(key) {
     if (key === 'Enter') submitGuess();
     else if (key === 'Backspace') removeLetter();
-    else if (/^[a-z]$/.test(key)) addLetter(key);
+    else if (!IME) addLetter(key);
   }
 
   function onKeyDown(event) {
@@ -449,7 +612,7 @@
     if (event.repeat) return;
     if (document.documentElement.classList.contains('sheet-open')) return;
     const target = event.target;
-    if (target && target.closest && target.closest('input, textarea, select')) return;
+    if (target && target.closest && target.closest('input, textarea, select, [contenteditable]')) return;
     if (event.key === 'Enter') {
       if (target && target.closest && target.closest('a')) return;
       if (target && target.closest && target.closest('button') && !target.closest('[data-key]')) return;
@@ -462,9 +625,11 @@
       removeLetter();
       return;
     }
-    if (/^[a-zA-Z]$/.test(event.key)) {
+    if (IME) return;
+    const letter = normalize(event.key);
+    if (pieces(letter).length === 1 && KEY_CHARS.has(letter)) {
       event.preventDefault();
-      addLetter(event.key);
+      addLetter(letter);
     }
   }
 
@@ -472,9 +637,10 @@
     updateStats();
     if (state.status === 'playing') {
       hideResult();
+      syncImeValue();
       render();
       updateKeyboard();
-      setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : 'Six tries. Five letters. Find the word.');
+      setStatus(state.guesses.length ? tr('guessOf', { guess: state.guesses.length + 1 }) : tr('prompt'));
     } else {
       render();
       updateKeyboard();
@@ -489,8 +655,11 @@
   function reset() {
     window.clearTimeout(revealTimer);
     window.clearTimeout(messageTimer);
-    try { localStorage.removeItem(GAME_KEY); } catch (err) {}
-    try { localStorage.removeItem(STATS_KEY); } catch (err) {}
+    try {
+      Object.keys(localStorage).forEach(function (key) {
+        if (key === STATS_KEY || key.indexOf('sixfold.wordle.game.v1') === 0) localStorage.removeItem(key);
+      });
+    } catch (err) {}
     stats = cleanStats(null);
     state = freshState();
     input = '';
@@ -498,12 +667,16 @@
     hideResult();
     saveStats();
     saveState();
+    syncImeValue();
     render();
     updateKeyboard();
     updateStats();
-    setStatus('Wordle reset. A fresh five-letter word is ready.');
+    setStatus(tr('reset'));
   }
 
+  // Persist a fresh round immediately as well: otherwise a reload before the
+  // first guess silently replaces the word the player was looking at.
+  saveState();
   buildBoard();
   buildKeyboard();
   updateStats();
@@ -521,7 +694,7 @@
   document.addEventListener('keydown', onKeyDown);
 
   if (state.status !== 'playing') showResult(state.status === 'won');
-  else setStatus(state.guesses.length ? 'Guess ' + (state.guesses.length + 1) + ' of ' + ROWS + '.' : 'Six tries. Five letters. Find the word.');
+  else setStatus(state.guesses.length ? tr('guessOf', { guess: state.guesses.length + 1 }) : tr('prompt'));
 
   window.SixfoldWordle = {
     title: titleEl,

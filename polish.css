@@ -264,6 +264,56 @@ html[data-theme="dark"] #wordle {
   gap: clamp(5px, 1vw, 7px);
 }
 
+/* Arabic, Hindi, Japanese, Korean and Chinese use the device's own input
+   method instead of a cramped invented letter grid. The field keeps the same
+   visual weight as a key row and the Enter key stays a separate action. */
+.wordle-keyboard--ime {
+  width: min(100%, 500px);
+}
+
+.wordle-ime {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(5px, 1vw, 7px);
+  width: 100%;
+  min-width: 0;
+}
+
+.wordle-ime-input {
+  flex: 1 1 0;
+  width: 0;
+  min-width: 0;
+  height: clamp(38px, 5.2dvh, 48px);
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  border-radius: 7px;
+  background: var(--wordle-key);
+  color: var(--ink);
+  font-family: var(--font-ui, var(--font-display));
+  font-size: clamp(15px, 2.2dvh, 19px);
+  font-weight: 700;
+  text-align: center;
+}
+
+.wordle-ime-input::placeholder {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 1;
+}
+
+.wordle-ime-input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.wordle-ime .wordle-key {
+  flex: 0 0 auto;
+  min-width: 68px;
+  padding-inline: 12px;
+  font-size: clamp(10px, 1.4dvh, 12px);
+}
+
 .wordle-key {
   display: grid;
   place-items: center;

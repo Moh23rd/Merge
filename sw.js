@@ -1,7 +1,7 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
-// 5.2: localized digits, a flatter daily panel, a collapsible language picker
-// and Sudoku settings inside the Sudoku screen.
-const VERSION = 'sixfold-5.2.0-licenses';
+// 5.3: multilingual Wordle dictionaries, keyboards and result copy.
+// 5.3 licenses: add the in-app license view and its source documents.
+const VERSION = 'sixfold-5.3.0-licenses';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -14,6 +14,7 @@ const STYLE_ASSET = '5.2.0';
 const FONT_ASSET = '4.0.1';
 const THEME_JS = '5.2.0';
 const GAME_CODE = '4.0.0-w4';
+const WORDLE_CODE = '5.3.0-wordle';
 const SUDOKU_GAME_CODE = '5.2.0';
 const LOCALE_FONT = '5.1.3';
 const GAMES_CSS = '4.0.0-w13';
@@ -60,11 +61,14 @@ const SHELL = [
   './i18n-patterns.js?v=5.1.1',
   './i18n.js?v=5.2.0',
   './native.js?v=5.1.0',
-  './wordle-loader.js?v=' + GAME_CODE,
+  './wordle-loader.js?v=' + WORDLE_CODE,
   // The hidden word game is loaded on demand, but it still belongs in the
-  // offline shell so unlocking it works with no connection.
-  './wordle-words.js?v=' + GAME_CODE,
-  './wordle.js?v=' + GAME_CODE,
+  // offline shell so unlocking it works with no connection. The locale packs
+  // and copy stay out of the first paint and load with the board.
+  './wordle-words.js?v=' + WORDLE_CODE,
+  './wordle-i18n.js?v=' + WORDLE_CODE,
+  './wordle-locales.js?v=' + WORDLE_CODE,
+  './wordle.js?v=' + WORDLE_CODE,
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png',

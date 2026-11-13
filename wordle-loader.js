@@ -1,16 +1,27 @@
-/* The hidden game's dictionary and board code are 36KB that most visits never
-   need. They load the moment the Wordle screen becomes active, whichever way
-   it was reached: the six-piece cover, a history route, or a direct link.
-   The service worker keeps both files in the offline shell for later visits. */
+/* The hidden game's dictionaries and board code are several hundred KB that
+   most visits never need. They load the moment the Wordle screen becomes
+   active, whichever way it was reached: the six-piece cover, a history route,
+   or a direct link. English keeps its original word list; other languages get
+   their own pack. The service worker keeps all of these in the offline shell. */
 (function () {
   'use strict';
 
+  const VERSION = '5.3.0-wordle';
   let loading = false;
+
+  function locale() {
+    try { return window.SixfoldI18n ? window.SixfoldI18n.locale() : 'en'; } catch (err) { return 'en'; }
+  }
 
   function ensureWordle() {
     if (loading || window.SixfoldWordle) return;
     loading = true;
-    const files = ['wordle-words.js?v=4.0.0-w4', 'wordle.js?v=4.0.0-w4'];
+    const files = [
+      'wordle-words.js?v=' + VERSION,
+      'wordle-i18n.js?v=' + VERSION
+    ];
+    if (locale() !== 'en') files.push('wordle-locales.js?v=' + VERSION);
+    files.push('wordle.js?v=' + VERSION);
     files.reduce(function (chain, src) {
       return chain.then(function () {
         return new Promise(function (resolve, reject) {

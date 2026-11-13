@@ -379,3 +379,85 @@ for (const locale of LOCALES) {
     });
   }
 }
+
+async function openWordle(page) {
+  await page.goto('/');
+  await page.waitForSelector('#daily');
+  await page.waitForFunction(() => document.documentElement.classList.contains('home-ready'));
+  for (let i = 0; i < 6; i += 1) {
+    await page.evaluate((index) => {
+      const piece = document.querySelectorAll('.home-six-piece')[index];
+      if (piece) piece.click();
+    }, i);
+    await page.waitForTimeout(50);
+  }
+  await page.waitForTimeout(400);
+  if (await page.locator('#hidden-reveal').isVisible()) {
+    await page.evaluate(() => document.querySelector('#hidden-reveal-skip').click());
+  }
+  await page.waitForSelector('body[data-screen="wordle"]');
+  await page.waitForSelector('#wordle-board .wordle-tile');
+  await page.waitForTimeout(200);
+}
+
+test('Wordle uses the selected language dictionary, input mode and result copy', async ({ page }) => {
+  test.setTimeout(120000);
+  await page.goto('/');
+  for (const locale of ['en', 'es', 'ar', 'zh-Hans']) {
+    await page.evaluate((next) => localStorage.setItem('sixfold.locale.v1', next), locale);
+    await openWordle(page);
+    const info = await page.evaluate((code) => {
+      const key = 'sixfold.wordle.game.v1' + (code === 'en' ? '' : '::' + code);
+      const game = JSON.parse(localStorage.getItem(key));
+      const pack = code === 'en'
+        ? window.SixfoldWordleWords
+        : window.SixfoldWordleLocales[code];
+      return {
+        answer: game && game.answer,
+        inPack: Boolean(pack && game && pack.answers.indexOf(game.answer) !== -1),
+        ime: Boolean(document.querySelector('#wordle-ime-input')),
+        keys: document.querySelectorAll('#wordle-keyboard .wordle-key').length,
+        status: document.querySelector('#wordle-status').textContent
+      };
+    }, locale);
+    expect(info.answer, locale + ' stores a word').toBeTruthy();
+    expect(info.inPack, locale + ' word belongs to its pack').toBe(true);
+    if (locale === 'en' || locale === 'es') {
+      expect(info.ime, locale + ' uses the on-screen letter keyboard').toBe(false);
+      expect(info.keys).toBeGreaterThan(20);
+    } else {
+      expect(info.ime, locale + ' uses the native input field').toBe(true);
+      await expect(page.locator('#wordle-ime-input')).toBeVisible();
+    }
+    await expectNoClippedText(page, locale + ' Wordle', '#wordle');
+    if (locale === 'ar') {
+      await page.setViewportSize({ width: 320, height: 720 });
+      const form = await page.locator('.wordle-ime').boundingBox();
+      expect(form.x).toBeGreaterThanOrEqual(0);
+      expect(form.x + form.width).toBeLessThanOrEqual(320);
+      await page.setViewportSize({ width: 390, height: 844 });
+    }
+
+    if (info.ime) {
+      await page.locator('#wordle-ime-input').fill(info.answer);
+      await page.locator('#wordle-ime-input').press('Enter');
+    } else {
+      const characters = Array.from(
+        new Intl.Segmenter(locale, { granularity: 'grapheme' }).segment(info.answer),
+        (part) => part.segment
+      );
+      for (const character of characters) {
+        await page.locator('#wordle-keyboard [data-key="' + character + '"]').click();
+      }
+      await page.locator('#wordle-keyboard [data-key="Enter"]').click();
+    }
+    await expect(page.locator('#wordle-result')).toBeVisible();
+    await expect(page.locator('#wordle-result-title')).not.toBeEmpty();
+  }
+});
+
+test('Wordle board is accessible in Arabic', async ({ page }) => {
+  await setPreferences(page, 'light', 'ar');
+  await openWordle(page);
+  await expectNoAxeViolations(page, 'Arabic Wordle');
+});
