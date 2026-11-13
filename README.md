@@ -1,8 +1,8 @@
 # Sixfold
 
-![Sixfold 4.0 — six games. no filler.](og-image.png)
+![Sixfold — six games, no filler.](og-image.png)
 
-Sixfold is a small, installable pocket arcade: six satisfying puzzle games in one offline web app. No accounts, no ads, no tracking — and it keeps working without a connection.
+Sixfold is a small, installable pocket arcade: six satisfying puzzle games in one offline web app. No accounts, no ads, no tracking, and no connection required.
 
 **[Play Sixfold →](https://moh23rd.github.io/Sixfold/)**
 
@@ -33,7 +33,7 @@ Every game saves its own board, best score and progress on the device, so closin
 - **iPhone / Safari:** tap **Share**, then **Add to Home Screen**.
 - **Other browsers:** use the browser menu’s **Install** or **Add to Home Screen** option.
 
-The app works offline after the first visit. If Chrome says it is installed but will not open, remove any old copy from the Home Screen or browser app settings and try again. On Chrome for Android 154–156, Chrome’s own install menu can confuse two apps on the same `github.io` origin; update Chrome to **157.0.8103.15** or newer. The hub shows this recovery note automatically on older builds and offers the page’s install prompt as a workaround.
+The app works offline after the first visit. If Chrome opens an older installed copy, update Chrome or use the in-page **Install app** prompt.
 
 ## Privacy
 
@@ -41,7 +41,7 @@ No accounts, ads, analytics or third-party scripts. Boards, scores and appearanc
 
 **Erase all data** in Look & feel removes every board, score, streak, saved puzzle and appearance choice. Each game also has its own reset in its bottom tool row.
 
-## Running locally
+## Development
 
 Serve the repository root over localhost, because the service worker and install prompt need a real origin:
 
@@ -51,45 +51,23 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000`. Opening `index.html` directly still plays, but offline caching and installation stay off.
 
-## Beta previews
-
-Beta builds are previews, never releases. They do not change the app version, the offline cache name, tags or the published 4.0 release, and nothing in `beta-build/` is committed or deployed.
-
-```sh
-./beta.sh            # build and serve at http://localhost:4173
-./beta.sh --build    # build only, into beta-build/
-./beta.sh --port 5000
-```
-
-The script copies the current working tree — uncommitted changes included — into a gitignored `beta-build/` folder and marks that copy so it cannot be mistaken for the live app:
-
-- a small **beta** tag beside the version on the hub, carrying the commit and build time in its tooltip;
-- `<meta name="robots" content="noindex, nofollow">` and a ` · beta` title suffix;
-- service-worker registration removed, so a preview never caches itself and can never overwrite the 4.0 offline shell.
-
-The preview is served on its own port from `beta-build/`, so the published site keeps serving 4.0 untouched. Do not serve a beta from a path on the live origin: the 4.0 service worker's scope covers the whole site and would cache the preview as the app shell. Shipping a change stays a separate, explicit step; a beta never gets a tag, a GitHub release or a version bump.
-
-## Project structure
+### Project layout
 
 ```
-index.html                 hub, game screens, help, install and rules sheets
-styles.css                 shared shell, theme tokens and the 2048 board
-home.css                   hub layout, six-piece intro and cartridge cards
-games.css                  in-game screens and controls
-polish.css                 motion, result cards and Wordle styles
-game.js                    Merge (2048)
-games.js                   Water Sort, Sudoku adapter, Fruit Merge, Tic Tac Toe, Minesweeper
-sudoku.js                  Sudoku generator, solver, controls and saved progress
-sudoku.css                 Sudoku board, pad, result and difficulty styles
-wordle.js                  the hidden five-letter game and its saved stats
-wordle-words.js            offline answer and accepted-guess lists
-theme.js                   palettes, light/dark, focus and appearance controls
-overscroll.js              Android stretch overscroll on the hub
-celebrate.js               result flourish and stamped seals
-sharecard.js               share-card drawing for every game
-sw.js                      offline cache (bump VERSION when assets change)
-manifest*.webmanifest      install metadata for light and dark chrome
-icons/, splash/, fonts/    app icons, iOS launch images and the typeface
+index.html                  hub, game screens, help, install and rules
+licenses.html               licence and App Store notice
+styles.css, home.css        shared shell, hub layout and theme tokens
+games.css, polish.css       in-game screens and interface polish
+sudoku.css                  Sudoku board and difficulty styles
+game.js, games.js           game logic and controls
+sudoku.js                   Sudoku generator, solver and saved progress
+theme.js, sound.js          appearance, accessibility and interface behaviour
+overscroll.js, celebrate.js interface effects
+sharecard.js                result cards
+sw.js                       offline shell
+manifest*.webmanifest       install metadata
+fonts/, icons/, splash/     bundled assets
+.github/, scripts/          release checks
 ```
 
 The site is published with GitHub Pages from the `main` branch root. No build step is required.
@@ -102,7 +80,7 @@ Version history lives in [CHANGELOG.md](CHANGELOG.md); tagged builds are on [Git
 
 The games were checked against their original rules: Gabriele Cirulli’s 2048, Nintendo’s Suika Game (fruit chain and pair scoring), the standard Minesweeper field sizes and first-click convention, classic water-sort rules, standard Sudoku with unique solutions, and standard tic-tac-toe with a minimax opponent.
 
-## Credits and licence
+## Licence
 
 Game code is released under the [GNU General Public License v3.0](LICENSE) (`GPL-3.0-only`). A separate [Apple App Store additional permission](APPSTORE-EXCEPTION.md) applies to App Store distribution. The Google Sans Flex typeface is included under the [SIL Open Font License 1.1](fonts/OFL.txt).
 
