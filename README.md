@@ -56,14 +56,8 @@ Open `http://localhost:8000`. Opening `index.html` directly still plays, but off
 ```
 index.html                  hub, game screens, help, install and rules
 licenses.html               licence and App Store notice
-styles.css, home.css        shared shell, hub layout and theme tokens
-games.css, polish.css       in-game screens and interface polish
-sudoku.css                  Sudoku board and difficulty styles
-game.js, games.js           game logic and controls
-sudoku.js                   Sudoku generator, solver and saved progress
-theme.js, sound.js          appearance, accessibility and interface behaviour
-overscroll.js, celebrate.js interface effects
-sharecard.js                result cards
+css/                        shell, hub, game, Sudoku and polish styles
+js/                         game logic, Sudoku, Wordle, theme and interface
 sw.js                       offline shell
 manifest*.webmanifest       install metadata
 fonts/, icons/, splash/     bundled assets

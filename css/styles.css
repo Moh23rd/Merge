@@ -3,7 +3,7 @@
    unused language subsets and axes are trimmed away. */
 @font-face {
   font-family: "Google Sans Flex";
-  src: url("fonts/google-sans-flex.woff2?v=4.0.0") format("woff2");
+  src: url("../fonts/google-sans-flex.woff2?v=4.0.0") format("woff2");
   font-weight: 100 1000;
   font-style: normal;
   font-display: swap;

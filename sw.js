@@ -1,6 +1,6 @@
 /* Offline cache for Sixfold. Bump VERSION whenever the assets change. */
 // 4.0: rebuilds the six-piece cover and ships the Sudoku release.
-const VERSION = 'sixfold-4.0.1';
+const VERSION = 'sixfold-4.0.2';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -22,25 +22,25 @@ const SHELL = [
   './licenses.html',
   './LICENSE',
   './APPSTORE-EXCEPTION.md',
-  './styles.css?v=' + ASSET,
-  './theme.js?v=' + ASSET,
-  './game.js?v=' + GAME_CODE,
-  './haptics.js?v=' + ASSET,
-  './overscroll.js?v=' + ASSET,
-  './celebrate.js?v=' + ASSET,
-  './sharecard.js?v=' + ASSET,
-  './install.js?v=' + ASSET,
-  './games.css?v=' + GAMES_CSS,
-  './home.css?v=' + HOME_CSS,
-  './polish.css?v=' + POLISH_CSS,
-  './sudoku.css?v=' + SUDOKU_CSS,
-  './sudoku.js?v=' + GAME_CODE,
-  './games.js?v=' + GAMES_JS,
-  './wordle-loader.js?v=' + GAME_CODE,
+  './css/styles.css?v=' + ASSET,
+  './js/theme.js?v=' + ASSET,
+  './js/game.js?v=' + GAME_CODE,
+  './js/haptics.js?v=' + ASSET,
+  './js/overscroll.js?v=' + ASSET,
+  './js/celebrate.js?v=' + ASSET,
+  './js/sharecard.js?v=' + ASSET,
+  './js/install.js?v=' + ASSET,
+  './css/games.css?v=' + GAMES_CSS,
+  './css/home.css?v=' + HOME_CSS,
+  './css/polish.css?v=' + POLISH_CSS,
+  './css/sudoku.css?v=' + SUDOKU_CSS,
+  './js/sudoku.js?v=' + GAME_CODE,
+  './js/games.js?v=' + GAMES_JS,
+  './js/wordle-loader.js?v=' + GAME_CODE,
   // The hidden word game is loaded on demand, but it still belongs in the
   // offline shell so unlocking it works with no connection.
-  './wordle-words.js?v=' + GAME_CODE,
-  './wordle.js?v=' + GAME_CODE,
+  './js/wordle-words.js?v=' + GAME_CODE,
+  './js/wordle.js?v=' + GAME_CODE,
   './icons/icon-180.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
