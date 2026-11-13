@@ -494,7 +494,7 @@ test.describe('Wordle locale packs', () => {
     })).toBe(true);
   });
 
-  test('uses English words offline when the active pack is not cached', async ({ page }) => {
+  test('keeps an offline English fallback separate from the localized game', async ({ page }) => {
     test.setTimeout(120000);
     await page.addInitScript(() => localStorage.setItem('sixfold.locale.v1', 'es'));
     await page.goto('/');
@@ -528,19 +528,38 @@ test.describe('Wordle locale packs', () => {
     await page.waitForFunction(() => window.SixfoldWordle && window.SixfoldWordleWords);
 
     const info = await page.evaluate(() => {
-      const game = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1::es'));
+      const game = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
+      const localized = localStorage.getItem('sixfold.wordle.game.v1::es');
       const words = window.SixfoldWordleWords;
       return {
         answer: game && game.answer,
         inEnglish: Boolean(game && words.answers.indexOf(game.answer) !== -1),
+        localized: localized ? JSON.parse(localized) : null,
         packs: Object.keys(window.SixfoldWordleLocales || {})
       };
     });
     expect(info.answer).toBeTruthy();
     expect(info.inEnglish).toBe(true);
+    expect(info.localized).toBeNull();
     expect(info.packs).toEqual([]);
     await expect(page.locator('#wordle-board .wordle-tile').first()).toBeVisible();
     expect(await cachedPacks()).toEqual([]);
+
     await page.context().setOffline(false);
+    await openWordle(page);
+    await page.waitForFunction(() => window.SixfoldWordleLocales && window.SixfoldWordleLocales.es);
+    const transition = await page.evaluate(() => {
+      const fallback = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
+      const localized = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1::es'));
+      const pack = window.SixfoldWordleLocales && window.SixfoldWordleLocales.es;
+      return {
+        fallbackAnswer: fallback && fallback.answer,
+        localizedAnswer: localized && localized.answer,
+        inSpanish: Boolean(localized && pack && pack.answers.indexOf(localized.answer) !== -1)
+      };
+    });
+    expect(transition.fallbackAnswer).toBe(info.answer);
+    expect(transition.localizedAnswer).toBeTruthy();
+    expect(transition.inSpanish).toBe(true);
   });
 });

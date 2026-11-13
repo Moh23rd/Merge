@@ -17,7 +17,8 @@
 
 - Wordle now opens with the English word list when the selected language's
   dictionary has not been cached yet, such as the first visit while offline,
-  instead of failing to load the game.
+  instead of failing to load the game. That fallback round is saved separately
+  from the localized game, so reconnecting starts the language's own round.
 - Interface numbers now use Arabic-Indic digits in Arabic and Devanagari
   digits in Hindi, including scores, timers, daily counters and Sudoku
   digits, while dates and share text use the same locale-aware numerals.

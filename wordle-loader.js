@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '5.3.2-wordle';
+  const VERSION = '5.3.3-wordle';
   const PACK_LOCALES = ['es', 'fr', 'de', 'pt-BR', 'ar', 'ja', 'hi', 'ko', 'zh-Hans', 'zh-Hant'];
   let loading = false;
 
