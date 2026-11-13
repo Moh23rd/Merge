@@ -30,17 +30,15 @@ jobs:
       - name: Verify every Playwright spec is assigned
         run: |
           assigned=$(grep -E '^[[:space:]]+files:' .github/workflows/test.yml | sed 's/.*files:[[:space:]]*//' | tr '\n' ' ')
-          missing=0
           for spec in tests/*.spec.js; do
             case " $assigned " in
               *" $spec "*) ;;
               *)
                 echo "::error file=$spec::Playwright spec is not assigned to a CI group"
-                missing=1
+                exit 1
                 ;;
             esac
           done
-          if [ "$missing" -ne 0 ]; then exit 1; fi
           echo "All Playwright specs are assigned to a CI group."
       - uses: actions/setup-node@v4
         with:
