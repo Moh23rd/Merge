@@ -8,6 +8,8 @@ const requiredFiles = [
   'LICENSE',
   'APPSTORE-EXCEPTION.md',
   'sw.js',
+  'css/styles.css',
+  'js/game.js',
   'manifest.webmanifest',
   'manifest-dark.webmanifest'
 ];
@@ -29,8 +31,10 @@ const checks = [
   ['index declares its license', index.includes('rel="license" href="LICENSE"')],
   ['license page has the GPL heading', licenses.includes('GNU General Public License')],
   ['license page documents the App Store exception', licenses.includes('App Store')],
-  ['service worker caches the 4.0 release', sw.includes("sixfold-4.0.1")],
+  ['service worker caches the 4.0 release', sw.includes("sixfold-4.0.2")],
   ['service worker caches the license page', sw.includes("'./licenses.html'")],
+  ['index links the organised stylesheet', index.includes('href="css/styles.css')],
+  ['index loads the organised game code', index.includes('src="js/games.js')],
   ['index does not expose the 5.1 release', !index.includes('version 5.1') && !index.includes('v=5.1.0')]
 ];
 
