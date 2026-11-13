@@ -97,7 +97,7 @@
       var link = document.createElement('link');
       link.rel = 'manifest';
       link.id = 'manifest-link';
-      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=5.1.0';
+      link.href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=5.2.0';
       document.head.appendChild(link);
 
       // Capture Chrome's install event early enough that the Help panel can
@@ -304,7 +304,7 @@
   <link rel="stylesheet" href="styles.css?v=5.2.0" />
   <link rel="stylesheet" href="games.css?v=4.0.0-w13" />
   <link rel="stylesheet" href="home.css?v=4.0.0-w5" />
-  <link rel="stylesheet" href="polish.css?v=4.0.0-w9" />
+  <link rel="stylesheet" href="polish.css?v=4.0.0-w11" />
   <link rel="stylesheet" href="sudoku.css?v=4.0.0-w13" />
   <link rel="stylesheet" href="v5.css?v=5.2.0" />
 </head>
@@ -377,10 +377,10 @@
       </header>
 
       <!-- Bump data-version and replace this list with each release. -->
-      <aside class="whats-new" id="whats-new" data-version="5.1" aria-labelledby="whats-new-title" hidden>
+      <aside class="whats-new" id="whats-new" data-version="5.2" aria-labelledby="whats-new-title" hidden>
         <span class="whats-new-mark" aria-hidden="true">✦</span>
         <div class="whats-new-copy">
-          <p class="whats-new-label" id="whats-new-title">What’s new in 5.1</p>
+          <p class="whats-new-label" id="whats-new-title">What’s new in 5.2</p>
           <ul class="whats-new-list">
             <li>Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch</li>
             <li>Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy</li>
@@ -585,7 +585,7 @@
             <span>About &amp; privacy</span>
             <span class="hub-link-chevron" aria-hidden="true">›</span>
           </button>
-          <p class="hub-version" id="app-version" aria-label="Sixfold version 5.1">v5.1</p>
+          <p class="hub-version" id="app-version" aria-label="Sixfold version 5.2">v5.2</p>
         </div>
       </div>
     </div>
@@ -1017,6 +1017,7 @@
             </div>
           </div>
           <p class="play-status wordle-status" id="wordle-status" role="status" aria-live="polite">Six tries. Five letters. Find the word.</p>
+          <p class="wordle-offline" id="wordle-offline" role="note" aria-live="polite" aria-atomic="true" hidden></p>
           <div class="wordle-keyboard" id="wordle-keyboard" role="group" aria-label="Letter keyboard"></div>
         </div>
         <footer class="play-foot">
@@ -1175,7 +1176,7 @@
         <p class="sheet-note">A backup is yours: export it from Look &amp; feel whenever you want a copy.</p>
         <p class="sheet-note">Release notes live in <a class="contact-link" href="https://github.com/Moh23rd/Sixfold/releases">GitHub Releases</a>.</p>
         <p class="sheet-note"><a class="contact-link" href="licenses.html">Licenses &amp; source</a></p>
-        <p class="sheet-note version-note">Version 5.1</p>
+        <p class="sheet-note version-note">Version 5.2</p>
       </section>
     </div>
   </div>
@@ -1274,19 +1275,19 @@
   <script src="games.js?v=5.1.0"></script>
   <script src="daily.js?v=5.2.0"></script>
   <script src="update.js?v=5.1.0"></script>
-  <script src="i18n-fr.js?v=5.2.0"></script>
-  <script src="i18n-de.js?v=5.2.0"></script>
-  <script src="i18n-zh-hans.js?v=5.2.0"></script>
-  <script src="i18n-zh-hant.js?v=5.2.0"></script>
-  <script src="i18n-ja.js?v=5.2.0"></script>
-  <script src="i18n-ko.js?v=5.2.0"></script>
-  <script src="i18n-pt-br.js?v=5.2.0"></script>
-  <script src="i18n-hi.js?v=5.2.0"></script>
-  <script src="i18n-ar.js?v=5.2.0"></script>
-  <script src="i18n-patterns.js?v=5.1.1"></script>
-  <script src="i18n.js?v=5.2.0"></script>
+  <script src="i18n-fr.js?v=5.3.6"></script>
+  <script src="i18n-de.js?v=5.3.6"></script>
+  <script src="i18n-zh-hans.js?v=5.3.6"></script>
+  <script src="i18n-zh-hant.js?v=5.3.6"></script>
+  <script src="i18n-ja.js?v=5.3.6"></script>
+  <script src="i18n-ko.js?v=5.3.6"></script>
+  <script src="i18n-pt-br.js?v=5.3.6"></script>
+  <script src="i18n-hi.js?v=5.3.6"></script>
+  <script src="i18n-ar.js?v=5.3.6"></script>
+  <script src="i18n-patterns.js?v=5.3.6"></script>
+  <script src="i18n.js?v=5.3.6"></script>
   <script src="native.js?v=5.1.0"></script>
-  <script src="wordle-loader.js?v=5.3.4-wordle"></script>
+  <script src="wordle-loader.js?v=5.3.6-wordle"></script>
   <script>
     (function () {
       var splash = document.getElementById('boot-splash');

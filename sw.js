@@ -5,7 +5,9 @@
 // 5.3.2: an uncached locale pack falls back to the English word list.
 // 5.3.3: the fallback round saves separately from the localized game.
 // 5.3.4: prefetch the active pack and retry it when online returns.
-const VERSION = 'sixfold-5.3.4-licenses';
+// 5.3.5: show the offline fallback notice.
+// 5.3.6: localized release labels, fallback copy and style refresh.
+const VERSION = 'sixfold-5.3.6-licenses';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -18,11 +20,11 @@ const STYLE_ASSET = '5.2.0';
 const FONT_ASSET = '4.0.1';
 const THEME_JS = '5.2.0';
 const GAME_CODE = '4.0.0-w4';
-const WORDLE_CODE = '5.3.4-wordle';
+const WORDLE_CODE = '5.3.6-wordle';
 const SUDOKU_GAME_CODE = '5.2.0';
 const LOCALE_FONT = '5.1.3';
 const GAMES_CSS = '4.0.0-w13';
-const POLISH_CSS = '4.0.0-w9';
+const POLISH_CSS = '4.0.0-w11';
 const GAMES_JS = '5.1.0';
 const SUDOKU_CSS = '4.0.0-w13';
 const V5_CSS = '5.2.0';
@@ -53,17 +55,17 @@ const SHELL = [
   './games.js?v=' + GAMES_JS,
   './daily.js?v=5.2.0',
   './update.js?v=5.1.0',
-  './i18n-fr.js?v=5.2.0',
-  './i18n-de.js?v=5.2.0',
-  './i18n-zh-hans.js?v=5.2.0',
-  './i18n-zh-hant.js?v=5.2.0',
-  './i18n-ja.js?v=5.2.0',
-  './i18n-ko.js?v=5.2.0',
-  './i18n-pt-br.js?v=5.2.0',
-  './i18n-hi.js?v=5.2.0',
-  './i18n-ar.js?v=5.2.0',
-  './i18n-patterns.js?v=5.1.1',
-  './i18n.js?v=5.2.0',
+  './i18n-fr.js?v=5.3.6',
+  './i18n-de.js?v=5.3.6',
+  './i18n-zh-hans.js?v=5.3.6',
+  './i18n-zh-hant.js?v=5.3.6',
+  './i18n-ja.js?v=5.3.6',
+  './i18n-ko.js?v=5.3.6',
+  './i18n-pt-br.js?v=5.3.6',
+  './i18n-hi.js?v=5.3.6',
+  './i18n-ar.js?v=5.3.6',
+  './i18n-patterns.js?v=5.3.6',
+  './i18n.js?v=5.3.6',
   './native.js?v=5.1.0',
   './wordle-loader.js?v=' + WORDLE_CODE,
   // The hidden word game is loaded on demand, but it still belongs in the

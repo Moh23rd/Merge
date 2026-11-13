@@ -250,6 +250,22 @@ html[data-theme="dark"] #wordle {
 
 .wordle-status { min-height: 17px; }
 
+.wordle-offline {
+  width: min(100%, 380px);
+  margin: -2px 0 0;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--wordle-present) 34%, transparent);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--wordle-present) 9%, transparent);
+  color: var(--muted-strong);
+  font-size: 11.5px;
+  line-height: 1.35;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.wordle-offline[hidden] { display: none; }
+
 .wordle-keyboard {
   display: grid;
   gap: clamp(5px, 0.9dvh, 7px);

@@ -507,6 +507,15 @@ test.describe('Wordle locale packs', () => {
     await expect.poll(() => cachedPacks(page)).toContain('/wordle-locales/es.js');
   });
 
+  test('prefetches the newly selected language after a language change', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller);
+    await page.locator('#appearance').click();
+    await chooseLocale(page, 'es');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'es');
+    await expect.poll(() => cachedPacks(page)).toContain('/wordle-locales/es.js');
+  });
+
   test('prefetches the active dictionary after an online visit', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('sixfold.locale.v1', 'es'));
     await page.goto('/');
@@ -522,12 +531,15 @@ test.describe('Wordle locale packs', () => {
       return {
         answer: game && game.answer,
         inSpanish: Boolean(game && pack && pack.answers.indexOf(game.answer) !== -1),
-        fallback: localStorage.getItem('sixfold.wordle.game.v1::offline-en')
+        fallback: localStorage.getItem('sixfold.wordle.game.v1::offline-en'),
+        noticeHidden: document.getElementById('wordle-offline').hidden
       };
     });
     expect(info.answer).toBeTruthy();
     expect(info.inSpanish).toBe(true);
     expect(info.fallback).toBeNull();
+    expect(info.noticeHidden).toBe(true);
+    await expect(page.locator('#wordle-offline')).toBeHidden();
   });
 
   test('retries the active dictionary when the connection returns', async ({ page }) => {
@@ -572,7 +584,12 @@ test.describe('Wordle locale packs', () => {
         inEnglish: Boolean(fallback && words.answers.indexOf(fallback.answer) !== -1),
         englishAnswer: english && english.answer,
         localized: localized ? JSON.parse(localized) : null,
-        packs: Object.keys(window.SixfoldWordleLocales || {})
+        packs: Object.keys(window.SixfoldWordleLocales || {}),
+        guesses: fallback && fallback.guesses.length,
+        notice: (function () {
+          const el = document.getElementById('wordle-offline');
+          return el && !el.hidden ? el.textContent : '';
+        })()
       };
     });
     expect(info.answer).toBeTruthy();
@@ -580,6 +597,18 @@ test.describe('Wordle locale packs', () => {
     expect(info.englishAnswer).toBe(englishAnswer);
     expect(info.localized).toBeNull();
     expect(info.packs).toEqual([]);
+    expect(info.guesses).toBe(0);
+    expect(info.notice).toContain('Sin conexión');
+    const notice = page.locator('#wordle-offline');
+    await expect(notice).toBeVisible();
+    await expect(notice).toHaveAttribute('role', 'note');
+    await expect(notice).toHaveAttribute('aria-live', 'polite');
+    await expect(notice).toContainText('diccionario');
+    await expect(notice).toContainText('no está disponible');
+    await expectNoClippedText(page, 'Spanish Wordle fallback', '#wordle');
+    await page.setViewportSize({ width: 320, height: 720 });
+    await expectNoClippedText(page, 'Spanish Wordle fallback at 320px', '#wordle .wordle-main');
+    await page.setViewportSize({ width: 390, height: 844 });
 
     await page.context().setOffline(false);
     await openWordle(page);
@@ -591,14 +620,128 @@ test.describe('Wordle locale packs', () => {
       const pack = window.SixfoldWordleLocales && window.SixfoldWordleLocales.es;
       return {
         fallbackAnswer: fallback && fallback.answer,
+        fallbackGuesses: fallback && fallback.guesses.length,
         englishAnswer: english && english.answer,
         localizedAnswer: localized && localized.answer,
+        localizedGuesses: localized && localized.guesses.length,
+        noticeHidden: document.getElementById('wordle-offline').hidden,
         inSpanish: Boolean(localized && pack && pack.answers.indexOf(localized.answer) !== -1)
       };
     });
     expect(transition.fallbackAnswer).toBe(info.answer);
+    expect(transition.fallbackGuesses).toBe(0);
     expect(transition.englishAnswer).toBe(englishAnswer);
     expect(transition.localizedAnswer).toBeTruthy();
+    expect(transition.localizedGuesses).toBe(0);
+    expect(transition.noticeHidden).toBe(true);
     expect(transition.inSpanish).toBe(true);
   });
 });
+
+const WORDLE_IME_LOCALES = ['ar', 'hi', 'ja', 'ko', 'zh-Hans', 'zh-Hant'];
+
+async function captureWordleShare(page) {
+  await page.evaluate(() => {
+    window.__wordleShare = '';
+    // Force the text fallback so the test observes the same localized copy a
+    // browser without file sharing would copy. The stub also keeps the test
+    // independent of clipboard permissions.
+    try { Object.defineProperty(navigator, 'share', { configurable: true, value: undefined }); } catch (err) {}
+    try {
+      Object.defineProperty(navigator, 'clipboard', {
+        configurable: true,
+        value: {
+          writeText: function (text) {
+            window.__wordleShare = text;
+            return Promise.resolve();
+          }
+        }
+      });
+    } catch (err) {}
+  });
+  await page.locator('#wordle-result-share').click();
+  await page.waitForFunction(() => Boolean(window.__wordleShare));
+  return page.evaluate(() => window.__wordleShare);
+}
+
+for (const locale of LOCALES) {
+  test('Wordle end-to-end matrix: ' + LANGUAGE_NAMES[locale], async ({ page }) => {
+    test.setTimeout(45000);
+    await setPreferences(page, 'light', locale);
+    await openWordle(page);
+
+    const stateKey = 'sixfold.wordle.game.v1' + (locale === 'en' ? '' : '::' + locale);
+    const info = await page.evaluate(({ stateKey, locale }) => {
+      const game = JSON.parse(localStorage.getItem(stateKey));
+      const pack = locale === 'en'
+        ? window.SixfoldWordleWords
+        : window.SixfoldWordleLocales[locale];
+      const ime = document.querySelector('#wordle-ime-input');
+      return {
+        answer: game && game.answer,
+        inPack: Boolean(game && pack && pack.answers.indexOf(game.answer) !== -1),
+        ime: Boolean(ime),
+        dir: document.documentElement.dir,
+        inputDir: ime ? getComputedStyle(ime).direction : null
+      };
+    }, { stateKey, locale });
+
+    expect(info.answer, locale + ' stores an answer').toBeTruthy();
+    expect(info.inPack, locale + ' answer belongs to its pack').toBe(true);
+    expect(info.ime, locale + ' input mode').toBe(WORDLE_IME_LOCALES.includes(locale));
+    expect(info.dir, locale + ' document direction').toBe(locale === 'ar' ? 'rtl' : 'ltr');
+    if (locale === 'ar') {
+      expect(info.inputDir, 'Arabic IME direction').toBe('rtl');
+      await expect(page.locator('#wordle-ime-input')).toHaveAttribute('dir', 'rtl');
+      const screenDirection = await page.locator('#wordle').evaluate((element) => getComputedStyle(element).direction);
+      expect(screenDirection, 'Arabic Wordle layout direction').toBe('rtl');
+    }
+
+    if (info.ime) {
+      const input = page.locator('#wordle-ime-input');
+      await expect(input).toBeVisible();
+      await input.fill(info.answer);
+      await input.press('Enter');
+    } else {
+      const characters = Array.from(
+        new Intl.Segmenter(locale, { granularity: 'grapheme' }).segment(info.answer),
+        (part) => part.segment
+      );
+      for (const character of characters) {
+        await page.evaluate((key) => {
+          const button = Array.from(document.querySelectorAll('#wordle-keyboard [data-key]'))
+            .find((candidate) => candidate.dataset.key === key);
+          if (!button) throw new Error('Missing keyboard key ' + key);
+          button.click();
+        }, character);
+      }
+      await page.locator('#wordle-keyboard [data-key="Enter"]').click();
+    }
+
+    await expect(page.locator('#wordle-result')).toBeVisible();
+    await expect(page.locator('#wordle-result-title')).not.toBeEmpty();
+
+    const digits = locale === 'ar' ? /[٠-٩]/ : locale === 'hi' ? /[०-९]/ : null;
+    const played = await page.locator('#wordle-played').innerText();
+    const streak = await page.locator('#wordle-streak').innerText();
+    const stats = await page.locator('#wordle-result-stats').innerText();
+    const boardLabel = await page.locator('#wordle-board').getAttribute('aria-label');
+    expect(played).not.toBe('');
+    expect(streak).not.toBe('');
+    expect(stats).not.toBe('');
+    expect(boardLabel).toBeTruthy();
+    if (digits) {
+      expect(played, locale + ' played digits').toMatch(digits);
+      expect(streak, locale + ' streak digits').toMatch(digits);
+      expect(stats, locale + ' stats digits').not.toMatch(/[0-9]/);
+      expect(boardLabel, locale + ' board digits').not.toMatch(/[0-9]/);
+    }
+
+    const share = await captureWordleShare(page);
+    expect(share).toContain('Sixfold — Wordle');
+    expect(share).toContain('🟩🟩🟩🟩🟩');
+    if (locale === 'ar') expect(share).toContain('١/٦');
+    else if (locale === 'hi') expect(share).toContain('१/६');
+    else expect(share).toContain('1/6');
+  });
+}

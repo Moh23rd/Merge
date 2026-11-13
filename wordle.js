@@ -14,6 +14,7 @@
   const boardEl = $('wordle-board');
   const keyboardEl = $('wordle-keyboard');
   const statusEl = $('wordle-status');
+  const offlineEl = $('wordle-offline');
   const resultEl = $('wordle-result');
   const resultTitle = $('wordle-result-title');
   const resultCopy = $('wordle-result-copy');
@@ -30,9 +31,10 @@
   const LOCALE = I18N ? I18N.locale() : 'en';
   const PACKS = window.SixfoldWordleLocales || {};
   const pack = PACKS[LOCALE];
-  const words = pack && Array.isArray(pack.answers) && pack.answers.length ? pack : englishWords;
-  const usingEnglishWords = words === englishWords;
-  const IME = Boolean(pack && pack.ime);
+  const hasPack = Boolean(pack && Array.isArray(pack.answers) && pack.answers.length);
+  const usingFallback = !hasPack && LOCALE !== 'en';
+  const words = hasPack ? pack : englishWords;
+  const IME = Boolean(hasPack && pack.ime);
   const ALL_STRINGS = window.SixfoldWordleStrings || {};
   const STRINGS = ALL_STRINGS[LOCALE] || ALL_STRINGS.en || {};
 
@@ -43,7 +45,7 @@
   // pack keeps its localized save.
   const GAME_KEY = 'sixfold.wordle.game.v1' + (LOCALE === 'en'
     ? ''
-    : '::' + (usingEnglishWords ? 'offline-en' : LOCALE));
+    : '::' + (usingFallback ? 'offline-en' : LOCALE));
   const STATS_KEY = 'sixfold.wordle.stats.v1';
   const ANSWER_SET = new Set(words.answers.map(normalize));
   const VALID_SET = new Set(words.valid.concat(words.answers).map(normalize));
@@ -52,10 +54,10 @@
     ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
     ['Backspace', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Enter']
   ];
-  const KEY_ROWS = IME ? [] : (Array.isArray(pack && pack.rows) && pack.rows.length
+  const KEY_ROWS = IME ? [] : (hasPack && Array.isArray(pack.rows) && pack.rows.length
     ? pack.rows.map(function (row) { return Array.from(row); })
     : BASE_KEY_ROWS.map(function (row) { return row.slice(); }));
-  if (!IME && pack && Array.isArray(pack.rows) && pack.rows.length) {
+  if (!IME && hasPack && Array.isArray(pack.rows) && pack.rows.length) {
     const lastRow = KEY_ROWS[KEY_ROWS.length - 1];
     lastRow.unshift('Backspace');
     lastRow.push('Enter');
@@ -95,6 +97,12 @@
       return values && values[name] !== undefined ? String(values[name]) : match;
     });
     return I18N && I18N.number ? I18N.number(text) : text;
+  }
+
+  function showOfflineNotice() {
+    if (!offlineEl) return;
+    offlineEl.hidden = !usingFallback;
+    if (usingFallback) offlineEl.textContent = tr('offlineFallback');
   }
 
   function normalize(value) {
@@ -688,6 +696,7 @@
   updateStats();
   render();
   updateKeyboard();
+  showOfflineNotice();
 
   keyboardEl.addEventListener('click', function (event) {
     const key = event.target.closest('[data-key]');

@@ -163,7 +163,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=5.1.0';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=5.2.0';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 

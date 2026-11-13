@@ -2,10 +2,10 @@
 # Build and serve a beta preview of the current working tree.
 #
 # A beta is a preview, never a release. It keeps the app version and the
-# offline cache name at 4.0, never touches tags and never publishes anywhere.
+# offline cache name unchanged, never touches tags and never publishes anywhere.
 # The copy lives in beta-build/ (gitignored), is marked as beta in the page,
 # and has service-worker registration removed so a preview can never cache
-# itself or overwrite the 4.0 offline shell.
+# itself or overwrite the published offline shell.
 
 set -euo pipefail
 
@@ -23,7 +23,7 @@ Build a beta preview of the current working tree, then serve it locally.
   ./beta.sh --port 5000  serve on another port (or set PORT)
 
 A beta never changes the app version, the offline cache name, tags or the
-published 4.0 release. beta-build/ is gitignored and is not deployed.
+published release. beta-build/ is gitignored and is not deployed.
 EOF
 }
 
@@ -60,6 +60,7 @@ mkdir -p "$OUT"
     --exclude=beta-build \
     --exclude=node_modules \
     --exclude=.freebuff \
+    --exclude=.deploy \
     --exclude='.env' \
     --exclude='.env.*' \
     . ) | ( cd "$OUT" && tar -xf - )
@@ -90,16 +91,16 @@ sub(
 sub(r'</title>', lambda m: ' · beta</title>', 'could not suffix the title')
 sub(
     r"navigator\.serviceWorker\.register\('sw\.js'\)",
-    lambda m: '/* beta preview: service worker disabled */',
+    lambda m: 'Promise.resolve(null)',
     'could not disable the service worker registration'
 )
 sub(
-    r'aria-label="Sixfold version 4\.0"',
-    lambda m: 'aria-label="Sixfold 4.0 beta preview"',
+    r'aria-label="Sixfold version 5\.2"',
+    lambda m: 'aria-label="Sixfold 5.2 beta preview"',
     'could not label the version for screen readers'
 )
 sub(
-    r'<p class="hub-version"[^>]*>v4\.0</p>',
+    r'<p class="hub-version"[^>]*>v5\.2</p>',
     lambda m: m.group(0)[:-4] + ' <span class="beta-flag" title="Beta preview · '
     + escape(stamp) + '">beta</span></p>',
     'could not tag the version label'

@@ -5,6 +5,7 @@ window.SixfoldWordleStrings = {
   en: {
     prompt: 'Six tries. Five letters. Find the word.',
     typePrompt: 'Type a five-letter word, then press Enter.',
+    offlineFallback: 'Offline: this language’s dictionary is unavailable, so this round uses the English word list. It is saved separately.',
     notEnough: 'Not enough letters.',
     notInList: 'That word is not in the list.',
     found: 'You found it.',
@@ -41,6 +42,7 @@ window.SixfoldWordleStrings = {
   es: {
     prompt: 'Seis intentos. Cinco letras. Encuentra la palabra.',
     typePrompt: 'Escribe una palabra de cinco letras y pulsa Intro.',
+    offlineFallback: 'Sin conexión: el diccionario de este idioma no está disponible, así que esta ronda usa la lista de palabras en inglés. Se guarda por separado.',
     notEnough: 'Faltan letras.',
     notInList: 'Esa palabra no está en la lista.',
     found: '¡La encontraste!',
@@ -77,6 +79,7 @@ window.SixfoldWordleStrings = {
   fr: {
     prompt: 'Six essais. Cinq lettres. Trouvez le mot.',
     typePrompt: 'Tapez un mot de cinq lettres, puis validez.',
+    offlineFallback: 'Hors ligne : le dictionnaire de cette langue n’est pas disponible, cette partie utilise donc la liste de mots anglais. Elle est enregistrée séparément.',
     notEnough: 'Pas assez de lettres.',
     notInList: 'Ce mot n’est pas dans la liste.',
     found: 'Vous l’avez trouvé.',
@@ -113,6 +116,7 @@ window.SixfoldWordleStrings = {
   de: {
     prompt: 'Sechs Versuche. Fünf Buchstaben. Finde das Wort.',
     typePrompt: 'Tippe ein Wort mit fünf Buchstaben ein und drücke Enter.',
+    offlineFallback: 'Offline: Das Wörterbuch dieser Sprache ist nicht verfügbar, daher nutzt diese Runde die englische Wortliste. Sie wird separat gespeichert.',
     notEnough: 'Zu wenige Buchstaben.',
     notInList: 'Dieses Wort steht nicht in der Liste.',
     found: 'Du hast es gefunden.',
@@ -149,6 +153,7 @@ window.SixfoldWordleStrings = {
   'pt-BR': {
     prompt: 'Seis tentativas. Cinco letras. Encontre a palavra.',
     typePrompt: 'Digite uma palavra de cinco letras e pressione Enter.',
+    offlineFallback: 'Offline: o dicionário deste idioma não está disponível, então esta rodada usa a lista de palavras em inglês. Ela é salva separadamente.',
     notEnough: 'Faltam letras.',
     notInList: 'Essa palavra não está na lista.',
     found: 'Você encontrou.',
@@ -185,6 +190,7 @@ window.SixfoldWordleStrings = {
   'zh-Hans': {
     prompt: '六次机会。五个字。找出答案。',
     typePrompt: '输入五个字，然后按回车。',
+    offlineFallback: '离线：当前语言的词表不可用，因此本局使用英文词表。进度会单独保存。',
     notEnough: '字数不够。',
     notInList: '这个词不在词表中。',
     found: '你找到了。',
@@ -221,6 +227,7 @@ window.SixfoldWordleStrings = {
   'zh-Hant': {
     prompt: '六次機會。五個字。找出答案。',
     typePrompt: '輸入五個字，然後按 Enter。',
+    offlineFallback: '離線：目前語言的詞表無法使用，因此本局使用英文詞表。進度會單獨儲存。',
     notEnough: '字數不足。',
     notInList: '這個詞不在詞表中。',
     found: '你找到了。',
@@ -257,6 +264,7 @@ window.SixfoldWordleStrings = {
   ja: {
     prompt: '6回の挑戦。5文字。言葉を探そう。',
     typePrompt: '5文字を入力して Enter を押してください。',
+    offlineFallback: 'オフライン: この言語の単語リストが利用できないため、このラウンドは英語の単語リストを使います。別に保存されます。',
     notEnough: '文字が足りません。',
     notInList: 'その言葉はリストにありません。',
     found: '見つけました。',
@@ -293,6 +301,7 @@ window.SixfoldWordleStrings = {
   ko: {
     prompt: '6번의 기회. 다섯 글자. 단어를 찾으세요.',
     typePrompt: '다섯 글자를 입력하고 Enter를 누르세요.',
+    offlineFallback: '오프라인: 이 언어의 단어 목록을 사용할 수 없어 이 라운드는 영어 단어 목록을 사용합니다. 별도로 저장됩니다.',
     notEnough: '글자가 부족합니다.',
     notInList: '그 단어는 목록에 없습니다.',
     found: '찾았습니다.',
@@ -329,6 +338,7 @@ window.SixfoldWordleStrings = {
   hi: {
     prompt: 'छह प्रयास। पाँच अक्षर। शब्द खोजें।',
     typePrompt: 'पाँच अक्षर वाला शब्द लिखें, फिर Enter दबाएँ।',
+    offlineFallback: 'ऑफ़लाइन: इस भाषा की शब्द सूची उपलब्ध नहीं है, इसलिए यह राउंड अंग्रेज़ी शब्द सूची का उपयोग करता है। यह अलग से सहेजा जाता है।',
     notEnough: 'अक्षर कम हैं।',
     notInList: 'यह शब्द सूची में नहीं है।',
     found: 'आपने खोज लिया।',
@@ -365,6 +375,7 @@ window.SixfoldWordleStrings = {
   ar: {
     prompt: 'ست محاولات. خمسة حروف. ابحث عن الكلمة.',
     typePrompt: 'اكتب كلمة من خمسة حروف ثم اضغط Enter.',
+    offlineFallback: 'دون اتصال: قائمة كلمات هذه اللغة غير متاحة، لذلك تستخدم هذه الجولة قائمة الكلمات الإنجليزية. وتُحفظ بشكل منفصل.',
     notEnough: 'الحروف غير كافية.',
     notInList: 'هذه الكلمة ليست في القائمة.',
     found: 'لقد وجدتها.',

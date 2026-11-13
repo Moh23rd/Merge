@@ -1,6 +1,9 @@
 # Changelog
 
-## Unreleased
+## 5.2.0 — 13 November 2026
+
+5.2 brings Wordle to every interface language, with offline dictionary
+fallback and prefetch, localized numerals, and a CI audit for the word data.
 
 ### Changed
 
@@ -20,21 +23,28 @@
   instead of failing to load the game. That fallback round has its own save,
   separate from both the English game and localized games, so reconnecting
   starts the language's own round without touching an English round.
+- Wordle shows a small localized note when an offline round is using the
+  English word list, explaining that the selected language’s dictionary is
+  unavailable offline and that the fallback round is saved separately.
 - Interface numbers now use Arabic-Indic digits in Arabic and Devanagari
   digits in Hindi, including scores, timers, daily counters and Sudoku
   digits, while dates and share text use the same locale-aware numerals.
 
 ### Added
 
-- **Wordle pack prefetch**: after an online visit, the active language's
-  dictionary is downloaded in the background and retried when the connection
-  returns, so offline play opens in the selected language before the game is
-  first launched.
+- **Wordle pack prefetch**: after an online visit or a language change, the
+  active language's dictionary is downloaded in the background and retried
+  when the connection returns, so offline play opens in the selected language
+  before the game is first launched.
 - **Wordle dictionary audit**: `npm run audit:wordle` enforces five-grapheme
   entries, duplicate-free arrays, answer/guess consistency, IME mode and
   keyboard-row coverage, then reports provenance and answer-pool policy
   findings from a reviewed denylist. It runs in CI; `--strict` additionally
   gates the known review findings. See [WORDLE-AUDIT.md](WORDLE-AUDIT.md).
+- **Wordle all-locale matrix**: the Playwright suite now wins a Wordle round in
+  every interface language, covering native IME entry, Arabic RTL, localized
+  Arabic/Hindi digits and the copied share text. The matrix takes about 1.3
+  minutes locally, keeping the 20-minute CI job within budget.
 - **Multilingual Wordle**: the hidden game now has localized board copy,
   result text and five-character dictionaries for all eleven interface
   languages, with a native input method for scripts that do not use the

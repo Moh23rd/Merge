@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '5.3.4-wordle';
+  const VERSION = '5.3.6-wordle';
   const PACK_LOCALES = ['es', 'fr', 'de', 'pt-BR', 'ar', 'ja', 'hi', 'ko', 'zh-Hans', 'zh-Hant'];
   const prefetched = Object.create(null);
   const prefetching = Object.create(null);
@@ -58,11 +58,21 @@
   }
 
   function whenWorkerReady(task) {
-    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-      navigator.serviceWorker.ready.then(task, task);
-    } else {
+    if (!navigator.serviceWorker || !navigator.serviceWorker.ready) {
       task();
+      return;
     }
+    navigator.serviceWorker.ready.then(function (registration) {
+      const pending = registration.installing || registration.waiting;
+      if (navigator.serviceWorker.controller && !pending) {
+        task();
+        return;
+      }
+      // On a first visit the worker can be active before it claims this page,
+      // and during an update the newest cache is not ready yet. Prefetch once
+      // the page is controlled so the pack lands in the current cache.
+      navigator.serviceWorker.addEventListener('controllerchange', task, { once: true });
+    }, task);
   }
 
   function schedulePrefetch() {
