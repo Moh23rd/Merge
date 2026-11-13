@@ -30,17 +30,18 @@
   const LOCALE = I18N ? I18N.locale() : 'en';
   const PACKS = window.SixfoldWordleLocales || {};
   const pack = PACKS[LOCALE];
-  const hasPack = Boolean(pack && Array.isArray(pack.answers) && pack.answers.length);
-  const words = hasPack ? pack : englishWords;
+  const words = pack && Array.isArray(pack.answers) && pack.answers.length ? pack : englishWords;
+  const usingEnglishWords = words === englishWords;
   const IME = Boolean(pack && pack.ime);
   const ALL_STRINGS = window.SixfoldWordleStrings || {};
   const STRINGS = ALL_STRINGS[LOCALE] || ALL_STRINGS.en || {};
 
   const ROWS = 6;
   const COLS = 5;
-  // An offline English fallback round belongs to the English game. Keeping it
-  // under the localized key would restore an English answer after the pack loads.
-  const GAME_KEY = 'sixfold.wordle.game.v1' + (hasPack && LOCALE !== 'en' ? '::' + LOCALE : '');
+  // English fallback rounds save under the English key; only a real locale
+  // pack gets its own localized save. This keeps a fallback answer from being
+  // restored as the localized game once the pack is available.
+  const GAME_KEY = 'sixfold.wordle.game.v1' + (usingEnglishWords ? '' : '::' + LOCALE);
   const STATS_KEY = 'sixfold.wordle.stats.v1';
   const ANSWER_SET = new Set(words.answers.map(normalize));
   const VALID_SET = new Set(words.valid.concat(words.answers).map(normalize));

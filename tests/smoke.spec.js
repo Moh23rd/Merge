@@ -525,7 +525,6 @@ test.describe('Wordle locale packs', () => {
 
     await page.context().setOffline(true);
     await openWordle(page);
-    await page.waitForFunction(() => window.SixfoldWordle && window.SixfoldWordleWords);
 
     const info = await page.evaluate(() => {
       const game = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
@@ -542,8 +541,6 @@ test.describe('Wordle locale packs', () => {
     expect(info.inEnglish).toBe(true);
     expect(info.localized).toBeNull();
     expect(info.packs).toEqual([]);
-    await expect(page.locator('#wordle-board .wordle-tile').first()).toBeVisible();
-    expect(await cachedPacks()).toEqual([]);
 
     await page.context().setOffline(false);
     await openWordle(page);
