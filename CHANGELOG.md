@@ -17,14 +17,19 @@
 
 - Wordle now opens with the English word list when the selected language's
   dictionary has not been cached yet, such as the first visit while offline,
-  instead of failing to load the game. That fallback round is saved separately
-  from the localized game, so reconnecting starts the language's own round.
+  instead of failing to load the game. That fallback round has its own save,
+  separate from both the English game and localized games, so reconnecting
+  starts the language's own round without touching an English round.
 - Interface numbers now use Arabic-Indic digits in Arabic and Devanagari
   digits in Hindi, including scores, timers, daily counters and Sudoku
   digits, while dates and share text use the same locale-aware numerals.
 
 ### Added
 
+- **Wordle pack prefetch**: after an online visit, the active language's
+  dictionary is downloaded in the background and retried when the connection
+  returns, so offline play opens in the selected language before the game is
+  first launched.
 - **Multilingual Wordle**: the hidden game now has localized board copy,
   result text and five-character dictionaries for all eleven interface
   languages, with a native input method for scripts that do not use the

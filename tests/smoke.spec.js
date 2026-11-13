@@ -465,6 +465,28 @@ test('Wordle board is accessible in Arabic', async ({ page }) => {
 test.describe('Wordle locale packs', () => {
   test.use({ serviceWorkers: 'allow' });
 
+  const cachedPacks = (page) => page.evaluate(async () => {
+    const packs = [];
+    for (const name of (await caches.keys()).filter((value) => value.startsWith('sixfold-'))) {
+      const cache = await caches.open(name);
+      for (const request of await cache.keys()) {
+        const path = new URL(request.url).pathname;
+        if (path.startsWith('/wordle-locales/')) packs.push(path);
+      }
+    }
+    return packs;
+  });
+
+  const waitForShell = (page) => page.waitForFunction(async () => {
+    const names = await caches.keys();
+    for (const name of names.filter((value) => value.startsWith('sixfold-'))) {
+      const cache = await caches.open(name);
+      const paths = (await cache.keys()).map((request) => new URL(request.url).pathname);
+      if (paths.includes('/index.html') && paths.includes('/wordle.js')) return true;
+    }
+    return false;
+  });
+
   test('downloads and caches only the active language dictionary', async ({ page }) => {
     const packs = [];
     page.on('request', (request) => {
@@ -481,64 +503,81 @@ test.describe('Wordle locale packs', () => {
 
     const loaded = await page.evaluate(() => Object.keys(window.SixfoldWordleLocales || {}));
     expect(loaded).toEqual(['es']);
-    expect(packs).toEqual(['/wordle-locales/es.js']);
+    expect([...new Set(packs)]).toEqual(['/wordle-locales/es.js']);
+    await expect.poll(() => cachedPacks(page)).toContain('/wordle-locales/es.js');
+  });
 
-    await expect.poll(async () => page.evaluate(async () => {
-      const names = await caches.keys();
-      for (const name of names.filter((value) => value.startsWith('sixfold-'))) {
-        const cache = await caches.open(name);
-        const entries = await cache.keys();
-        if (entries.some((request) => new URL(request.url).pathname === '/wordle-locales/es.js')) return true;
-      }
-      return false;
-    })).toBe(true);
+  test('prefetches the active dictionary after an online visit', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('sixfold.locale.v1', 'es'));
+    await page.goto('/');
+    await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller);
+    await expect.poll(() => cachedPacks(page)).toContain('/wordle-locales/es.js');
+
+    await page.context().setOffline(true);
+    await openWordle(page);
+    await page.waitForFunction(() => window.SixfoldWordleLocales && window.SixfoldWordleLocales.es);
+    const info = await page.evaluate(() => {
+      const game = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1::es'));
+      const pack = window.SixfoldWordleLocales.es;
+      return {
+        answer: game && game.answer,
+        inSpanish: Boolean(game && pack && pack.answers.indexOf(game.answer) !== -1),
+        fallback: localStorage.getItem('sixfold.wordle.game.v1::offline-en')
+      };
+    });
+    expect(info.answer).toBeTruthy();
+    expect(info.inSpanish).toBe(true);
+    expect(info.fallback).toBeNull();
+  });
+
+  test('retries the active dictionary when the connection returns', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller);
+    await waitForShell(page);
+    await page.evaluate(() => localStorage.setItem('sixfold.locale.v1', 'es'));
+
+    await page.context().setOffline(true);
+    await page.reload();
+    expect(await cachedPacks(page)).toEqual([]);
+
+    await page.context().setOffline(false);
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await expect.poll(() => cachedPacks(page)).toContain('/wordle-locales/es.js');
   });
 
   test('keeps an offline English fallback separate from the localized game', async ({ page }) => {
     test.setTimeout(120000);
-    await page.addInitScript(() => localStorage.setItem('sixfold.locale.v1', 'es'));
     await page.goto('/');
     await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller);
-    await page.waitForFunction(async () => {
-      const names = await caches.keys();
-      for (const name of names.filter((value) => value.startsWith('sixfold-'))) {
-        const cache = await caches.open(name);
-        const paths = (await cache.keys()).map((request) => new URL(request.url).pathname);
-        if (paths.includes('/index.html') && paths.includes('/wordle.js')) return true;
-      }
-      return false;
+    await waitForShell(page);
+    await openWordle(page);
+    const englishAnswer = await page.evaluate(() => {
+      const game = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
+      return game && game.answer;
     });
-
-    const cachedPacks = async () => page.evaluate(async () => {
-      const names = await caches.keys();
-      const packs = [];
-      for (const name of names.filter((value) => value.startsWith('sixfold-'))) {
-        const cache = await caches.open(name);
-        for (const request of await cache.keys()) {
-          const path = new URL(request.url).pathname;
-          if (path.startsWith('/wordle-locales/')) packs.push(path);
-        }
-      }
-      return packs;
-    });
-    expect(await cachedPacks()).toEqual([]);
+    expect(englishAnswer).toBeTruthy();
 
     await page.context().setOffline(true);
+    await page.evaluate(() => localStorage.setItem('sixfold.locale.v1', 'es'));
+    expect(await cachedPacks(page)).toEqual([]);
     await openWordle(page);
 
     const info = await page.evaluate(() => {
-      const game = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
+      const fallback = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1::offline-en'));
+      const english = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
       const localized = localStorage.getItem('sixfold.wordle.game.v1::es');
       const words = window.SixfoldWordleWords;
       return {
-        answer: game && game.answer,
-        inEnglish: Boolean(game && words.answers.indexOf(game.answer) !== -1),
+        answer: fallback && fallback.answer,
+        inEnglish: Boolean(fallback && words.answers.indexOf(fallback.answer) !== -1),
+        englishAnswer: english && english.answer,
         localized: localized ? JSON.parse(localized) : null,
         packs: Object.keys(window.SixfoldWordleLocales || {})
       };
     });
     expect(info.answer).toBeTruthy();
     expect(info.inEnglish).toBe(true);
+    expect(info.englishAnswer).toBe(englishAnswer);
     expect(info.localized).toBeNull();
     expect(info.packs).toEqual([]);
 
@@ -546,16 +585,19 @@ test.describe('Wordle locale packs', () => {
     await openWordle(page);
     await page.waitForFunction(() => window.SixfoldWordleLocales && window.SixfoldWordleLocales.es);
     const transition = await page.evaluate(() => {
-      const fallback = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
+      const fallback = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1::offline-en'));
+      const english = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1'));
       const localized = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1::es'));
       const pack = window.SixfoldWordleLocales && window.SixfoldWordleLocales.es;
       return {
         fallbackAnswer: fallback && fallback.answer,
+        englishAnswer: english && english.answer,
         localizedAnswer: localized && localized.answer,
         inSpanish: Boolean(localized && pack && pack.answers.indexOf(localized.answer) !== -1)
       };
     });
     expect(transition.fallbackAnswer).toBe(info.answer);
+    expect(transition.englishAnswer).toBe(englishAnswer);
     expect(transition.localizedAnswer).toBeTruthy();
     expect(transition.inSpanish).toBe(true);
   });

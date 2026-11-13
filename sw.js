@@ -4,7 +4,8 @@
 // 5.3.1: Wordle loads and caches only the active language's dictionary.
 // 5.3.2: an uncached locale pack falls back to the English word list.
 // 5.3.3: the fallback round saves separately from the localized game.
-const VERSION = 'sixfold-5.3.3-licenses';
+// 5.3.4: prefetch the active pack and retry it when online returns.
+const VERSION = 'sixfold-5.3.4-licenses';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -17,7 +18,7 @@ const STYLE_ASSET = '5.2.0';
 const FONT_ASSET = '4.0.1';
 const THEME_JS = '5.2.0';
 const GAME_CODE = '4.0.0-w4';
-const WORDLE_CODE = '5.3.3-wordle';
+const WORDLE_CODE = '5.3.4-wordle';
 const SUDOKU_GAME_CODE = '5.2.0';
 const LOCALE_FONT = '5.1.3';
 const GAMES_CSS = '4.0.0-w13';

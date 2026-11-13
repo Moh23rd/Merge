@@ -38,10 +38,12 @@
 
   const ROWS = 6;
   const COLS = 5;
-  // English fallback rounds save under the English key; only a real locale
-  // pack gets its own localized save. This keeps a fallback answer from being
-  // restored as the localized game once the pack is available.
-  const GAME_KEY = 'sixfold.wordle.game.v1' + (usingEnglishWords ? '' : '::' + LOCALE);
+  // English rounds use the base key. An English fallback round gets its own
+  // save so it cannot resume or overwrite the English game, and a real locale
+  // pack keeps its localized save.
+  const GAME_KEY = 'sixfold.wordle.game.v1' + (LOCALE === 'en'
+    ? ''
+    : '::' + (usingEnglishWords ? 'offline-en' : LOCALE));
   const STATS_KEY = 'sixfold.wordle.stats.v1';
   const ANSWER_SET = new Set(words.answers.map(normalize));
   const VALID_SET = new Set(words.valid.concat(words.answers).map(normalize));

@@ -7,8 +7,10 @@
 (function () {
   'use strict';
 
-  const VERSION = '5.3.3-wordle';
+  const VERSION = '5.3.4-wordle';
   const PACK_LOCALES = ['es', 'fr', 'de', 'pt-BR', 'ar', 'ja', 'hi', 'ko', 'zh-Hans', 'zh-Hant'];
+  const prefetched = Object.create(null);
+  const prefetching = Object.create(null);
   let loading = false;
 
   function locale() {
@@ -30,6 +32,46 @@
         }
       };
       document.head.appendChild(script);
+    });
+  }
+
+  function prefetchPack() {
+    const active = locale();
+    if (PACK_LOCALES.indexOf(active) === -1) return;
+    if (prefetched[active] || prefetching[active]) return;
+    if (window.SixfoldWordleLocales && window.SixfoldWordleLocales[active]) {
+      prefetched[active] = true;
+      return;
+    }
+    if (!navigator.onLine) return;
+
+    prefetching[active] = true;
+    fetch('wordle-locales/' + active + '.js?v=' + VERSION, { credentials: 'same-origin' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Could not prefetch ' + active);
+        prefetched[active] = true;
+      })
+      .catch(function () {
+        // The online listener retries after a failed or offline request.
+      })
+      .then(function () { delete prefetching[active]; });
+  }
+
+  function whenWorkerReady(task) {
+    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+      navigator.serviceWorker.ready.then(task, task);
+    } else {
+      task();
+    }
+  }
+
+  function schedulePrefetch() {
+    whenWorkerReady(function () {
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(prefetchPack, { timeout: 2000 });
+      } else {
+        window.setTimeout(prefetchPack, 500);
+      }
     });
   }
 
@@ -67,6 +109,10 @@
       checkScreen();
     });
   }
+
+  if (document.readyState === 'complete') schedulePrefetch();
+  else window.addEventListener('load', schedulePrefetch);
+  window.addEventListener('online', function () { whenWorkerReady(prefetchPack); });
 
   window.SixfoldEnsureWordle = ensureWordle;
 })();
