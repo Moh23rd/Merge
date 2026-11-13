@@ -66,12 +66,15 @@ machine, Xcode and the store accounts. See [native/README.md](native/README.md).
 npm install
 npx playwright install chromium
 npm run test:i18n
+npm run audit:wordle
 npm test
 ```
 
 `npm run test:i18n` checks every translated catalog against the English source: no missing or unknown keys, no empty copy, and matching numbered placeholders. It also verifies the shared dynamic-copy templates.
 
-The Playwright suite covers the six game screens, Daily Sixfold, Sudoku Learn hints, settings and backup download. Axe scans the hub, all six games and settings in both light and dark themes in all eleven languages, with no rule exceptions. A 320px layout pass checks each locale for clipped or overflowing text. CI runs the catalog audit and the same Playwright suite on every push and pull request, and can be run manually from the Actions tab.
+`npm run audit:wordle` enforces the Wordle data invariants: five-grapheme entries, duplicate-free arrays, answers present in the valid-guess list, IME packs with no keyboard rows, and non-IME keyboard rows that cover every grapheme used by answers and valid guesses. Structural or invariant failures exit non-zero; provenance and answer-pool policy findings are reported separately. `npm run audit:wordle:strict` also fails on those review findings. See [WORDLE-AUDIT.md](WORDLE-AUDIT.md) for the source/licensing review and the known answer-pool problems.
+
+The Playwright suite covers the six game screens, Daily Sixfold, Sudoku Learn hints, settings and backup download. Axe scans the hub, all six games and settings in both light and dark themes in all eleven languages, with no rule exceptions. A 320px layout pass checks each locale for clipped or overflowing text. CI runs the catalog audit, the Wordle dictionary invariants and the same Playwright suite on every push and pull request, and can be run manually from the Actions tab.
 
 ## Install
 

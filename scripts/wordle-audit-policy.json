@@ -1,0 +1,156 @@
+{
+  "provenance": {
+    "localeSources": ["Wordle Global", "wordfreq", "Wordle JP"],
+    "appAttributionFiles": ["README.md", "licenses.html"],
+    "englishSourcePattern": "original Wordle"
+  },
+  "locales": {
+    "en": {
+      "script": "Latin",
+      "ime": false,
+      "profanity": ["booty"],
+      "properNouns": [
+        "adobe", "bible", "billy", "bobby", "canon", "china", "chile",
+        "dutch", "excel", "harry", "pixel", "ralph", "robin", "roger",
+        "sally", "smith", "sonic", "vista", "welsh"
+      ],
+      "obscure": [
+        "admin", "anime", "cyber", "email", "inbox", "login", "modem",
+        "proxy", "rehab", "scuba", "sigma", "theta", "turbo", "viral"
+      ]
+    },
+    "ar": {
+      "script": "Arabic",
+      "ime": true,
+      "profanity": [],
+      "properNouns": [
+        "اليمن", "إيران", "سوريا", "لبنان", "روسيا", "الصين", "تركيا",
+        "فرنسا", "الهند", "ليبيا", "باريس", "بيروت", "مدريد", "القدس",
+        "بغداد", "كوريا", "سورية", "مصرية", "رمضان", "تشرين", "كانون",
+        "أبريل", "أغسطس", "يوليو", "يونيو", "يناير", "تويتر", "النبي",
+        "الشيخ", "السيد", "الحسن", "مصطفى", "سلمان", "مبارك", "عثمان",
+        "مايكل", "ماريا", "والله", "بالله", "اللهم", "تعالى", "الحرب",
+        "الجيش", "السجن", "جريمة", "العنف", "القتل", "أسلحة", "معركة",
+        "الحزب", "الملك", "الجنس"
+      ],
+      "obscure": []
+    },
+    "de": {
+      "script": "Latin",
+      "ime": false,
+      "profanity": ["arsch"],
+      "properNouns": [
+        "nazis", "juden", "islam", "jesus", "trump", "peter", "frank",
+        "maria", "david", "klaus", "georg", "heinz", "simon", "josef",
+        "japan", "polen", "paris", "china", "rhein", "mainz"
+      ],
+      "loanwords": ["black", "sorry"],
+      "obscure": []
+    },
+    "es": {
+      "script": "Latin",
+      "ime": false,
+      "profanity": [],
+      "properNouns": [
+        "jesús", "maría", "pedro", "pablo", "david", "jorge", "diego",
+        "lópez", "pérez", "reyes", "china", "chile", "india", "japón",
+        "rusia", "parís"
+      ],
+      "obscure": []
+    },
+    "fr": {
+      "script": "Latin",
+      "ime": false,
+      "profanity": ["merde", "chier"],
+      "properNouns": [
+        "jésus", "paris", "marie", "louis", "david", "james", "peter",
+        "seine", "lille", "syrie", "maroc", "chine", "japon", "islam",
+        "juifs"
+      ],
+      "loanwords": ["black", "perso"],
+      "obscure": []
+    },
+    "hi": {
+      "script": "Devanagari",
+      "ime": true,
+      "profanity": [],
+      "properNouns": [
+        "केजरीवाल", "इलाहाबाद", "हैदराबाद", "गोरखपुर", "तमिलनाडु",
+        "देहरादून", "उदयपुर", "अमृतसर", "जबलपुर", "फतेहपुर",
+        "महाभारत", "परशुराम", "मनमोहन", "राजकुमार", "आईपीएल",
+        "मुसलमान", "मुसलमानों", "मुसलमानो", "आतंकवादी", "नरसंहार"
+      ],
+      "obscure": []
+    },
+    "ja": {
+      "script": "Hiragana",
+      "ime": true,
+      "profanity": ["ちくしょう", "ざまあみろ", "いやらしい", "おしゃぶり"],
+      "properNouns": ["とんねるず", "しんのすけ", "たまごっち", "ひたちなか", "なっちゃん", "ぐらんぷり"],
+      "obscure": [
+        "をめぐって", "にたいして", "というのも", "それでいて",
+        "でなければ", "ようするに", "だとすると", "にわたって",
+        "にあたって", "そうすると", "そのうえで"
+      ]
+    },
+    "ko": {
+      "script": "Hangul",
+      "ime": true,
+      "profanity": [],
+      "properNouns": [
+        "방탄소년단", "스포츠토토", "셰익스피어", "스파이더맨", "메르세데스",
+        "포켓몬스터", "롯데시네마", "현대캐피탈", "월스트리트", "크리스마스",
+        "안드로이드", "아이스크림", "인도네시아", "캘리포니아", "엘리자베스",
+        "다이아몬드", "바르셀로나", "팔레스타인", "남아프리카", "필라델피아",
+        "인천광역시", "대구광역시", "부산광역시", "광주광역시", "울산광역시",
+        "대전광역시", "서울특별시"
+      ],
+      "obscure": []
+    },
+    "pt-BR": {
+      "script": "Latin",
+      "ime": false,
+      "profanity": ["merda", "porra"],
+      "properNouns": [
+        "jesus", "maria", "pedro", "silva", "dilma", "harry", "bahia",
+        "índia", "japão", "paris", "china", "porto", "natal"
+      ],
+      "loanwords": ["world", "facto", "idéia"],
+      "obscure": []
+    },
+    "zh-Hans": {
+      "script": "Han",
+      "ime": true,
+      "profanity": [],
+      "properNouns": [
+        "中国共产党", "天安门广场", "文化大革命", "中央电视台", "华尔街日报",
+        "美国国务院", "南京大屠杀", "邓小平理论", "一九八九年", "联合国大会",
+        "北京青年报", "美国共和党", "美国民主党", "西藏自治区", "香港基本法"
+      ],
+      "obscure": [
+        "百分之九十", "百分之五十", "百分之四十", "百分之八十",
+        "百分之三十", "百分之二十", "第二十四条", "第二十一条", "十万八千里"
+      ]
+    },
+    "zh-Hant": {
+      "script": "Han",
+      "ime": true,
+      "profanity": [],
+      "properNouns": [
+        "中國共產黨", "天安門廣場", "文化大革命", "中央電視臺", "華爾街日報",
+        "美國國務院", "南京大屠殺", "鄧小平理論", "一九八九年", "聯合國大會",
+        "北京青年報", "美國共和黨", "美國民主黨", "西藏自治區", "香港基本法"
+      ],
+      "obscure": [
+        "百分之九十", "百分之五十", "百分之四十", "百分之八十",
+        "百分之三十", "百分之二十", "第二十四條", "第二十一條", "十萬八千里"
+      ]
+    }
+  },
+  "patterns": {
+    "zh-Hans": ["国$", "党$", "市$", "州$", "省$", "县$", "区$", "大学$", "公司$", "银行$", "政府$", "委员会$", "共和国$", "帝国$", "王朝$", "战争$", "屠杀$", "主义$", "理论$", "思想$", "运动$", "事件$", "条约$", "协定$"],
+    "zh-Hant": ["國$", "黨$", "市$", "州$", "省$", "縣$", "區$", "大學$", "公司$", "銀行$", "政府$", "委員會$", "共和國$", "帝國$", "王朝$", "戰爭$", "屠殺$", "主義$", "理論$", "思想$", "運動$", "事件$", "條約$", "協定$"],
+    "ko": ["광역시$", "특별시$", "대학교$", "그룹$", "은행$", "정부$", "위원회$", "공화국$", "제국$", "왕조$", "전쟁$", "학살$", "주의$", "이론$", "사상$", "운동$", "사건$", "조약$", "협정$"],
+    "hi": ["विश्वविद्यालय$", "विद्यालय$", "नगर$", "जिला$", "राज्य$", "सरकार$", "मंत्रालय$", "आयोग$", "पार्टी$", "संघ$", "युद्ध$", "नरसंहार$", "आतंकवाद$"]
+  }
+}

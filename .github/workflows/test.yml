@@ -21,6 +21,8 @@ jobs:
       - run: npm ci
       - name: Audit localization catalogs
         run: npm run test:i18n
+      - name: Audit Wordle dictionaries
+        run: npm run audit:wordle
       - run: npx playwright install --with-deps chromium
       - run: npm test
       - if: failure()

@@ -30,6 +30,11 @@
   dictionary is downloaded in the background and retried when the connection
   returns, so offline play opens in the selected language before the game is
   first launched.
+- **Wordle dictionary audit**: `npm run audit:wordle` enforces five-grapheme
+  entries, duplicate-free arrays, answer/guess consistency, IME mode and
+  keyboard-row coverage, then reports provenance and answer-pool policy
+  findings from a reviewed denylist. It runs in CI; `--strict` additionally
+  gates the known review findings. See [WORDLE-AUDIT.md](WORDLE-AUDIT.md).
 - **Multilingual Wordle**: the hidden game now has localized board copy,
   result text and five-character dictionaries for all eleven interface
   languages, with a native input method for scripts that do not use the
