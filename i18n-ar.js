@@ -24,9 +24,9 @@
     "Warm": "دافئ",
     "What’s new in 5.2": "الجديد في 5.2",
     "Spanish localization: the complete interface, game labels, dates and accessibility copy can switch between English and Español": "اللغة الإسبانية: يمكن تبديل الواجهة الكاملة وأسماء الألعاب والتواريخ ونصوص إمكانية الوصول بين الإنجليزية وEspañol",
-    "Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch": "اللغات: يمكن تبديل الواجهة الكاملة وأسماء الألعاب والتواريخ ونصوص إمكانية الوصول بين English وEspañol وFrançais وDeutsch",
-    "Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy": "غلاف متجر التطبيقات الأصلي: مشاريع Capacitor 8 لنظامي Android وiOS، مع أيقونات العلامة وشاشات البداية ونصوص المتجر وإشعار الخصوصية",
-    "Daily Sixfold: a date-seeded challenge in every game, a streak and a 30-day calendar that work offline": "Sixfold اليومي: تحدٍّ يومي مولّد من التاريخ في كل لعبة، وسلسلة أيام، وتقويم من 30 يومًا يعمل دون اتصال",
+    "Wordle in all eleven languages: localized word lists, native input for Arabic, Hindi, Japanese, Korean and Chinese, and an offline English fallback": "Wordle بكل اللغات الإحدى عشرة: قوائم كلمات مترجمة، وإدخال أصلي للعربية والهندية واليابانية والكورية والصينية، وبديل إنجليزي دون اتصال",
+    "Wordle offline support: the selected dictionary downloads in the background, and an English fallback round keeps the game playable when it is not cached": "Wordle دون اتصال: يُنزَّل القاموس المختار في الخلفية، وتُبقي جولة بديلة بالإنجليزية اللعبة قابلة للعب عندما لا يكون القاموس محفوظًا بعد",
+    "Arabic and Hindi numerals, right-to-left Arabic, localized dates and share text across every game": "أرقام عربية وهندية، واللغة العربية من اليمين إلى اليسار، وتواريخ ونصوص مشاركة مترجمة في كل الألعاب",
     "Sudoku Learn mode: technique hints, auto-notes, optional mistake checking and a short technique guide": "وضع تعلّم سودوكو: تلميحات التقنيات، والملاحظات التلقائية، والتحقق الاختياري من الأخطاء، ودليل تقنيات قصير",
     "Accessibility and safety: high contrast, colour-blind cues, larger digits, left-handed Sudoku, backup and restore": "إمكانية الوصول والسلامة: تباين عالٍ، وإشارات لعمى الألوان، وأرقام أكبر، وسودوكو لليد اليسرى، ونسخ احتياطي واستعادة",
     "Six games.": "ست ألعاب.",
@@ -493,7 +493,7 @@
     "Minesweeper": "كانسة الألغام",
     "Water Sort": "فرز المياه",
     "Fruit Merge": "دمج الفواكه",
-    "New interface languages: Simplified Chinese, Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic": "لغات واجهة جديدة: الصينية المبسطة، الصينية التقليدية، اليابانية، الكورية، البرتغالية (البرازيل)، الهندية والعربية"
+    "New interface languages: French, German, Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic, with complete catalogs and offline fonts": "لغات واجهة جديدة: الفرنسية والألمانية والصينية واليابانية والكورية والبرتغالية (البرازيل) والهندية والعربية، مع قوائم كاملة وخطوط دون اتصال",
   },
   "terms": {
     "empty": "فارغ",

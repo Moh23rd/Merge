@@ -3894,6 +3894,8 @@ html[data-theme="dark"] .reset-confirm:hover {
 
 .whats-new[hidden] { display: none; }
 
+[dir="rtl"] .whats-new { padding-right: 0; padding-left: 8px; }
+
 .whats-new-mark {
   display: grid;
   place-items: center;

@@ -24,9 +24,9 @@
     "Warm": "गर्म",
     "What’s new in 5.2": "5.2 में नया",
     "Spanish localization: the complete interface, game labels, dates and accessibility copy can switch between English and Español": "स्पेनिश भाषा: पूरा इंटरफ़ेस, गेम नाम, तारीखें और एक्सेसिबिलिटी टेक्स्ट अंग्रेज़ी और Español के बीच बदले जा सकते हैं",
-    "Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch": "भाषा: पूरा इंटरफ़ेस, गेम नाम, तारीखें और एक्सेसिबिलिटी टेक्स्ट English, Español, Français और Deutsch के बीच बदले जा सकते हैं",
-    "Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy": "नेटिव ऐप-स्टोर रैपर: Android और iOS के लिए Capacitor 8 प्रोजेक्ट, ब्रांड आइकन, स्प्लैश स्क्रीन, स्टोर नोट्स और प्राइवेसी टेक्स्ट के साथ",
-    "Daily Sixfold: a date-seeded challenge in every game, a streak and a 30-day calendar that work offline": "Sixfold डेली: हर गेम में तारीख से बनने वाली डेली चुनौती, एक स्ट्रीक और 30 दिनों का कैलेंडर, जो ऑफ़लाइन चलते हैं",
+    "Wordle in all eleven languages: localized word lists, native input for Arabic, Hindi, Japanese, Korean and Chinese, and an offline English fallback": "Wordle सभी ग्यारह भाषाओं में: स्थानीय शब्द सूचियाँ, अरबी, हिन्दी, जापानी, कोरियाई और चीनी के लिए मूल इनपुट, और ऑफ़लाइन अंग्रेज़ी विकल्प",
+    "Wordle offline support: the selected dictionary downloads in the background, and an English fallback round keeps the game playable when it is not cached": "Wordle ऑफ़लाइन: चुनी गई शब्द सूची पृष्ठभूमि में डाउनलोड होती है, और कैश में न होने पर अंग्रेज़ी वाला वैकल्पिक राउंड खेल को जारी रखता है",
+    "Arabic and Hindi numerals, right-to-left Arabic, localized dates and share text across every game": "अरबी और हिन्दी अंक, दाएँ से बाएँ अरबी, स्थानीय तारीखें और साझा करने का टेक्स्ट हर गेम में",
     "Sudoku Learn mode: technique hints, auto-notes, optional mistake checking and a short technique guide": "सुडोकू लर्न मोड: तकनीक के संकेत, ऑटो-नोट्स, वैकल्पिक गलती जाँच और छोटी तकनीक गाइड",
     "Accessibility and safety: high contrast, colour-blind cues, larger digits, left-handed Sudoku, backup and restore": "एक्सेसिबिलिटी और सुरक्षा: हाई कंट्रास्ट, रंग-अंधापन संकेत, बड़े अंक, बाएँ हाथ वाला सुडोकू, बैकअप और रिस्टोर",
     "Six games.": "छह खेल.",
@@ -493,7 +493,7 @@
     "Minesweeper": "माइनस्वीपर",
     "Water Sort": "वाटर सॉर्ट",
     "Fruit Merge": "फ्रूट मर्ज",
-    "New interface languages: Simplified Chinese, Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic": "नई इंटरफ़ेस भाषाएँ: सरलीकृत चीनी, पारंपरिक चीनी, जापानी, कोरियाई, पुर्तगाली (ब्राज़ील), हिन्दी और अरबी"
+    "New interface languages: French, German, Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic, with complete catalogs and offline fonts": "नई इंटरफ़ेस भाषाएँ: फ़्रेंच, जर्मन, चीनी, जापानी, कोरियाई, ब्राज़ीली पुर्तगाली, हिन्दी और अरबी, पूरी सूचियों और ऑफ़लाइन फ़ॉन्ट के साथ",
   },
   "terms": {
     "empty": "खाली",

@@ -24,9 +24,9 @@
     "Warm": "Quente",
     "What’s new in 5.2": "Novidades da 5.2",
     "Spanish localization: the complete interface, game labels, dates and accessibility copy can switch between English and Español": "Localização em espanhol: interface, nomes dos jogos, datas e textos de acessibilidade podem alternar entre inglês e Español",
-    "Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch": "Localização: interface, nomes dos jogos, datas e textos de acessibilidade podem alternar entre English, Español, Français e Deutsch",
-    "Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy": "Pacote nativo para as lojas de aplicativos: projetos Capacitor 8 para Android e iOS, com ícones da marca, telas de abertura, textos para a loja e aviso de privacidade",
-    "Daily Sixfold: a date-seeded challenge in every game, a streak and a 30-day calendar that work offline": "Sixfold diário: um desafio com semente por data em cada jogo, uma sequência e um calendário de 30 dias que funcionam offline",
+    "Wordle in all eleven languages: localized word lists, native input for Arabic, Hindi, Japanese, Korean and Chinese, and an offline English fallback": "Wordle em todos os onze idiomas: listas de palavras localizadas, entrada nativa para árabe, híndi, japonês, coreano e chinês, e uma alternativa offline em inglês",
+    "Wordle offline support: the selected dictionary downloads in the background, and an English fallback round keeps the game playable when it is not cached": "Wordle offline: o dicionário selecionado é baixado em segundo plano e uma rodada alternativa em inglês mantém o jogo disponível enquanto ele não está em cache",
+    "Arabic and Hindi numerals, right-to-left Arabic, localized dates and share text across every game": "Algarismos arábicos e híndi, árabe da direita para a esquerda, datas e texto de compartilhamento localizados em todos os jogos",
     "Sudoku Learn mode: technique hints, auto-notes, optional mistake checking and a short technique guide": "Modo Aprender do Sudoku: dicas de técnicas, notas automáticas, verificação opcional de erros e um guia curto de técnicas",
     "Accessibility and safety: high contrast, colour-blind cues, larger digits, left-handed Sudoku, backup and restore": "Acessibilidade e segurança: alto contraste, sinais para daltonismo, números maiores, Sudoku para canhotos, backup e restauração",
     "Six games.": "Seis jogos.",
@@ -493,7 +493,7 @@
     "Minesweeper": "Campo Minado",
     "Water Sort": "Separar Águas",
     "Fruit Merge": "Fusão de Frutas",
-    "New interface languages: Simplified Chinese, Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic": "Novos idiomas da interface: chinês simplificado, chinês tradicional, japonês, coreano, português (Brasil), híndi e árabe"
+    "New interface languages: French, German, Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic, with complete catalogs and offline fonts": "Novos idiomas da interface: francês, alemão, chinês, japonês, coreano, português (Brasil), híndi e árabe, com catálogos completos e fontes offline",
   },
   "terms": {
     "empty": "vazio",

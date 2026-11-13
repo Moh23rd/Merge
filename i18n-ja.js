@@ -24,9 +24,9 @@
     "Warm": "ウォーム",
     "What’s new in 5.2": "5.2 の新機能",
     "Spanish localization: the complete interface, game labels, dates and accessibility copy can switch between English and Español": "スペイン語対応：インターフェース、ゲーム名、日付、アクセシビリティ表記を英語と Español で切り替えられます",
-    "Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch": "言語対応：インターフェース、ゲーム名、日付、アクセシビリティ表記を English、Español、Français、Deutsch で切り替えられます",
-    "Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy": "ネイティブアプリストア用ラッパー：Android と iOS 向け Capacitor 8 プロジェクト。ブランドアイコン、スプラッシュ画面、ストア用文面、プライバシー表記を含みます",
-    "Daily Sixfold: a date-seeded challenge in every game, a streak and a 30-day calendar that work offline": "Sixfold デイリー：全ゲームに日付から生成されるデイリーチャレンジ、連続記録、オフラインで使える30日カレンダー",
+    "Wordle in all eleven languages: localized word lists, native input for Arabic, Hindi, Japanese, Korean and Chinese, and an offline English fallback": "Wordle を11言語すべてで：言語別の単語リスト、アラビア語・ヒンディー語・日本語・韓国語・中国語のネイティブ入力、オフライン時の英語フォールバック",
+    "Wordle offline support: the selected dictionary downloads in the background, and an English fallback round keeps the game playable when it is not cached": "Wordle のオフライン対応：選択した辞書をバックグラウンドでダウンロードし、キャッシュされていないときは英語の代替ラウンドでプレイを継続",
+    "Arabic and Hindi numerals, right-to-left Arabic, localized dates and share text across every game": "アラビア語・ヒンディー語の数字、右から左に表示するアラビア語、全ゲームの日付と共有テキストのローカライズ",
     "Sudoku Learn mode: technique hints, auto-notes, optional mistake checking and a short technique guide": "数独の学習モード：テクニックのヒント、自動メモ、任意のミス判定、短いテクニックガイド",
     "Accessibility and safety: high contrast, colour-blind cues, larger digits, left-handed Sudoku, backup and restore": "アクセシビリティと安全：ハイコントラスト、色覚補助、大きい数字、左利き用数独、バックアップと復元",
     "Six games.": "6つのゲーム。",
@@ -493,7 +493,7 @@
     "Minesweeper": "マインスイーパー",
     "Water Sort": "ウォーターソート",
     "Fruit Merge": "フルーツマージ",
-    "New interface languages: Simplified Chinese, Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic": "新しい表示言語：簡体字中国語、繁体字中国語、日本語、韓国語、ポルトガル語（ブラジル）、ヒンディー語、アラビア語"
+    "New interface languages: French, German, Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic, with complete catalogs and offline fonts": "新しい表示言語：フランス語、ドイツ語、中国語、日本語、韓国語、ブラジルポルトガル語、ヒンディー語、アラビア語。完全なカタログとオフラインフォント付き",
   },
   "terms": {
     "empty": "空き",

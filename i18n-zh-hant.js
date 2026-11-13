@@ -24,9 +24,9 @@
     "Warm": "暖色",
     "What’s new in 5.2": "5.2 新功能",
     "Spanish localization: the complete interface, game labels, dates and accessibility copy can switch between English and Español": "西班牙文介面：完整介面、遊戲名稱、日期與無障礙文字可在英文與 Español 之間切換",
-    "Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch": "語言介面：完整介面、遊戲名稱、日期與無障礙文字可在 English、Español、Français 與 Deutsch 之間切換",
-    "Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy": "原生應用程式商店外殼：Android 與 iOS 的 Capacitor 8 專案，包含品牌圖示、啟動畫面、商店說明與隱私權文字",
-    "Daily Sixfold: a date-seeded challenge in every game, a streak and a 30-day calendar that work offline": "每日 Sixfold：每款遊戲都有依日期產生的每日挑戰、連續紀錄，以及可離線使用的 30 天日曆",
+    "Wordle in all eleven languages: localized word lists, native input for Arabic, Hindi, Japanese, Korean and Chinese, and an offline English fallback": "Wordle 支援全部十一種語言：在地化詞表、阿拉伯語、印地語、日語、韓語和中文的原生輸入，以及離線英文後備",
+    "Wordle offline support: the selected dictionary downloads in the background, and an English fallback round keeps the game playable when it is not cached": "Wordle 離線支援：所選詞表會在背景下載；尚未快取時，英文後備回合可讓遊戲繼續進行",
+    "Arabic and Hindi numerals, right-to-left Arabic, localized dates and share text across every game": "阿拉伯語和印地語數字、從右到左顯示的阿拉伯語，以及所有遊戲中在地化的日期和分享文字",
     "Sudoku Learn mode: technique hints, auto-notes, optional mistake checking and a short technique guide": "數獨學習模式：技巧提示、自動筆記、可選的錯誤檢查，以及簡短的技巧指南",
     "Accessibility and safety: high contrast, colour-blind cues, larger digits, left-handed Sudoku, backup and restore": "無障礙與安全：高對比、色盲提示、較大數字、左手數獨、備份與還原",
     "Six games.": "六款遊戲。",
@@ -493,7 +493,7 @@
     "Minesweeper": "掃雷",
     "Water Sort": "水排序",
     "Fruit Merge": "水果合成",
-    "New interface languages: Simplified Chinese, Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic": "新增介面語言：簡體中文、繁體中文、日語、韓語、巴西葡萄牙語、印地語和阿拉伯語"
+    "New interface languages: French, German, Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic, with complete catalogs and offline fonts": "新增介面語言：法語、德語、中文、日語、韓語、巴西葡萄牙語、印地語和阿拉伯語，搭配完整文案和離線字型",
   },
   "terms": {
     "empty": "空",

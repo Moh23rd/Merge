@@ -24,9 +24,9 @@
     "Warm": "따뜻한",
     "What’s new in 5.2": "5.2의 새로운 기능",
     "Spanish localization: the complete interface, game labels, dates and accessibility copy can switch between English and Español": "스페인어 지원: 인터페이스, 게임 이름, 날짜, 접근성 문구를 영어와 Español 사이에서 전환할 수 있습니다",
-    "Localization: the complete interface, game labels, dates and accessibility copy can switch between English, Español, Français and Deutsch": "언어 지원: 인터페이스, 게임 이름, 날짜, 접근성 문구를 English, Español, Français, Deutsch 사이에서 전환할 수 있습니다",
-    "Native app-store wrapper: Capacitor 8 projects for Android and iOS, with branded icons, splash screens, store notes and privacy copy": "네이티브 앱스토어 래퍼: Android와 iOS용 Capacitor 8 프로젝트. 브랜드 아이콘, 스플래시 화면, 스토어 문구, 개인정보 보호 문구 포함",
-    "Daily Sixfold: a date-seeded challenge in every game, a streak and a 30-day calendar that work offline": "Sixfold 데일리: 모든 게임에 날짜 기반 일일 챌린지, 연속 기록, 오프라인에서도 작동하는 30일 달력",
+    "Wordle in all eleven languages: localized word lists, native input for Arabic, Hindi, Japanese, Korean and Chinese, and an offline English fallback": "Wordle 11개 언어 지원: 언어별 단어 목록, 아랍어·힌디어·일본어·한국어·중국어 기본 입력, 오프라인 영어 대체",
+    "Wordle offline support: the selected dictionary downloads in the background, and an English fallback round keeps the game playable when it is not cached": "Wordle 오프라인 지원: 선택한 사전을 백그라운드에서 내려받고, 아직 캐시되지 않았을 때는 영어 대체 라운드로 계속 플레이",
+    "Arabic and Hindi numerals, right-to-left Arabic, localized dates and share text across every game": "아랍어·힌디어 숫자, 오른쪽에서 왼쪽으로 표시되는 아랍어, 모든 게임의 현지화된 날짜와 공유 텍스트",
     "Sudoku Learn mode: technique hints, auto-notes, optional mistake checking and a short technique guide": "스도쿠 학습 모드: 기법 힌트, 자동 메모, 선택적 실수 확인, 짧은 기법 가이드",
     "Accessibility and safety: high contrast, colour-blind cues, larger digits, left-handed Sudoku, backup and restore": "접근성과 안전: 고대비, 색약 신호, 큰 숫자, 왼손잡이용 스도쿠, 백업 및 복원",
     "Six games.": "6개의 게임.",
@@ -493,7 +493,7 @@
     "Minesweeper": "지뢰찾기",
     "Water Sort": "물 정렬",
     "Fruit Merge": "과일 합치기",
-    "New interface languages: Simplified Chinese, Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic": "새 인터페이스 언어: 중국어 간체, 중국어 번체, 일본어, 한국어, 포르투갈어(브라질), 힌디어, 아랍어"
+    "New interface languages: French, German, Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic, with complete catalogs and offline fonts": "새 인터페이스 언어: 프랑스어, 독일어, 중국어, 일본어, 한국어, 브라질 포르투갈어, 힌디어, 아랍어. 완전한 카탈로그와 오프라인 글꼴 포함",
   },
   "terms": {
     "empty": "비어 있음",
