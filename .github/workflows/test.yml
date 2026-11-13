@@ -15,10 +15,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
-    name: Playwright shard ${{ matrix.shard }}/4
+        include:
+          - group: axe-light
+            files: tests/axe-light.spec.js
+          - group: axe-dark
+            files: tests/axe-dark.spec.js
+          - group: core
+            files: tests/smoke.spec.js tests/whats-new.spec.js
+          - group: games
+            files: tests/layout.spec.js tests/wordle.spec.js
+    name: Playwright ${{ matrix.group }}
     steps:
       - uses: actions/checkout@v4
+      - name: Verify every Playwright spec is assigned
+        run: |
+          assigned=$(grep -E '^[[:space:]]+files:' .github/workflows/test.yml | sed 's/.*files:[[:space:]]*//' | tr '\n' ' ')
+          missing=0
+          for spec in tests/*.spec.js; do
+            case " $assigned " in
+              *" $spec "*) ;;
+              *)
+                echo "::error file=$spec::Playwright spec is not assigned to a CI group"
+                missing=1
+                ;;
+            esac
+          done
+          if [ "$missing" -ne 0 ]; then exit 1; fi
+          echo "All Playwright specs are assigned to a CI group."
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -29,11 +52,11 @@ jobs:
       - name: Audit Wordle dictionaries
         run: npm run audit:wordle
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test --shard=${{ matrix.shard }}/4
+      - run: npx playwright test ${{ matrix.files }}
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
+          name: playwright-report-${{ matrix.group }}
           path: |
             playwright-report/
             test-results/
