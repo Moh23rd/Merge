@@ -493,4 +493,54 @@ test.describe('Wordle locale packs', () => {
       return false;
     })).toBe(true);
   });
+
+  test('uses English words offline when the active pack is not cached', async ({ page }) => {
+    test.setTimeout(120000);
+    await page.addInitScript(() => localStorage.setItem('sixfold.locale.v1', 'es'));
+    await page.goto('/');
+    await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller);
+    await page.waitForFunction(async () => {
+      const names = await caches.keys();
+      for (const name of names.filter((value) => value.startsWith('sixfold-'))) {
+        const cache = await caches.open(name);
+        const paths = (await cache.keys()).map((request) => new URL(request.url).pathname);
+        if (paths.includes('/index.html') && paths.includes('/wordle.js')) return true;
+      }
+      return false;
+    });
+
+    const cachedPacks = async () => page.evaluate(async () => {
+      const names = await caches.keys();
+      const packs = [];
+      for (const name of names.filter((value) => value.startsWith('sixfold-'))) {
+        const cache = await caches.open(name);
+        for (const request of await cache.keys()) {
+          const path = new URL(request.url).pathname;
+          if (path.startsWith('/wordle-locales/')) packs.push(path);
+        }
+      }
+      return packs;
+    });
+    expect(await cachedPacks()).toEqual([]);
+
+    await page.context().setOffline(true);
+    await openWordle(page);
+    await page.waitForFunction(() => window.SixfoldWordle && window.SixfoldWordleWords);
+
+    const info = await page.evaluate(() => {
+      const game = JSON.parse(localStorage.getItem('sixfold.wordle.game.v1::es'));
+      const words = window.SixfoldWordleWords;
+      return {
+        answer: game && game.answer,
+        inEnglish: Boolean(game && words.answers.indexOf(game.answer) !== -1),
+        packs: Object.keys(window.SixfoldWordleLocales || {})
+      };
+    });
+    expect(info.answer).toBeTruthy();
+    expect(info.inEnglish).toBe(true);
+    expect(info.packs).toEqual([]);
+    await expect(page.locator('#wordle-board .wordle-tile').first()).toBeVisible();
+    expect(await cachedPacks()).toEqual([]);
+    await page.context().setOffline(false);
+  });
 });

@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  const VERSION = '5.3.1-wordle';
+  const VERSION = '5.3.2-wordle';
   const PACK_LOCALES = ['es', 'fr', 'de', 'pt-BR', 'ar', 'ja', 'hi', 'ko', 'zh-Hans', 'zh-Hant'];
   let loading = false;
 
@@ -15,28 +15,38 @@
     try { return window.SixfoldI18n ? window.SixfoldI18n.locale() : 'en'; } catch (err) { return 'en'; }
   }
 
+  function loadScript(src, optional) {
+    return new Promise(function (resolve, reject) {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = function () {
+        // A locale pack may not be cached on an offline first visit. The game
+        // already falls back to the English word list, so keep loading it.
+        if (optional) {
+          resolve();
+        } else {
+          reject(new Error('Could not load ' + src));
+        }
+      };
+      document.head.appendChild(script);
+    });
+  }
+
   function ensureWordle() {
     if (loading || window.SixfoldWordle) return;
     loading = true;
     const active = locale();
     const files = [
-      'wordle-words.js?v=' + VERSION,
-      'wordle-i18n.js?v=' + VERSION
+      { src: 'wordle-words.js?v=' + VERSION },
+      { src: 'wordle-i18n.js?v=' + VERSION }
     ];
     if (PACK_LOCALES.indexOf(active) !== -1) {
-      files.push('wordle-locales/' + active + '.js?v=' + VERSION);
+      files.push({ src: 'wordle-locales/' + active + '.js?v=' + VERSION, optional: true });
     }
-    files.push('wordle.js?v=' + VERSION);
-    files.reduce(function (chain, src) {
-      return chain.then(function () {
-        return new Promise(function (resolve, reject) {
-          const script = document.createElement('script');
-          script.src = src;
-          script.onload = resolve;
-          script.onerror = function () { reject(new Error('Could not load ' + src)); };
-          document.head.appendChild(script);
-        });
-      });
+    files.push({ src: 'wordle.js?v=' + VERSION });
+    files.reduce(function (chain, file) {
+      return chain.then(function () { return loadScript(file.src, file.optional); });
     }, Promise.resolve()).catch(function () {
       loading = false;
     });
