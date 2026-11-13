@@ -7,8 +7,8 @@
 (function () {
   'use strict';
 
-  const VERSION = '5.3.6-wordle';
-  const PACK_LOCALES = ['es', 'fr', 'de', 'pt-BR', 'ar', 'ja', 'hi', 'ko', 'zh-Hans', 'zh-Hant'];
+  const VERSION = '5.3.9-wordle';
+  const PACK_LOCALES = ['es', 'fr', 'de', 'pt-BR', 'ar', 'ja', 'hi', 'kn', 'ko', 'zh-Hans', 'zh-Hant'];
   const prefetched = Object.create(null);
   const prefetching = Object.create(null);
   let loading = false;

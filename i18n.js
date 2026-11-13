@@ -9,7 +9,7 @@
   var SUPPORTED = {
     en: 'English', es: 'Español', fr: 'Français', de: 'Deutsch',
     'zh-Hans': '简体中文', 'zh-Hant': '繁體中文', ja: '日本語', ko: '한국어',
-    'pt-BR': 'Português (Brasil)', hi: 'हिन्दी', ar: 'العربية'
+    'pt-BR': 'Português (Brasil)', hi: 'हिन्दी', kn: 'ಕನ್ನಡ', ar: 'العربية'
   };
   var RTL = { ar: true };
   // Arabic and Hindi use their own digit shapes in the interface. Formatting
@@ -17,9 +17,10 @@
   // final text pass maps every ASCII digit explicitly.
   var NUMERALS = {
     ar: ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
-    hi: ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९']
+    hi: ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'],
+    kn: ['೦', '೧', '೨', '೩', '೪', '೫', '೬', '೭', '೮', '೯']
   };
-  var NUMBER_LOCALES = { ar: 'ar-u-nu-arab', hi: 'hi-u-nu-deva' };
+  var NUMBER_LOCALES = { ar: 'ar-u-nu-arab', hi: 'hi-u-nu-deva', kn: 'kn-u-nu-knda' };
   var locale = 'en';
   var catalog = { messages: {}, patterns: [] };
 

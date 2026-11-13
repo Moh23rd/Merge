@@ -9,7 +9,8 @@
 // 5.3.6: localized release labels, fallback copy and style refresh.
 // 5.3.7: 5.2 What’s New copy in every locale, plus RTL panel padding.
 // 5.3.8: collapsible accessibility settings; remove synthesized interface sounds.
-const VERSION = 'sixfold-5.3.8-settings';
+// 5.3.9: add the Kannada interface, font and Wordle dictionary.
+const VERSION = 'sixfold-5.3.9-kannada';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -22,7 +23,7 @@ const STYLE_ASSET = '5.2.0';
 const FONT_ASSET = '4.0.1';
 const THEME_JS = '5.2.0';
 const GAME_CODE = '4.0.0-w4';
-const WORDLE_CODE = '5.3.6-wordle';
+const WORDLE_CODE = '5.3.9-wordle';
 const SUDOKU_GAME_CODE = '5.2.0';
 const LOCALE_FONT = '5.1.3';
 const GAMES_CSS = '4.0.0-w14';
@@ -64,6 +65,7 @@ const SHELL = [
   './i18n-ko.js?v=5.3.7',
   './i18n-pt-br.js?v=5.3.7',
   './i18n-hi.js?v=5.3.7',
+  './i18n-kn.js?v=5.3.9',
   './i18n-ar.js?v=5.3.7',
   './i18n-patterns.js?v=5.3.7',
   './i18n.js?v=5.3.7',
@@ -87,6 +89,7 @@ const SHELL = [
   './fonts/sixfold-jp.woff2?v=' + LOCALE_FONT,
   './fonts/sixfold-kr.woff2?v=' + LOCALE_FONT,
   './fonts/sixfold-devanagari.woff2?v=' + LOCALE_FONT,
+  './fonts/sixfold-kannada.woff2?v=' + LOCALE_FONT,
   './fonts/sixfold-arabic.woff2?v=' + LOCALE_FONT
 ];
 
