@@ -47,8 +47,6 @@ six-piece cover work.
   result overlays inside the viewport.
 - The service worker now scopes cached responses, checks successful responses
   and cleans up older cache generations.
-- Beta previews build through `beta.sh` and can never cache themselves as the
-  release shell.
 
 ### Fixed
 
@@ -66,7 +64,7 @@ six-piece cover work.
 ## 3.0.0
 
 Sixfold 3.0 introduced the current collection shell and result-card flow. The
-3.0.x follow-ups and preview iterations are included in the 4.0.0 entry above.
+3.0.x follow-ups are included in the 4.0.0 entry above.
 
 Earlier release history lives in
 [GitHub Releases](https://github.com/Moh23rd/Sixfold/releases).
