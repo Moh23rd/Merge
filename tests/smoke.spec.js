@@ -461,3 +461,36 @@ test('Wordle board is accessible in Arabic', async ({ page }) => {
   await openWordle(page);
   await expectNoAxeViolations(page, 'Arabic Wordle');
 });
+
+test.describe('Wordle locale packs', () => {
+  test.use({ serviceWorkers: 'allow' });
+
+  test('downloads and caches only the active language dictionary', async ({ page }) => {
+    const packs = [];
+    page.on('request', (request) => {
+      const url = new URL(request.url());
+      if (url.pathname.startsWith('/wordle-locales/')) packs.push(url.pathname);
+    });
+
+    await page.goto('/');
+    await page.evaluate(() => localStorage.setItem('sixfold.locale.v1', 'es'));
+    await page.reload();
+    await page.waitForFunction(() => navigator.serviceWorker && navigator.serviceWorker.controller);
+    await openWordle(page);
+    await page.waitForFunction(() => window.SixfoldWordle && window.SixfoldWordleLocales);
+
+    const loaded = await page.evaluate(() => Object.keys(window.SixfoldWordleLocales || {}));
+    expect(loaded).toEqual(['es']);
+    expect(packs).toEqual(['/wordle-locales/es.js']);
+
+    await expect.poll(async () => page.evaluate(async () => {
+      const names = await caches.keys();
+      for (const name of names.filter((value) => value.startsWith('sixfold-'))) {
+        const cache = await caches.open(name);
+        const entries = await cache.keys();
+        if (entries.some((request) => new URL(request.url).pathname === '/wordle-locales/es.js')) return true;
+      }
+      return false;
+    })).toBe(true);
+  });
+});

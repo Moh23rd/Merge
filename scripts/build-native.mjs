@@ -43,12 +43,13 @@ const files = [
   'update.js',
   'wordle-loader.js',
   'wordle-words.js',
+  'wordle-i18n.js',
   'wordle.js',
   'manifest.webmanifest',
   'manifest-dark.webmanifest'
 ];
 
-const directories = ['fonts', 'icons', 'splash'];
+const directories = ['fonts', 'icons', 'splash', 'wordle-locales'];
 
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });

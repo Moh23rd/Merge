@@ -24,7 +24,8 @@
 - **Multilingual Wordle**: the hidden game now has localized board copy,
   result text and five-character dictionaries for all eleven interface
   languages, with a native input method for scripts that do not use the
-  on-screen letter grid.
+  on-screen letter grid. Only the active language's dictionary is downloaded
+  and cached.
 - **Localization audit in CI**: `npm run test:i18n` checks every catalog against
   the English source for missing or unknown keys, empty copy and mismatched
   numbered placeholders, including the shared dynamic-copy templates.
