@@ -351,6 +351,38 @@ html[data-daily="off"] #daily { display: none; }
 .sudoku-settings-open:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .sudoku-settings-open svg { width: 18px; height: 18px; }
 
+.settings-disclosure { margin-top: 20px; }
+
+.settings-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  list-style: none;
+  cursor: pointer;
+}
+
+.settings-summary::-webkit-details-marker { display: none; }
+.settings-summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+
+.settings-summary-chevron {
+  flex: none;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.settings-disclosure[open] .settings-summary-chevron { transform: rotate(90deg); }
+.settings-disclosure .settings-list { margin-top: 8px; }
+
 .settings-list {
   display: grid;
   gap: 6px;

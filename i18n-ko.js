@@ -279,8 +279,6 @@
     "Play Sudoku without a clock in view.": "타이머를 숨기고 스도쿠를 플레이.",
     "Check mistakes": "실수 확인",
     "Mark Sudoku entries that do not fit.": "맞지 않는 스도쿠 입력을 표시.",
-    "Interface sounds": "인터페이스 사운드",
-    "Quiet taps and a win phrase.": "은은한 탭 소리와 승리 문구.",
     "Sudoku input": "스도쿠 입력",
     "Cell first": "칸 먼저",
     "Digit first": "숫자 먼저",

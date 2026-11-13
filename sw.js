@@ -8,7 +8,8 @@
 // 5.3.5: show the offline fallback notice.
 // 5.3.6: localized release labels, fallback copy and style refresh.
 // 5.3.7: 5.2 What’s New copy in every locale, plus RTL panel padding.
-const VERSION = 'sixfold-5.3.7-licenses';
+// 5.3.8: collapsible accessibility settings; remove synthesized interface sounds.
+const VERSION = 'sixfold-5.3.8-settings';
 // Cache Storage is shared by every app on the origin. Only remove Sixfold's
 // own older caches, never another project's offline data.
 const CACHE_PREFIX = 'sixfold-';
@@ -28,7 +29,7 @@ const GAMES_CSS = '4.0.0-w14';
 const POLISH_CSS = '4.0.0-w11';
 const GAMES_JS = '5.1.0';
 const SUDOKU_CSS = '4.0.0-w13';
-const V5_CSS = '5.2.0';
+const V5_CSS = '5.2.1';
 const HOME_CSS = '4.0.0-w5';
 
 const SHELL = [
@@ -50,8 +51,7 @@ const SHELL = [
   './polish.css?v=' + POLISH_CSS,
   './sudoku.css?v=' + SUDOKU_CSS,
   './v5.css?v=' + V5_CSS,
-  './settings.js?v=5.2.0',
-  './sound.js?v=5.1.0',
+  './settings.js?v=5.2.1',
   './sudoku.js?v=' + SUDOKU_GAME_CODE,
   './games.js?v=' + GAMES_JS,
   './daily.js?v=5.2.0',

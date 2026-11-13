@@ -279,8 +279,6 @@
     "Play Sudoku without a clock in view.": "العب سودوكو دون عرض الساعة.",
     "Check mistakes": "فحص الأخطاء",
     "Mark Sudoku entries that do not fit.": "ضع علامة على أرقام سودوكو غير المناسبة.",
-    "Interface sounds": "أصوات الواجهة",
-    "Quiet taps and a win phrase.": "نقرات هادئة وعبارة فوز.",
     "Sudoku input": "إدخال سودوكو",
     "Cell first": "الخلية أولاً",
     "Digit first": "الرقم أولاً",

@@ -275,8 +275,6 @@
     "Play Sudoku without a clock in view.": "Jouez au Sudoku sans chrono visible.",
     "Check mistakes": "Vérifier les erreurs",
     "Mark Sudoku entries that do not fit.": "Marquez les entrées Sudoku qui ne conviennent pas.",
-    "Interface sounds": "Sons de l’interface",
-    "Quiet taps and a win phrase.": "Appuis discrets et phrase de victoire.",
     "Sudoku input": "Saisie Sudoku",
     "Cell first": "Case d’abord",
     "Digit first": "Chiffre d’abord",

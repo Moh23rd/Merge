@@ -279,8 +279,6 @@
     "Play Sudoku without a clock in view.": "玩数独时不显示计时器。",
     "Check mistakes": "检查错误",
     "Mark Sudoku entries that do not fit.": "标记不符合的数独输入。",
-    "Interface sounds": "界面声音",
-    "Quiet taps and a win phrase.": "轻柔的点击声和胜利提示。",
     "Sudoku input": "数独输入",
     "Cell first": "格子优先",
     "Digit first": "数字优先",

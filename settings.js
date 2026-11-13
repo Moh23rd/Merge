@@ -12,7 +12,6 @@
     hideTimer: false,
     checkMistakes: false,
     inputMode: 'cell',
-    sound: true,
     dailyPuzzle: true
   };
   const $ = function (id) { return document.getElementById(id); };

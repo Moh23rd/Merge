@@ -306,7 +306,7 @@
   <link rel="stylesheet" href="home.css?v=4.0.0-w5" />
   <link rel="stylesheet" href="polish.css?v=4.0.0-w11" />
   <link rel="stylesheet" href="sudoku.css?v=4.0.0-w13" />
-  <link rel="stylesheet" href="v5.css?v=5.2.0" />
+  <link rel="stylesheet" href="v5.css?v=5.2.1" />
 </head>
 <body data-screen="hub">
   <div class="boot-splash" id="boot-splash" aria-hidden="true">
@@ -1065,12 +1065,16 @@
         <button type="button" data-theme-opt="dark" aria-pressed="false">Dark</button>
       </div>        <p class="sheet-label">Colours</p>
       <div class="palettes" id="palettes" role="group" aria-label="Colours"></div>
-      <p class="sheet-label">Accessibility</p>
-      <div class="settings-list">
-        <button class="setting-row" type="button" data-setting="highContrast" aria-pressed="false"><span class="setting-copy"><strong>High contrast</strong><small>Stronger ink, borders and controls.</small></span><span class="setting-state">Off</span></button>
-        <button class="setting-row" type="button" data-setting="colorblind" aria-pressed="false"><span class="setting-copy"><strong>Colour-blind cues</strong><small>Patterns and symbols alongside colour.</small></span><span class="setting-state">Off</span></button>
-        <button class="setting-row" type="button" data-setting="sound" aria-pressed="true"><span class="setting-copy"><strong>Interface sounds</strong><small>Quiet taps and a win phrase.</small></span><span class="setting-state">On</span></button>
-      </div>
+      <details class="settings-disclosure" id="accessibility-settings">
+        <summary class="settings-summary">
+          <span>Accessibility</span>
+          <span class="settings-summary-chevron" aria-hidden="true">›</span>
+        </summary>
+        <div class="settings-list">
+          <button class="setting-row" type="button" data-setting="highContrast" aria-pressed="false"><span class="setting-copy"><strong>High contrast</strong><small>Stronger ink, borders and controls.</small></span><span class="setting-state">Off</span></button>
+          <button class="setting-row" type="button" data-setting="colorblind" aria-pressed="false"><span class="setting-copy"><strong>Colour-blind cues</strong><small>Patterns and symbols alongside colour.</small></span><span class="setting-state">Off</span></button>
+        </div>
+      </details>
       <p class="sheet-label">Home</p>
       <div class="settings-list">
         <button class="setting-row" type="button" data-setting="dailyPuzzle" aria-pressed="true"><span class="setting-copy"><strong>Daily Sixfold</strong><small>Show today’s six games on the hub.</small></span><span class="setting-state">On</span></button>
@@ -1262,11 +1266,10 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="settings.js?v=5.2.0"></script>
+  <script src="settings.js?v=5.2.1"></script>
   <script src="haptics.js?v=4.0.0"></script>
   <script src="overscroll.js?v=4.0.0"></script>
   <script src="celebrate.js?v=4.0.0"></script>
-  <script src="sound.js?v=5.1.0"></script>
   <script src="sharecard.js?v=4.0.0"></script>
   <script src="theme.js?v=5.2.0"></script>
   <script src="game.js?v=4.0.0-w4"></script>

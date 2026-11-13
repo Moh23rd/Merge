@@ -279,8 +279,6 @@
     "Play Sudoku without a clock in view.": "タイマーを表示せずに数独をプレイ。",
     "Check mistakes": "ミスをチェック",
     "Mark Sudoku entries that do not fit.": "合わない数独の数字に印を付ける。",
-    "Interface sounds": "インターフェース音",
-    "Quiet taps and a win phrase.": "控えめなタップ音と勝利の一言。",
     "Sudoku input": "数独の入力",
     "Cell first": "セル優先",
     "Digit first": "数字優先",

@@ -98,6 +98,10 @@ test('appearance settings update the document and backup downloads', async ({ pa
   await page.goto('/');
   await page.locator('#appearance').click();
   await expect(page.locator('#sheet')).toBeVisible();
+  await expect(page.locator('#accessibility-settings')).not.toHaveAttribute('open', '');
+  await expect(page.locator('[data-setting="sound"]')).toHaveCount(0);
+  await page.locator('#accessibility-settings summary').click();
+  await expect(page.locator('#accessibility-settings')).toHaveAttribute('open', '');
   await page.locator('[data-setting="highContrast"]').click();
   await expect(page.locator('html')).toHaveAttribute('data-contrast', 'high');
   await page.locator('[data-setting="highContrast"]').click();

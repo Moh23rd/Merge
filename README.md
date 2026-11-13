@@ -54,7 +54,7 @@ machine, Xcode and the store accounts. See [native/README.md](native/README.md).
 - **Made for a phone, comfortable on a desk.** The hub and every game layout adapt from a 320px screen up to a wide desktop.
 - **One look for the collection.** Light, dark or auto, with six colour palettes. The page and the browser chrome always match.
 - **Quiet motion.** Springy entrances, tactile result cards and a stamped seal when a round is cleared, with a still fallback for reduced motion.
-- **Play how you like.** Touch, mouse and full keyboard controls, plus screen-reader labels throughout. High contrast, colour-blind cues and optional sounds are in Look & feel. Larger Sudoku digits, left-handed landscape, timer visibility, mistake checking and input order live in **Sudoku settings**, opened from the Sudoku screen.
+- **Play how you like.** Touch, mouse and full keyboard controls, plus screen-reader labels throughout. High contrast and colour-blind cues are in Look & feel. Larger Sudoku digits, left-handed landscape, timer visibility, mistake checking and input order live in **Sudoku settings**, opened from the Sudoku screen.
 - **Installable.** Add Sixfold to a home screen for an app-like window and offline play.
 - **Eleven languages.** English, Spanish, French, German, Simplified and Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and Arabic cover the complete interface, aria labels, game status lines and dates. Bundled script fonts keep Chinese, Japanese, Korean, Devanagari and Arabic text consistent offline.
 - **Native shells included.** Capacitor projects for Android and iOS live alongside the web app.
@@ -129,7 +129,6 @@ polish.css                 motion, result cards and Wordle styles
 v5.css                     Daily Sixfold, settings, learning and update surfaces
 daily.js                   daily set, streak, calendar and share link
 settings.js                accessibility, input order, persistence and backup
-sound.js                   optional interface sounds
 update.js                  service-worker update prompt
 game.js                    Merge (2048)
 games.js                   Water Sort, Sudoku adapter, Fruit Merge, Tic Tac Toe, Minesweeper

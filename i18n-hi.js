@@ -279,8 +279,6 @@
     "Play Sudoku without a clock in view.": "बिना घड़ी दिखाए सुडोकू खेलें।",
     "Check mistakes": "गलतियाँ जाँचें",
     "Mark Sudoku entries that do not fit.": "सुडोकू के गलत अंकों को चिह्नित करें।",
-    "Interface sounds": "इंटरफ़ेस की आवाज़ें",
-    "Quiet taps and a win phrase.": "हल्की टैप आवाज़ और जीत का वाक्य।",
     "Sudoku input": "सुडोकू इनपुट",
     "Cell first": "पहले सेल",
     "Digit first": "पहले अंक",

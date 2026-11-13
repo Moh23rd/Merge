@@ -36,7 +36,6 @@ const files = [
   'overscroll.js',
   'settings.js',
   'sharecard.js',
-  'sound.js',
   'theme.js',
   'sudoku.js',
   'theme.js',

@@ -40,6 +40,10 @@ async function expectAllScreensAccessible(page, theme, locale) {
 
   await page.locator('#appearance').click();
   await expect(page.locator('#sheet')).toBeVisible();
+  const accessibility = page.locator('#accessibility-settings');
+  if (await accessibility.isVisible() && !(await accessibility.evaluate((element) => element.open))) {
+    await accessibility.locator('summary').click();
+  }
   await openLanguagePicker(page);
   await waitForEntrance(page);
   await expectNoAxeViolations(page, screen + ' settings');

@@ -279,8 +279,6 @@
     "Play Sudoku without a clock in view.": "玩數獨時不顯示計時器。",
     "Check mistakes": "檢查錯誤",
     "Mark Sudoku entries that do not fit.": "標記放不進去的數獨數字。",
-    "Interface sounds": "介面聲音",
-    "Quiet taps and a win phrase.": "輕柔的點擊聲與勝利提示。",
     "Sudoku input": "數獨輸入",
     "Cell first": "先選格子",
     "Digit first": "先選數字",
