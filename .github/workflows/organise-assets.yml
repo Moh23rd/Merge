@@ -1,7 +1,9 @@
 name: Organise public assets
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - chore/organise-assets
 
 permissions:
   contents: write
