@@ -1,0 +1,51 @@
+name: Bug report
+description: Something in Sixfold is broken or behaves unexpectedly.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing Sixfold. Please do not include private data or an entire backup file.
+  - type: dropdown
+    id: game
+    attributes:
+      label: Where did it happen?
+      options:
+        - Hub / Daily Sixfold
+        - Merge
+        - Sudoku
+        - Tic Tac Toe
+        - Minesweeper
+        - Water Sort
+        - Fruit Merge
+        - Wordle
+        - Install / offline
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open ...\n2. Tap ...\n3. See ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: "iPhone 15, Safari 19 / Pixel 8, Chrome 157"
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I am using the latest version (check the hub footer).
+        - label: This still happens after a reload.

@@ -9,6 +9,9 @@
   const STORE_BEST = 'merge2048.best';
 
   let size = DEFAULT_SIZE;
+  let dailyActive = false;
+  let dailySeed = '';
+  let tileRandom = Math.random;
 
   const boardEl = document.getElementById('board');
   const gridEl = document.getElementById('grid');
@@ -266,8 +269,8 @@
     }
     if (!empty.length) return null;
 
-    const spot = empty[Math.floor(Math.random() * empty.length)];
-    const value = Math.random() < 0.9 ? 2 : 4;
+    const spot = empty[Math.floor(tileRandom() * empty.length)];
+    const value = tileRandom() < 0.9 ? 2 : 4;
     const tile = createTile(value, spot[0], spot[1], true);
     grid[spot[0]][spot[1]] = tile;
     tiles.push(tile);
@@ -277,6 +280,9 @@
   /* ---------- saved game ---------- */
 
   function saveGame() {
+    // A daily run is disposable by design: its seeded board must never replace
+    // the player's normal saved game.
+    if (dailyActive) return;
     const cells = [];
     for (let r = 0; r < size; r++) {
       for (let c = 0; c < size; c++) {
@@ -557,7 +563,9 @@
       hintEl.setAttribute('aria-live', 'polite');
       hintEl.textContent = HINT_TIGHT;
     } else {
-      hintEl.textContent = TIPS[tipIndex];
+      hintEl.textContent = dailyActive
+        ? 'Daily Sixfold. Seeded 4 by 4 — every new tile follows today’s sequence.'
+        : TIPS[tipIndex];
       hintEl.setAttribute('aria-live', 'off');
     }
     hintEl.classList.toggle('is-warning', tight);
@@ -780,6 +788,9 @@
   }
 
   function showResultCard(snapshot, reopen, finished) {
+    if (!reopen && dailyActive && window.SixfoldDaily) {
+      window.SixfoldDaily.complete('merge', { score: snapshot.score });
+    }
     if (!snapshot.win && window.MergeCelebrate) {
       window.MergeCelebrate.clear(document.querySelector('.overlay-card'));
     }
@@ -969,10 +980,17 @@
     }, 1600);
   }
 
+  function localizeShare(value) {
+    return window.SixfoldI18n && window.SixfoldI18n.number
+      ? window.SixfoldI18n.number(String(value))
+      : String(value);
+  }
+
   // Somewhere without a share sheet (most desktops) copies the same line instead.
   function copyResult(message) {
     const url = shareUrl();
-    const text = url ? message + ' ' + url : message;
+    const localized = localizeShare(message);
+    const text = url ? localized + ' ' + url : localized;
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
       flashShare('Couldn’t copy');
       return;
@@ -995,7 +1013,7 @@
 
   function shareText(message, url) {
     if (navigator.share) {
-      navigator.share({ title: 'Sixfold — Merge', text: message, url: url || undefined }).catch(function (err) {
+      navigator.share({ title: 'Sixfold — Merge', text: localizeShare(message), url: url || undefined }).catch(function (err) {
         // Closing the share sheet is a choice, not a failure.
         if (err && err.name === 'AbortError') return;
         copyResult(message);
@@ -1006,10 +1024,11 @@
   }
 
   function shareFile(file, message, url) {
+    const localized = localizeShare(message);
     navigator.share({
       files: [file],
       title: 'Sixfold — Merge',
-      text: url ? message + ' ' + url : message
+      text: url ? localized + ' ' + url : localized
     }).catch(function (err) {
       if (err && err.name === 'AbortError') return;
       shareText(message, url);
@@ -1109,12 +1128,49 @@
       booted = true;
       showTip(false);
     }
-    syncBoardAccessibility('New ' + size + ' by ' + size + ' board.');
+    syncBoardAccessibility(dailyActive
+      ? 'Daily Sixfold run. Seeded ' + size + ' by ' + size + ' board.'
+      : 'New ' + size + ' by ' + size + ' board.');
   }
 
   function newGame() {
+    if (dailyActive && window.SixfoldDaily) {
+      tileRandom = window.SixfoldDaily.seededRandom(dailySeed);
+    }
     if (window.MergeCelebrate) window.MergeCelebrate.clear(document.querySelector('.overlay-card'));
     resetBoard();
+  }
+
+  function startDaily(seed) {
+    if (!window.SixfoldDaily) return;
+    dailyActive = true;
+    dailySeed = seed;
+    size = DEFAULT_SIZE;
+    buildCells();
+    loadBest();
+    syncSizeButtons();
+    newGame();
+    syncBoardAccessibility('Daily Sixfold run. Seeded 4 by 4 board.');
+  }
+
+  function endDaily() {
+    if (!dailyActive) return;
+    dailyActive = false;
+    tileRandom = Math.random;
+    const saved = readSaved();
+    if (saved) {
+      size = saved.size;
+      buildCells();
+      loadBest();
+      applyState(saved);
+      syncSizeButtons();
+      return;
+    }
+    size = readStoredSize();
+    buildCells();
+    loadBest();
+    resetBoard();
+    syncSizeButtons();
   }
 
   function resetSavedData() {
@@ -1151,6 +1207,7 @@
   }
 
   function setSize(next) {
+    if (dailyActive) return;
     if (next !== 3 && next !== 4 && next !== 5) return;
     if (next === size) {
       syncSizeButtons();
@@ -1368,7 +1425,7 @@
             }
           }
         }
-        const face = new FontFace(family, 'url("fonts/google-sans-flex.woff2?v=4.0.0")', {
+        const face = new FontFace(family, 'url("fonts/google-sans-flex.woff2?v=4.0.1")', {
           weight: '100 1000',
           display: 'swap'
         });
@@ -1402,7 +1459,10 @@
       saveSuspended = true;
     },
     newGame: newGame,
-    resetData: resetSavedData
+    resetData: resetSavedData,
+    startDaily: startDaily,
+    endDaily: endDaily,
+    isDaily: function () { return dailyActive; }
   };
 
   const saved = readSaved();

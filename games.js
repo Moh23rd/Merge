@@ -3,6 +3,10 @@
 (function () {
   'use strict';
 
+  function localize(value) {
+    return window.SixfoldI18n ? window.SixfoldI18n.t(value) : value;
+  }
+
   const $ = function (id) { return document.getElementById(id); };
   const $$ = function (selector) { return Array.from(document.querySelectorAll(selector)); };
   const body = document.body;
@@ -38,9 +42,10 @@
     }
   }
 
-  function shuffle(values) {
+  function shuffle(values, rng) {
+    const random = rng || Math.random;
     for (let i = values.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(random() * (i + 1));
       const temp = values[i];
       values[i] = values[j];
       values[j] = temp;
@@ -79,9 +84,16 @@
     }, 2300);
   }
 
+  function localizeShare(text) {
+    return window.SixfoldI18n && window.SixfoldI18n.number
+      ? window.SixfoldI18n.number(String(text))
+      : String(text);
+  }
+
   function copyShare(text) {
     const url = shareUrl();
-    const full = url ? text + ' ' + url : text;
+    const localized = localizeShare(text);
+    const full = url ? localized + ' ' + url : localized;
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
       toast('Copy is not available in this browser.');
       return;
@@ -95,8 +107,9 @@
 
   function share(title, text) {
     const url = shareUrl();
+    const localized = localizeShare(text);
     if (navigator.share) {
-      navigator.share({ title: title || SHARE_TITLE, text: text, url: url || undefined }).catch(function (err) {
+      navigator.share({ title: title || SHARE_TITLE, text: localized, url: url || undefined }).catch(function (err) {
         // Closing the share sheet is a choice, not a failure.
         if (err && err.name === 'AbortError') return;
         copyShare(text);
@@ -215,10 +228,10 @@
     const el = document.createElement('div');
     el.className = 'coach';
     el.setAttribute('role', 'group');
-    el.setAttribute('aria-label', 'Quick tutorial');
+    el.setAttribute('aria-label', localize('Quick tutorial'));
     el.innerHTML = '<span class="coach-step" aria-hidden="true"></span>' +
       '<p class="coach-text" aria-live="polite"></p>' +
-      '<button class="coach-skip" type="button" aria-label="Skip tutorial" title="Skip tutorial">Skip</button>';
+      '<button class="coach-skip" type="button" aria-label="' + localize('Skip tutorial') + '" title="' + localize('Skip tutorial') + '">' + localize('Skip') + '</button>';
     el.querySelector('.coach-skip').addEventListener('click', function () {
       markCoachSeen(coach.game);
       hideCoach();
@@ -232,7 +245,7 @@
     const step = steps && steps[coach.step];
     if (!step) return;
     coach.el.querySelector('.coach-step').textContent = (coach.step + 1) + '/' + steps.length;
-    coach.el.querySelector('.coach-text').textContent = step.text;
+    coach.el.querySelector('.coach-text').textContent = localize(step.text);
     coach.el.classList.remove('coach-in');
     void coach.el.offsetWidth;
     coach.el.classList.add('coach-in');
@@ -393,6 +406,12 @@
     });
 
     const isMerge = screen === 'merge';
+    // Never make the element that contains focus aria-hidden. Firefox and
+    // Chrome both warn about it, and some screen readers drop the next focus
+    // move. The destination screen gets focus immediately after this call.
+    if (!isMerge && app.contains(document.activeElement)) {
+      try { document.activeElement.blur(); } catch (err) {}
+    }
     app.toggleAttribute('inert', !isMerge);
     if (isMerge) app.removeAttribute('aria-hidden');
     else app.setAttribute('aria-hidden', 'true');
@@ -742,7 +761,17 @@
   games.merge = {
     title: null,
     activate: function () {},
-    deactivate: function () {}
+    deactivate: function () {
+      if (window.MergeGame && window.MergeGame.isDaily && window.MergeGame.isDaily()) {
+        window.MergeGame.endDaily();
+      }
+    },
+    startDaily: function (seed) {
+      if (window.MergeGame) window.MergeGame.startDaily(seed);
+    },
+    endDaily: function () {
+      if (window.MergeGame) window.MergeGame.endDaily();
+    }
   };
 
   const PLAY_HELP = {
@@ -852,7 +881,7 @@
       const tools = document.createElement('div');
       tools.className = 'play-tools';
       tools.setAttribute('role', 'group');
-      tools.setAttribute('aria-label', 'Game controls');
+      tools.setAttribute('aria-label', localize('Game controls'));
 
       const hapticBtn = document.createElement('button');
       hapticBtn.type = 'button';
@@ -871,8 +900,8 @@
       helpBtn.type = 'button';
       helpBtn.className = 'play-tool';
       helpBtn.dataset.playTool = 'help';
-      helpBtn.setAttribute('aria-label', 'How to play ' + name);
-      helpBtn.title = 'How to play ' + name;
+      helpBtn.setAttribute('aria-label', localize('How to play ' + name));
+      helpBtn.title = localize('How to play ' + name);
       helpBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.6" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="M9.6 9.4a2.6 2.6 0 0 1 5.1.7c0 1.7-2.4 1.9-2.4 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><circle cx="12" cy="17.3" r="1.05" fill="currentColor" /></svg>';
       helpBtn.addEventListener('click', function () {
         if (guide && window.MergeTheme && window.MergeTheme.openHelp) {
@@ -885,8 +914,8 @@
       resetBtn.type = 'button';
       resetBtn.className = 'play-tool play-reset';
       resetBtn.dataset.playTool = 'reset';
-      resetBtn.setAttribute('aria-label', 'Reset ' + name + ' data');
-      resetBtn.title = 'Reset ' + name + ' data';
+      resetBtn.setAttribute('aria-label', localize('Reset ' + name + ' data'));
+      resetBtn.title = localize('Reset ' + name + ' data');
       resetBtn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /><path d="M20 4v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>';
       resetBtn.addEventListener('click', function () { requestGameReset(screen.id, resetBtn); });
       tools.appendChild(resetBtn);
@@ -900,8 +929,8 @@
       hapticButtons.forEach(function (button) {
         button.classList.toggle('is-off', !enabled);
         button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
-        button.setAttribute('aria-label', enabled ? 'Vibration on' : 'Vibration off');
-        button.title = enabled ? 'Vibration on' : 'Vibration off';
+        button.setAttribute('aria-label', localize(enabled ? 'Vibration on' : 'Vibration off'));
+        button.title = localize(enabled ? 'Vibration on' : 'Vibration off');
       });
     }
 
@@ -955,6 +984,8 @@
     let solved = false;
     let busy = false;
     let statusTimer = 0;
+    let dailyActive = false;
+    let dailyLevel = 0;
 
     function colorOf(index) {
       const base = COLORS[index] || COLORS[0];
@@ -1011,6 +1042,8 @@
     }
 
     function saveState() {
+      // Daily boards are separate from the player's normal saved level.
+      if (dailyActive) return;
       save(STATE_KEY, {
         level: level,
         tubes: cloneTubes(tubes),
@@ -1282,6 +1315,7 @@
       }, pourMs + 50);
       if (solved) {
         if (window.MergeCoach) window.MergeCoach.complete('water');
+        if (dailyActive && window.SixfoldDaily) window.SixfoldDaily.complete('water');
         status('Level clear. Every colour has its own tube.');
         if (window.MergeHaptics) window.MergeHaptics.win();
         if (window.MergeCelebrate) {
@@ -1357,13 +1391,18 @@
 
     function nextLevel() {
       cancelAutoNext();
-      const next = (level + 1) % LEVELS.length;
-      loadLevel(level + 1, LEVELS[next].tier + ' level ' + (next + 1) + '. Take your time.');
+      if (dailyActive) {
+        loadLevel(dailyLevel, 'Daily Sixfold. Same seeded level.');
+        return;
+      }
+      loadLevel(level + 1, 'Take your time.');
     }
 
     undoBtn.addEventListener('click', undo);
     newBtn.addEventListener('click', function () {
-      loadLevel(level, 'Fresh board. Same colours, same calm.');
+      loadLevel(dailyActive ? dailyLevel : level, dailyActive
+        ? 'Daily Sixfold. Same seeded level.'
+        : 'Fresh board. Same colours, same calm.');
     });
     nextBtn.addEventListener('click', nextLevel);
 
@@ -1400,7 +1439,8 @@
       }
       if (key === 'n') {
         event.preventDefault();
-        loadLevel(level + 1, 'Next board. Take your time.');
+        if (dailyActive) loadLevel(dailyLevel, 'Daily Sixfold. Same seeded level.');
+        else loadLevel(level + 1, 'Next board. Take your time.');
         return;
       }
       if (event.key === 'ArrowLeft' || event.key === 'ArrowUp' || event.key === 'ArrowRight' || event.key === 'ArrowDown') {
@@ -1417,6 +1457,21 @@
 
     window.addEventListener('merge:appearance', function () { render(); });
 
+    function startDaily(seed, dateKey) {
+      if (!window.SixfoldDaily) return;
+      dailyActive = true;
+      const day = Number(String(dateKey).slice(-2)) || 1;
+      dailyLevel = day % LEVELS.length;
+      loadLevel(dailyLevel, 'Daily Sixfold. Seeded ' + LEVELS[dailyLevel].tier.toLowerCase() + ' level.');
+      status('Daily Sixfold. Clear this seeded level.');
+    }
+
+    function endDaily() {
+      if (!dailyActive) return;
+      dailyActive = false;
+      restore();
+    }
+
     restore();
     games.water = {
       title: title,
@@ -1427,12 +1482,16 @@
       },
       deactivate: function () {
         cancelAutoNext();
-        saveState();
+        if (dailyActive) endDaily();
+        else saveState();
       },
       reset: function () {
+        if (dailyActive) endDaily();
         try { localStorage.removeItem(STATE_KEY); } catch (err) {}
         loadLevel(0, 'Progress reset. Back to level 1.');
-      }
+      },
+      startDaily: startDaily,
+      endDaily: endDaily
     };
   })();
 
@@ -1505,6 +1564,11 @@
     let mode = savedMode && savedMode.mode === 'two' ? 'two' : 'computer';
     let difficulty = savedDifficulty && ['easy', 'sharp', 'perfect'].indexOf(savedDifficulty.difficulty) !== -1
       ? savedDifficulty.difficulty : 'sharp';
+    let dailyActive = false;
+    let dailySeed = '';
+    let normalMode = mode;
+    let normalDifficulty = difficulty;
+    let aiRandom = Math.random;
     let board = Array(9).fill('');
     let turn = 'X';
     let over = false;
@@ -1625,6 +1689,9 @@
       over = true;
       winner = mark;
       if (window.MergeCoach) window.MergeCoach.complete('ttt');
+      if (dailyActive && mode === 'computer' && mark === 'X' && window.SixfoldDaily) {
+        window.SixfoldDaily.complete('ttt', { difficulty: difficulty });
+      }
       winLine = line;
       if (mode === 'two') {
         if (mark === 'X') twoStats.x += 1;
@@ -1693,7 +1760,7 @@
     function randomMove(state) {
       const empty = [];
       state.forEach(function (mark, index) { if (!mark) empty.push(index); });
-      return empty.length ? empty[Math.floor(Math.random() * empty.length)] : null;
+      return empty.length ? empty[Math.floor(aiRandom() * empty.length)] : null;
     }
 
     function winningMove(state, mark) {
@@ -1733,7 +1800,7 @@
       if (difficulty === 'easy') {
         // Easy mostly plays the first square it likes. It can take a win now
         // and then, but it does not look for a block.
-        if (Math.random() < 0.22) {
+        if (aiRandom() < 0.22) {
           const win = winningMove(board.slice(), 'O');
           if (win !== null) return win;
         }
@@ -1746,11 +1813,11 @@
         if (block !== null) return block;
         // Sharp takes the middle or a corner, with the occasional human-like
         // lapse onto a side so every round does not follow the same script.
-        if (Math.random() < 0.12) return randomMove(board);
+        if (aiRandom() < 0.12) return randomMove(board);
         const strong = [];
         if (!board[4]) strong.push(4);
         [0, 2, 6, 8].forEach(function (index) { if (!board[index]) strong.push(index); });
-        if (strong.length) return strong[Math.floor(Math.random() * strong.length)];
+        if (strong.length) return strong[Math.floor(aiRandom() * strong.length)];
         return randomMove(board);
       }
       // Perfect play can still vary: choose randomly between equally optimal
@@ -1769,7 +1836,7 @@
           bestMoves.push(i);
         }
       }
-      return bestMoves.length ? bestMoves[Math.floor(Math.random() * bestMoves.length)] : null;
+      return bestMoves.length ? bestMoves[Math.floor(aiRandom() * bestMoves.length)] : null;
     }
 
     function scheduleAI() {
@@ -1789,6 +1856,9 @@
     function newRound() {
       cancelAutoNext();
       window.clearTimeout(aiTimer);
+      if (dailyActive && window.SixfoldDaily) {
+        aiRandom = window.SixfoldDaily.seededRandom(dailySeed + '|round');
+      }
       board = Array(9).fill('');
       turn = 'X';
       over = false;
@@ -1796,7 +1866,9 @@
       winLine = null;
       thinking = false;
       render();
-      status(mode === 'two' ? "X's move." : 'Your move. You are X.');
+      status(dailyActive
+        ? 'Daily Sixfold. Your move. You are X.'
+        : mode === 'two' ? "X's move." : 'Your move. You are X.');
     }
 
     function makeBoard() {
@@ -1866,6 +1938,31 @@
       });
     }
 
+    function startDaily(seed, dateKey) {
+      if (!window.SixfoldDaily) return;
+      if (!dailyActive) {
+        normalMode = mode;
+        normalDifficulty = difficulty;
+      }
+      dailyActive = true;
+      dailySeed = seed;
+      mode = 'computer';
+      const day = Number(String(dateKey).slice(-2)) || 1;
+      difficulty = day % 3 === 0 ? 'perfect' : day % 3 === 1 ? 'sharp' : 'easy';
+      aiRandom = window.SixfoldDaily.seededRandom(seed + '|round');
+      newRound();
+      status('Daily Sixfold. Beat the seeded ' + difficulty + ' computer.');
+    }
+
+    function endDaily() {
+      if (!dailyActive) return;
+      dailyActive = false;
+      aiRandom = Math.random;
+      mode = normalMode;
+      difficulty = normalDifficulty;
+      newRound();
+    }
+
     makeBoard();
     newRound();
 
@@ -1882,8 +1979,11 @@
         cancelAutoNext();
         window.clearTimeout(aiTimer);
         thinking = false;
+        if (dailyActive) endDaily();
         render();
       },
+      startDaily: startDaily,
+      endDaily: endDaily,
       reset: function () {
         stats = { wins: 0, draws: 0, losses: 0 };
         twoStats = { x: 0, draws: 0, o: 0 };
@@ -1971,6 +2071,9 @@
     let score = 0;
     let best = Number(load(BEST_KEY, 0)) || 0;
     let nextTier = 0;
+    let dailyActive = false;
+    let dailySeed = '';
+    let fruitRandom = Math.random;
     let aimX = W / 2;
     let over = false;
     let running = false;
@@ -2011,7 +2114,7 @@
          under three large drops in a row. Large fruit still appear; they are
          simply rarer, as in a tuned Suika-style opening. */
       const weights = [20, 22, 22, 19, 17];
-      let roll = Math.random() * 100;
+      let roll = fruitRandom() * 100;
       for (let i = 0; i < weights.length; i += 1) {
         roll -= weights[i];
         if (roll < 0) return i;
@@ -2328,6 +2431,7 @@
       if (over) return;
       over = true;
       if (window.MergeCoach) window.MergeCoach.complete('fruit');
+      if (dailyActive && window.SixfoldDaily) window.SixfoldDaily.complete('fruit', { score: score });
       if (overlay) overlay.hidden = false;
       if (finalScore) finalScore.textContent = String(score);
       if (finalBest) finalBest.textContent = String(best);
@@ -2814,9 +2918,14 @@
 
     function beginNewRun() {
       cancelAutoNext();
+      if (dailyActive && window.SixfoldDaily) {
+        fruitRandom = window.SixfoldDaily.seededRandom(dailySeed + '|run');
+      }
       newRun();
       startLoop();
-      setStatus('Fresh fruit. Drag to aim, release to drop.');
+      setStatus(dailyActive
+        ? 'Daily Sixfold. Drag to aim, release to drop.'
+        : 'Fresh fruit. Drag to aim, release to drop.');
     }
 
     let drag = null;
@@ -2906,6 +3015,21 @@
       }
     });
 
+    function startDaily(seed) {
+      if (!window.SixfoldDaily) return;
+      dailyActive = true;
+      dailySeed = seed;
+      beginNewRun();
+      setStatus('Daily Sixfold. Seeded fruit run.');
+    }
+
+    function endDaily() {
+      if (!dailyActive) return;
+      dailyActive = false;
+      fruitRandom = Math.random;
+      newRun();
+    }
+
     syncPalette();
     readUi();
     setupCanvas();
@@ -2930,7 +3054,10 @@
           window.cancelAnimationFrame(aimFrame);
           aimFrame = 0;
         }
+        if (dailyActive) endDaily();
       },
+      startDaily: startDaily,
+      endDaily: endDaily,
       reset: function () {
         best = 0;
         try { localStorage.removeItem(BEST_KEY); } catch (err) {}
@@ -2992,6 +3119,10 @@
     let suppressClick = false;
     let cellButtons = [];
     let explodedIndex = -1;
+    let dailyActive = false;
+    let dailySeed = '';
+    let normalDifficulty = difficulty;
+    let mineRandom = Math.random;
 
     function currentLevel() {
       return LEVELS[difficulty];
@@ -3108,6 +3239,9 @@
 
     function reset(message) {
       cancelAutoNext();
+      if (dailyActive && window.SixfoldDaily) {
+        mineRandom = window.SixfoldDaily.seededRandom(dailySeed + '|field');
+      }
       const level = currentLevel();
       root.dataset.difficulty = difficulty;
       cols = level.cols;
@@ -3129,6 +3263,20 @@
       updateStats();
       render();
       status(message || 'Tap a square to begin. Long-press to flag.');
+      if (dailyActive) {
+        // Place the field once, from the date seed, instead of on the first
+        // tap. A seeded numbered opening cell is revealed so every player
+        // gets the same board and a safe foothold.
+        const safeRandom = window.SixfoldDaily.seededRandom(dailySeed + '|opening');
+        const safeIndex = Math.floor(safeRandom() * cells.length);
+        placeMines(safeIndex);
+        const opening = cells.findIndex(function (cell) { return !cell.mine && cell.count > 0; });
+        const fallback = cells.findIndex(function (cell) { return !cell.mine; });
+        started = true;
+        openCell(opening >= 0 ? opening : fallback);
+        startTimer();
+        status('Daily Sixfold. Opening square revealed. Clear the seeded field.');
+      }
     }
 
     function placeMines(safeIndex) {
@@ -3138,7 +3286,7 @@
       for (let i = 0; i < cells.length; i += 1) {
         if (!safe.has(i)) candidates.push(i);
       }
-      shuffle(candidates);
+      shuffle(candidates, mineRandom);
       for (let i = 0; i < Math.min(mineCount, candidates.length); i += 1) {
         cells[candidates[i]].mine = true;
       }
@@ -3190,7 +3338,9 @@
         if (resultTitle) resultTitle.textContent = won ? 'Field cleared.' : 'Mine hit.';
         if (resultCopy) resultCopy.textContent = won
           ? 'Every safe square is open.'
-          : 'Try a fresh field. The first square is always safe.';
+          : dailyActive
+            ? 'Try the same seeded field again.'
+            : 'Try a fresh field. The first square is always safe.';
         if (resultEl) resultEl.hidden = false;
         // On a loss the result card already says "Mine hit"; keeping the status
         // line too made the page taller in landscape and pushed the board off.
@@ -3202,6 +3352,7 @@
       over = true;
       won = win;
       if (window.MergeCoach) window.MergeCoach.complete('mines');
+      if (win && dailyActive && window.SixfoldDaily) window.SixfoldDaily.complete('mines');
       explodedIndex = win ? -1 : (Number.isInteger(exploded) ? exploded : -1);
       if (win) {
         cells.forEach(function (cell) {
@@ -3451,6 +3602,26 @@
       });
     }
 
+    function startDaily(seed, dateKey) {
+      if (!window.SixfoldDaily) return;
+      if (!dailyActive) normalDifficulty = difficulty;
+      dailyActive = true;
+      dailySeed = seed;
+      const day = Number(String(dateKey).slice(-2)) || 1;
+      difficulty = day % 3 === 0 ? 'hard' : day % 3 === 1 ? 'medium' : 'easy';
+      mineRandom = window.SixfoldDaily.seededRandom(seed + '|field');
+      reset('Daily Sixfold. First tap is safe.');
+      status('Daily Sixfold. Clear the seeded ' + currentLevel().label.toLowerCase() + ' field.');
+    }
+
+    function endDaily() {
+      if (!dailyActive) return;
+      dailyActive = false;
+      mineRandom = Math.random;
+      difficulty = normalDifficulty;
+      reset('Daily challenge closed. Fresh normal field.');
+    }
+
     reset('Tap a square to begin. Long-press to flag.');
     games.mines = {
       title: title,
@@ -3468,7 +3639,10 @@
       deactivate: function () {
         cancelAutoNext();
         stopTimer();
+        if (dailyActive) endDaily();
       },
+      startDaily: startDaily,
+      endDaily: endDaily,
       reset: function () {
         difficulty = 'easy';
         try { localStorage.removeItem(DIFFICULTY_KEY); } catch (err) {}
@@ -3495,6 +3669,15 @@
     },
     reset: function () {
       if (window.SixfoldWordle) window.SixfoldWordle.reset();
+    }
+  };
+
+  // The daily layer opens games through the same router as the hub cards.
+  window.MergeGames = {
+    open: openGame,
+    back: backToHub,
+    startDaily: function (game, seed, dateKey) {
+      if (games[game] && games[game].startDaily) games[game].startDaily(seed, dateKey);
     }
   };
 

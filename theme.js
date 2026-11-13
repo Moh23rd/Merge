@@ -163,7 +163,7 @@
       link.id = 'manifest-link';
       document.head.appendChild(link);
     }
-    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=4.0.0';
+    const href = (theme === 'dark' ? 'manifest-dark.webmanifest' : 'manifest.webmanifest') + '?v=5.1.0';
     if (link.getAttribute('href') !== href) link.setAttribute('href', href);
   }
 
@@ -266,7 +266,9 @@
       btn.className = 'palette';
       btn.dataset.paletteOpt = p.id;
       btn.setAttribute('aria-pressed', 'false');
-      btn.setAttribute('aria-label', p.label + ' colours');
+      // Use the visible palette name. A composed "Warm colours" label stops
+      // matching the visible word once the locale translates them separately.
+      btn.setAttribute('aria-label', p.label);
 
       const sw = document.createElement('span');
       sw.className = 'swatches';
@@ -411,6 +413,8 @@
   const aboutSheet = document.getElementById('about');
   const aboutBtn = document.getElementById('hub-about');
   const resetSheet = document.getElementById('reset-sheet');
+  const sudokuSettingsSheet = document.getElementById('sudoku-settings');
+  const sudokuSettingsBtn = document.getElementById('sudoku-settings-open');
   const wipeSheet = document.getElementById('wipe-sheet');
   const wipeBtn = document.getElementById('wipe-open');
   const wipeConfirmBtn = document.getElementById('wipe-confirm');
@@ -425,13 +429,17 @@
     ? Array.prototype.map.call(helpStepsEl.children, function (item) { return item.textContent; })
     : [];
 
+  function localize(value) {
+    return window.SixfoldI18n ? window.SixfoldI18n.t(value) : value;
+  }
+
   function renderHelp(title, steps) {
     if (!helpTitleEl || !helpStepsEl) return;
-    helpTitleEl.textContent = title || defaultHelpTitle;
+    helpTitleEl.textContent = localize(title || defaultHelpTitle);
     helpStepsEl.textContent = '';
     (steps && steps.length ? steps : defaultHelpSteps).forEach(function (copy) {
       const item = document.createElement('li');
-      item.textContent = copy;
+      item.textContent = localize(copy);
       helpStepsEl.appendChild(item);
     });
   }
@@ -455,6 +463,7 @@
   wireSheet(sizeSheet, sizeBtn);
   wireSheet(helpSheet, helpBtn);
   wireSheet(aboutSheet, aboutBtn);
+  wireSheet(sudokuSettingsSheet, sudokuSettingsBtn);
 
   // Erasing everything is deliberately two separate taps: the quiet button in
   // Look & feel opens a warning sheet, and only its red button clears data.
@@ -525,9 +534,9 @@
       if (options.onConfirm) options.onConfirm();
       return;
     }
-    resetTitleEl.textContent = 'Reset ' + options.name + '?';
-    resetCopyEl.textContent = options.copy || ('This clears ' + options.name + ' data on this device.');
-    resetConfirmBtn.textContent = 'Reset ' + options.name;
+    resetTitleEl.textContent = localize('Reset ' + options.name + '?');
+    resetCopyEl.textContent = localize(options.copy || ('This clears ' + options.name + ' data on this device.'));
+    resetConfirmBtn.textContent = localize('Reset ' + options.name);
     resetAction = options.onConfirm || null;
     openSheet(resetSheet, options.opener || null);
   }
@@ -539,6 +548,7 @@
     if (sizeSheet && !sizeSheet.hidden) return sizeSheet;
     if (helpSheet && !helpSheet.hidden) return helpSheet;
     if (aboutSheet && !aboutSheet.hidden) return aboutSheet;
+    if (sudokuSettingsSheet && !sudokuSettingsSheet.hidden) return sudokuSettingsSheet;
     if (wipeSheet && !wipeSheet.hidden) return wipeSheet;
     if (resetSheet && !resetSheet.hidden) return resetSheet;
     return null;

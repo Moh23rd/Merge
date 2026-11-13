@@ -1,5 +1,139 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- **Daily Sixfold** now uses the same flat paper surfaces and hard edge as the
+  rest of the hub, with no gradient wash. The section can be hidden from
+  **Look & feel → Home** without losing streaks or check-ins.
+- **The language picker** is a compact collapsed row that expands only when
+  needed, instead of showing every language at once.
+- **Sudoku settings** — larger digits, left-handed layout, hidden timer,
+  mistake checking and input order — moved from the hub sheet into a
+  **Sudoku settings** sheet on the Sudoku screen.
+
+### Fixed
+
+- Interface numbers now use Arabic-Indic digits in Arabic and Devanagari
+  digits in Hindi, including scores, timers, daily counters and Sudoku
+  digits, while dates and share text use the same locale-aware numerals.
+
+### Added
+
+- **Localization audit in CI**: `npm run test:i18n` checks every catalog against
+  the English source for missing or unknown keys, empty copy and mismatched
+  numbered placeholders, including the shared dynamic-copy templates.
+- **Localized store listings and privacy policies** for Simplified and
+  Traditional Chinese, Japanese, Korean, Brazilian Portuguese, Hindi and
+  Arabic, alongside the English and Spanish store copy.
+- **Seven more interface languages**: Simplified and Traditional Chinese,
+  Japanese, Korean, Brazilian Portuguese, Hindi and Arabic. Each includes a
+  complete catalog for the hub, all six games, settings, help, accessibility
+  labels, validation messages, game status lines, dates and daily share text.
+  Arabic switches the interface to right-to-left.
+- **Offline script fonts** for Chinese, Japanese, Korean, Devanagari and Arabic,
+  subset to the characters Sixfold actually uses, so translated screens keep a
+  consistent face without a network request.
+- **French and German localization**: complete catalogs for the hub, all six
+  games, settings, help, accessibility labels, validation messages, game
+  status lines, dates and daily share text. The language picker now offers
+  eleven languages in a responsive grid on phones.
+- **Locale layout tests** at 320px and 390px for every language, checking for
+  clipped text and horizontal overflow alongside the existing light/dark axe
+  scans.
+
+## 5.1.0 — 12 November 2026
+
+5.1 adds Spanish localization and native app-store wrappers while keeping the
+game offline, account-free and free of ads or tracking.
+
+### Added
+
+- **Spanish localization**: an English/Spanish catalog covering the hub, game
+  screens, settings, help, accessibility labels, validation messages, game
+  status lines, dates and daily share text.
+- **Language switch** in Look & feel, with the choice persisted on the device.
+  The first visit follows the device language.
+- **Native Android and iOS projects** generated with Capacitor 8, using the
+  same app id `com.moh23rd.sixfold`, branded icons and light/dark splash
+  screens.
+- **Native-only plugin bundle** for the launch screen, status-bar colours and
+  Android back navigation. The PWA never loads Capacitor core.
+- **Native release material**: build and signing notes, English and Spanish
+  store listings, review answers and a privacy policy.
+- **Native build scripts** that stage only the public static shell and keep
+  `native/www` reproducible.
+
+### Changed
+
+- The app version, service-worker cache and native build numbers move to
+  5.1.0 / 510.
+- The service worker is disabled inside the native shells; local storage and
+  the existing save format are unchanged.
+- Store-facing privacy copy now states that the Android WebView declares
+  internet permission but the app sends no gameplay or personal data.
+
+### Not shipped in this workspace
+
+- No signed Android or iOS binary and no store upload. Both require the
+  platform toolchains, signing identities and store accounts.
+
+### Still deliberately out of scope
+
+- No accounts, ads, subscriptions, global leaderboard or server-dependent
+  daily puzzle.
+- No friend-to-friend challenge inbox; the daily share link remains the first
+  challenge primitive.
+
+## 5.0.0 — 11 November 2026
+
+5.0 is the Daily Sixfold release. It adds a reason to come back each day
+without adding accounts, ads, tracking or a server.
+
+### Added
+
+- **Daily Sixfold**: a date-seeded challenge in every game — a seeded Merge
+  board, Sudoku grid, Tic Tac Toe computer, Minesweeper field, Water Sort level
+  and Fruit Merge run — plus a local streak, a best streak and a 30-day
+  calendar. It works offline.
+- **Daily runs stay separate**: a daily board never overwrites the player’s
+  normal saved game, and only a finished daily challenge checks off the slot.
+- **Daily Sudoku archive**: every date in the calendar produces the same seeded
+  grid, and past days can be replayed.
+- **Spoiler-free daily sharing**: a link carries the date, not the solution.
+- **Sudoku Learn mode**: technique-aware hints for naked and hidden singles,
+  auto-notes, optional mistake checking, a technique guide and a richer
+  post-game summary.
+- **Accessibility controls**: high contrast, colour-blind cues, larger Sudoku
+  digits, left-handed landscape layout, timer hiding and cell-first or
+  digit-first number entry.
+- **Interface sounds** with a separate setting, plus pause/resume for Sudoku.
+- **Backup and restore**: a JSON export of every board, score, streak and
+  setting, and a guarded restore flow.
+- **Persistent storage**: `navigator.storage.persist()` is requested where the
+  browser supports it.
+- **Update prompt**: a waiting service worker can be applied without a hard
+  refresh.
+- **Playwright and axe test suite**, plus GitHub Actions CI.
+- **Feedback routes**: in-app Discussions and issue links, with bug and idea
+  templates.
+
+### Changed
+
+- Sudoku hints now teach a technique before offering to place a digit. When no
+  single is available, the panel says that it is revealing a cell.
+- Daily progress is part of the collection shell, not a separate mode.
+- Settings and backup live together under Look & feel.
+
+### Still deliberately out of scope
+
+- No accounts, ads, subscriptions, global leaderboard or server-dependent
+  daily puzzle.
+- Localization, a native app-store wrapper and a friend-to-friend challenge
+  inbox remain separate future work; the daily share link is the first
+  challenge primitive.
+
 ## 4.0.0 — 11 November 2026
 
 4.0 is the Sudoku release. It rolls up every change since Sixfold 3.0,
