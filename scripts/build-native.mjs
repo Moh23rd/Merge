@@ -29,6 +29,7 @@ const files = [
   'i18n-ko.js',
   'i18n-pt-br.js',
   'i18n-hi.js',
+  'i18n-kn.js',
   'i18n-ar.js',
   'i18n-patterns.js',
   'install.js',

@@ -70,6 +70,13 @@
       "loanwords": ["black", "perso"],
       "obscure": []
     },
+    "kn": {
+      "script": "Kannada",
+      "ime": true,
+      "profanity": [],
+      "properNouns": [],
+      "obscure": []
+    },
     "hi": {
       "script": "Devanagari",
       "ime": true,

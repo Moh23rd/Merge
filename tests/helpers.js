@@ -15,7 +15,7 @@ const LANGUAGE_NAMES = {
   en: 'English', es: 'Spanish', fr: 'French', de: 'German',
   'zh-Hans': 'Simplified Chinese', 'zh-Hant': 'Traditional Chinese',
   ja: 'Japanese', ko: 'Korean', 'pt-BR': 'Brazilian Portuguese',
-  hi: 'Hindi', ar: 'Arabic'
+  hi: 'Hindi', kn: 'Kannada', ar: 'Arabic'
 };
 const LOCALES = Object.keys(LANGUAGE_NAMES);
 

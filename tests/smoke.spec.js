@@ -68,11 +68,12 @@ test('daily section can be hidden and restored from Look & feel', async ({ page 
   await expect(page.locator('#sudoku-settings')).toBeHidden();
 });
 
-test('Arabic and Hindi interface numbers use native digits', async ({ page }) => {
+test('Arabic, Hindi and Kannada interface numbers use native digits', async ({ page }) => {
   await page.goto('/');
   for (const [locale, zero, one, digitPattern] of [
     ['ar', '٠', '٠١', /[٠-٩]/],
-    ['hi', '०', '०१', /[०-९]/]
+    ['hi', '०', '०१', /[०-९]/],
+    ['kn', '೦', '೦೧', /[೦-೯]/]
   ]) {
     await page.evaluate((next) => localStorage.setItem('sixfold.locale.v1', next), locale);
     await page.reload();
@@ -167,7 +168,7 @@ test('language switch back to English survives a reload', async ({ page }) => {
 });
 
 test('every added language switches from settings and persists', async ({ page }) => {
-  // Seven locales, each with a full reload in and out of the picker.
+  // Every added locale, each with a full reload in and out of the picker.
   test.setTimeout(120000);
   await page.goto('/');
   for (const locale of LOCALES.filter((code) => code !== 'en')) {

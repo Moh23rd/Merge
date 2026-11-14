@@ -260,7 +260,7 @@ test.describe('Wordle locale packs', () => {
   });
 });
 
-const WORDLE_IME_LOCALES = ['ar', 'hi', 'ja', 'ko', 'zh-Hans', 'zh-Hant'];
+const WORDLE_IME_LOCALES = ['ar', 'hi', 'kn', 'ja', 'ko', 'zh-Hans', 'zh-Hant'];
 
 async function captureWordleShare(page) {
   await page.evaluate(() => {
@@ -343,7 +343,7 @@ for (const locale of LOCALES) {
     await expect(page.locator('#wordle-result')).toBeVisible();
     await expect(page.locator('#wordle-result-title')).not.toBeEmpty();
 
-    const digits = locale === 'ar' ? /[٠-٩]/ : locale === 'hi' ? /[०-९]/ : null;
+    const digits = locale === 'ar' ? /[٠-٩]/ : locale === 'hi' ? /[०-९]/ : locale === 'kn' ? /[೦-೯]/ : null;
     const played = await page.locator('#wordle-played').innerText();
     const streak = await page.locator('#wordle-streak').innerText();
     const stats = await page.locator('#wordle-result-stats').innerText();
@@ -364,6 +364,7 @@ for (const locale of LOCALES) {
     expect(share).toContain('🟩🟩🟩🟩🟩');
     if (locale === 'ar') expect(share).toContain('١/٦');
     else if (locale === 'hi') expect(share).toContain('१/६');
+    else if (locale === 'kn') expect(share).toContain('೧/೬');
     else expect(share).toContain('1/6');
   });
 }

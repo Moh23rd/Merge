@@ -329,6 +329,7 @@ html[data-daily="off"] #daily { display: none; }
 .language-picker [lang="ja"] { font-family: "Sixfold JP", var(--font-ui); }
 .language-picker [lang="ko"] { font-family: "Sixfold KR", var(--font-ui); }
 .language-picker [lang="hi"] { font-family: "Sixfold Devanagari", var(--font-ui); }
+.language-picker [lang="kn"] { font-family: "Sixfold Kannada", var(--font-ui); }
 .language-picker [lang="ar"] { font-family: "Sixfold Arabic", var(--font-ui); }
 
 .sudoku-settings-open {
