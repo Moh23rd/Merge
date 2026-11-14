@@ -35,7 +35,9 @@ async function expectNoClippedText(page, screen, rootSelector) {
     while ((node = walker.nextNode())) {
       if (!node.nodeValue.trim()) continue;
       const parent = node.parentElement;
-      if (!parent || parent.closest('script,style,svg,textarea,.sr-only,[hidden]')) continue;
+      // Decorative ticker copy is aria-hidden and deliberately scrolls past the
+      // viewport; its clipping is the design, not a layout defect.
+      if (!parent || parent.closest('script,style,svg,textarea,.sr-only,[hidden],[aria-hidden="true"]')) continue;
       let visiblyHidden = false;
       for (let ancestor = parent; ancestor && ancestor !== document.body; ancestor = ancestor.parentElement) {
         const style = getComputedStyle(ancestor);
@@ -71,7 +73,7 @@ async function expectNoClippedText(page, screen, rootSelector) {
     }
 
     root.querySelectorAll('button, a').forEach((element) => {
-      if (element.innerText.trim().length < 3 || element.closest('[hidden],.sr-only')) return;
+      if (element.innerText.trim().length < 3 || element.closest('[hidden],.sr-only,[aria-hidden="true"]')) return;
       if (element.scrollWidth > element.clientWidth + 2 || element.scrollHeight > element.clientHeight + 2) {
         problems.push('overflowing control: "' + element.innerText.trim().slice(0, 48) + '"');
       }

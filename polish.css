@@ -366,7 +366,9 @@ html[data-theme="dark"] #wordle {
 .wordle-key.wordle-key--enter {
   border-color: var(--cart);
   background: var(--cart);
-  color: var(--cart-ink);
+  /* Darker than --cart-ink so the small Enter label clears 4.5:1 on the
+     purple key (4.61:1 at 11.8px). */
+  color: #14110d;
   font-weight: 900;
   box-shadow: 0 2px 0 color-mix(in srgb, var(--cart) 62%, #000);
 }
@@ -468,6 +470,11 @@ html[data-theme="dark"] #wordle {
 
 @media (max-width: 380px) {
   .wordle-board-wrap { width: min(100%, 286px, 39dvh); }
+  /* The offline notice adds a third line at 320px, which pushed the last key
+     row below the fixed play frame. Give that state a little more room. */
+  #wordle:has(.wordle-offline:not([hidden])) .wordle-board-wrap {
+    width: min(100%, 250px, 34dvh);
+  }
   .wordle-key { height: 34px; border-radius: 6px; }
   .wordle-key-row { gap: 4px; }
   .wordle-status { font-size: 10.5px; }
