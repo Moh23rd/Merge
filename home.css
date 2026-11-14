@@ -790,9 +790,11 @@ html.home-ready .home-six-caption {
 
 .home-game-meta > span:first-child {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Localized metadata can be longer than an English card. Wrap it rather
+     than hiding the end behind an ellipsis on narrower cards. */
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .home-game-play {
